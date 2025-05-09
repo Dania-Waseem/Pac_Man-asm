@@ -1,0 +1,32 @@
+# Ignore Visual Studio folder
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ignore build outputs
+*.obj
+*.exe
+*.dll
+*.pdb
+*.ipch
+*.idb
+*.pch
+*.ilk
+*.tlog
+*.cache
+*.log
+*.tmp
+*.bak
+
+# Ignore database and debug info
+*.sdf
+*.opensdf
+*.db
+
+# Ignore other temp files
+*.ncb
+*.aps
+*.class
+*.pyc
