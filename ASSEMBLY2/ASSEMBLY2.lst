@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/09/25 21:48:41
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/10/25 18:22:10
 CODE.asm						     Page 1 - 1
 
 
@@ -27,84 +27,319 @@ CODE.asm						     Page 1 - 1
 
  00000000			.data
 
- 00000000 25 25 25 25 25		pmtitle1 db "%%%%%%%%%%%%    @@@@@@@@@@  %%%%%%%%%%%%	 @@@@@@  @@@@@@  @@@@@@@@@@  %%%        %%      ",0  
-	   25 25 25 25 25
-	   25 25 20 20 20
-	   20 40 40 40 40
-	   40 40 40 40 40
-	   40 20 20 25 25
-	   25 25 25 25 25
-	   25 25 25 25 25
-	   09 20 40 40 40
-	   40 40 40 20 20
-	   40 40 40 40 40
-	   40 20 20 40 40
-	   40 40 40 40 40
-	   40 40 40 20 20
-	   25 25 25 20 20
-	   20 20 20 20 20
-	   20 25 25 20 20
-	   20 20 20 20 00
- 0000005A 25 25 09 09 20		pmtitle2 db "%%		   %%    @	      @  %%			     @    @  @    @  @	      @  %% %       %%      ",0
-	   20 20 25 25 20
-	   20 20 20 40 09
-	   20 20 20 20 20
-	   20 40 20 20 25
-	   25 09 09 09 20
-	   20 20 20 20 40
-	   20 20 20 20 40
-	   20 20 40 20 20
-	   20 20 40 20 20
-	   40 09 20 20 20
-	   20 20 20 40 20
-	   20 25 25 20 25
-	   20 20 20 20 20
-	   20 20 25 25 20
-	   20 20 20 20 20
+ 00000000 45 6E 74 65 72		inputName db "Enter your name ... ",0
+	   20 79 6F 75 72
+	   20 6E 61 6D 65
+	   20 2E 2E 2E 20
 	   00
- 000000AB 25 25 20 20 20		pmtitle3 db "%%        %%    @	      @  %%			     @    @  @    @  @	      @  %%  %      %%		",0
+ 00000015  00000032 [		    username db 50 dup(0)
+	    00
+	   ]
+
+ 00000047 23 23 23 23 23	    pmtitle1 db "#################################################################################",0
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 00
+ 00000099 23 20 20 20 20	    pmtitle2 db "#                                                                               # ",0
 	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   23 20 00
+ 000000EC 23 20 20 20 20	    pmtitle3 db "#      %%%%%%%%  %%%%%%%  %%%%%%%%     %%%%%   %%%%%  %%%%%%%%   %%      %      #",0
+	   20 20 25 25 25
+	   25 25 25 25 25
+	   20 20 25 25 25
+	   25 25 25 25 20
+	   20 25 25 25 25
+	   25 25 25 25 20
+	   20 20 20 20 25
+	   25 25 25 25 20
+	   20 20 25 25 25
+	   25 25 20 20 25
+	   25 25 25 25 25
 	   25 25 20 20 20
-	   20 40 09 20 20
-	   20 20 20 20 40
-	   20 20 25 25 09
-	   09 09 20 20 20
-	   20 20 40 20 20
-	   20 20 40 20 20
-	   40 20 20 20 20
-	   40 20 20 40 09
+	   25 25 20 20 20
+	   20 20 20 25 20
 	   20 20 20 20 20
-	   20 40 20 20 25
+	   23 00
+ 0000013E 23 20 20 20 20		pmtitle4 db "#      %%     %  %     %  %            %   %   %   %  %      %   % %     %      #",0
+	   20 20 25 25 20
+	   20 20 20 20 25
+	   20 20 25 20 20
+	   20 20 20 25 20
+	   20 25 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 25
+	   20 20 20 25 20
+	   20 20 25 20 20
+	   20 25 20 20 25
+	   20 20 20 20 20
+	   20 25 20 20 20
+	   25 20 25 20 20
+	   20 20 20 25 20
+	   20 20 20 20 20
+	   23 00
+ 00000190 23 20 20 20 20		pmtitle5 db "#      %%     %  %     %  %            %   %   %   %  %      %   %  %    %      #",0
+	   20 20 25 25 20
+	   20 20 20 20 25
+	   20 20 25 20 20
+	   20 20 20 25 20
+	   20 25 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 25
+	   20 20 20 25 20
+	   20 20 25 20 20
+	   20 25 20 20 25
+	   20 20 20 20 20
+	   20 25 20 20 20
+	   25 20 20 25 20
+	   20 20 20 25 20
+	   20 20 20 20 20
+	   23 00
+ 000001E2 23 20 20 20 20		pmtitle6 db "#      %%%%%%%%  %%%%%%%  %       %%%  %   %%%%%   %  %%%%%%%%   %   %   %      #",0
+	   20 20 25 25 25
+	   25 25 25 25 25
+	   20 20 25 25 25
+	   25 25 25 25 20
+	   20 25 20 20 20
+	   20 20 20 20 25
+	   25 25 20 20 25
+	   20 20 20 25 25
+	   25 25 25 20 20
+	   20 25 20 20 25
+	   25 25 25 25 25
+	   25 25 20 20 20
+	   25 20 20 20 25
+	   20 20 20 25 20
+	   20 20 20 20 20
+	   23 00
+ 00000234 23 20 20 20 20		pmtitle7 db "#      %%        %     %  %            %           %  %      %   %    %  %      #",0
+	   20 20 25 25 20
+	   20 20 20 20 20
+	   20 20 25 20 20
+	   20 20 20 25 20
+	   20 25 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 25
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 25 20 20 25
+	   20 20 20 20 20
+	   20 25 20 20 20
+	   25 20 20 20 20
 	   25 20 20 25 20
 	   20 20 20 20 20
-	   25 25 09 09 00
- 000000FB 25 25 20 20 20		pmtitle4 db "%%        %%	 @	      @  %%			     @    @  @    @  @	      @  %%   %     %%      ",0
-	   20 20 20 20 20
-	   25 25 09 20 40
-	   09 20 20 20 20
-	   20 20 40 20 20
-	   25 25 09 09 09
-	   20 20 20 20 20
-	   40 20 20 20 20
-	   40 20 20 40 20
-	   20 20 20 40 20
-	   20 40 09 20 20
-	   20 20 20 20 40
+	   23 00
+ 00000286 23 20 20 20 20		pmtitle8 db "#      %%        %     %  %            %           %  %      %   %     % %      #",0
 	   20 20 25 25 20
-	   20 20 25 20 20
-	   20 20 20 25 25
 	   20 20 20 20 20
-	   20 00
-					
+	   20 20 25 20 20
+	   20 20 20 25 20
+	   20 25 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 25
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 25 20 20 25
+	   20 20 20 20 20
+	   20 25 20 20 20
+	   25 20 20 20 20
+	   20 25 20 25 20
+	   20 20 20 20 20
+	   23 00
+ 000002D8 23 20 20 20 20		pmtitle9 db "#      %%        %     %  %%%%%%%%     %           %  %      %   %      %%      #",0
+	   20 20 25 25 20
+	   20 20 20 20 20
+	   20 20 25 20 20
+	   20 20 20 25 20
+	   20 25 25 25 25
+	   25 25 25 25 20
+	   20 20 20 20 25
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 25 20 20 25
+	   20 20 20 20 20
+	   20 25 20 20 20
+	   25 20 20 20 20
+	   20 20 25 25 20
+	   20 20 20 20 20
+	   23 00
+ 0000032A 23 20 20 20 20		pmtitle10 db"#                                                                               #",0
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   23 00
+ 0000037C 23 23 23 23 23		pmtitle11 db"#################################################################################",0
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 23 23 23 23
+	   23 00
+
+ = 00000004			    redTxt = red+(black*16);
+ = 0000000E			    yellowTxt =yellow+(black*16);
+ = 00000002			    greenTxt =green+ (black*16);
+ = 00000001			    blueTxt =blue+ (black*16);
+
+
  00000000			.code
  00000000			main proc
 
- 00000000			main endp
+ 00000000  E8 00000000 E	    call Clrscr         
+
+				    ; Red Color
+ 00000005  B8 00000004		    mov eax, redTxt
+ 0000000A  E8 00000000 E	    call SetTextColor
+
+				    
+ 0000000F  B6 05		    mov dh,5
+ 00000011  B2 0A		    mov dl,10
+ 00000013  E8 00000000 E	    call Gotoxy
+ 00000018  BA 00000047 R	    mov edx, offset pmtitle1
+ 0000001D  E8 00000000 E	    call WriteString
+
+ 00000022  B6 06		    mov dh, 6
+ 00000024  B2 0A		    mov dl, 10
+ 00000026  E8 00000000 E	    call Gotoxy
+ 0000002B  BA 00000099 R	    mov edx, offset pmtitle2
+ 00000030  E8 00000000 E	    call WriteString
+
+ 00000035  B6 07		    mov dh, 7
+ 00000037  B2 0A		    mov dl, 10
+ 00000039  E8 00000000 E	    call Gotoxy
+ 0000003E  BA 000000EC R	    mov edx, offset pmtitle3
+ 00000043  E8 00000000 E	    call WriteString
 
 
+				    ; Blue Color
+ 00000048  B8 00000001		    mov eax,blueTxt
+ 0000004D  E8 00000000 E	    call SetTextColor
 
+ 00000052  B6 08		    mov dh, 8
+ 00000054  B2 0A		    mov dl, 10
+ 00000056  E8 00000000 E	    call Gotoxy
+ 0000005B  BA 0000013E R	    mov edx, offset pmtitle4
+ 00000060  E8 00000000 E	    call WriteString
+
+ 00000065  B6 09		    mov dh, 9
+ 00000067  B2 0A		    mov dl, 10
+ 00000069  E8 00000000 E	    call Gotoxy
+ 0000006E  BA 00000190 R	    mov edx, offset pmtitle5
+ 00000073  E8 00000000 E	    call WriteString
+
+ 00000078  B6 0A		    mov dh, 10
+ 0000007A  B2 0A		    mov dl, 10
+ 0000007C  E8 00000000 E	    call Gotoxy
+ 00000081  BA 000001E2 R	    mov edx, offset pmtitle6
+ 00000086  E8 00000000 E	    call WriteString
+
+
+ 0000008B  B6 0B		    mov dh, 11
+ 0000008D  B2 0A		    mov dl, 10
+ 0000008F  E8 00000000 E	    call Gotoxy
+ 00000094  BA 00000234 R	    mov edx, offset pmtitle7
+ 00000099  E8 00000000 E	    call WriteString
+
+
+				    ; Green Color 
+ 0000009E  B8 00000002		    mov eax, greenTxt
+ 000000A3  E8 00000000 E	    call SetTextColor
+
+ 000000A8  B6 0C		    mov dh, 12
+ 000000AA  B2 0A		    mov dl, 10
+ 000000AC  E8 00000000 E	    call Gotoxy
+ 000000B1  BA 00000286 R	    mov edx, offset pmtitle8
+ 000000B6  E8 00000000 E	    call WriteString
+
+
+ 000000BB  B6 0D		    mov dh,13
+ 000000BD  B2 0A		    mov dl,10
+ 000000BF  E8 00000000 E	    call Gotoxy
+ 000000C4  BA 000002D8 R	    mov edx, offset pmtitle9
+ 000000C9  E8 00000000 E	    call WriteString
+
+ 000000CE  B6 0E		    mov dh, 14
+ 000000D0  B2 0A		    mov dl, 10
+ 000000D2  E8 00000000 E	    call Gotoxy
+ 000000D7  BA 0000032A R	    mov edx, offset pmtitle10
+ 000000DC  E8 00000000 E	    call WriteString
+
+ 000000E1  B6 0F		    mov dh, 15
+ 000000E3  B2 0A		    mov dl, 10
+ 000000E5  E8 00000000 E	    call Gotoxy
+ 000000EA  BA 0000037C R	    mov edx, offset pmtitle11
+ 000000EF  E8 00000000 E	    call WriteString
+
+				    ; Yellow for name input of player
+ 000000F4  B8 0000000E		    mov eax, yellowTxt
+ 000000F9  E8 00000000 E	    call SetTextColor
+
+ 000000FE  B6 12		    mov dh, 18
+ 00000100  B2 0A		    mov dl, 10
+ 00000102  E8 00000000 E	    call Gotoxy
+ 00000107  BA 00000000 R	    mov edx, offset inputName
+ 0000010C  E8 00000000 E	    call WriteString
+
+				   ;asking for user input
+ 00000111  BA 00000015 R	    mov edx, offset userName
+ 00000116  B9 00000032		    mov ecx, lengthof userName
+ 0000011B  E8 00000000 E	    call ReadString
+
+
+				    exit
+ 00000120  6A 00	   *	    push   +000000000h
+ 00000122  E8 00000000 E   *	    call   ExitProcess
+ 00000127			main endp
 				end main
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/09/25 21:48:41
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/10/25 18:22:10
 CODE.asm						     Symbols 2 - 1
 
 
@@ -198,8 +433,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 0000014D Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000000 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000003CE Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000127 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -306,7 +541,7 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000000 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000127 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -526,12 +761,15 @@ WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
 black  . . . . . . . . . . . . .	Number	 00000000h   
+blueTxt  . . . . . . . . . . . .	Number	 00000001h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
+greenTxt . . . . . . . . . . . .	Number	 00000002h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
+inputName  . . . . . . . . . . .	Byte	 00000000 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
@@ -539,13 +777,23 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-pmtitle1 . . . . . . . . . . . .	Byte	 00000000 _DATA	
-pmtitle2 . . . . . . . . . . . .	Byte	 0000005A _DATA	
-pmtitle3 . . . . . . . . . . . .	Byte	 000000AB _DATA	
-pmtitle4 . . . . . . . . . . . .	Byte	 000000FB _DATA	
+pmtitle10  . . . . . . . . . . .	Byte	 0000032A _DATA	
+pmtitle11  . . . . . . . . . . .	Byte	 0000037C _DATA	
+pmtitle1 . . . . . . . . . . . .	Byte	 00000047 _DATA	
+pmtitle2 . . . . . . . . . . . .	Byte	 00000099 _DATA	
+pmtitle3 . . . . . . . . . . . .	Byte	 000000EC _DATA	
+pmtitle4 . . . . . . . . . . . .	Byte	 0000013E _DATA	
+pmtitle5 . . . . . . . . . . . .	Byte	 00000190 _DATA	
+pmtitle6 . . . . . . . . . . . .	Byte	 000001E2 _DATA	
+pmtitle7 . . . . . . . . . . . .	Byte	 00000234 _DATA	
+pmtitle8 . . . . . . . . . . . .	Byte	 00000286 _DATA	
+pmtitle9 . . . . . . . . . . . .	Byte	 000002D8 _DATA	
+redTxt . . . . . . . . . . . . .	Number	 00000004h   
 red  . . . . . . . . . . . . . .	Number	 00000004h   
+username . . . . . . . . . . . .	Byte	 00000015 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
+yellowTxt  . . . . . . . . . . .	Number	 0000000Eh   
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
 
 	   0 Warnings
