@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/10/25 18:22:10
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/10/25 22:20:06
 CODE.asm						     Page 1 - 1
 
 
@@ -26,17 +26,19 @@ CODE.asm						     Page 1 - 1
 			      C 
 
  00000000			.data
-
- 00000000 45 6E 74 65 72		inputName db "Enter your name ... ",0
+				    
+ 00000000 53 63 6F 72 65	    fileName  db "Scores.txt" 
+	   73 2E 74 78 74
+ 0000000A 45 6E 74 65 72		inputName db "Enter your name ... ",0
 	   20 79 6F 75 72
 	   20 6E 61 6D 65
 	   20 2E 2E 2E 20
 	   00
- 00000015  00000032 [		    username db 50 dup(0)
+ 0000001F  00000032 [		    username  db 50 dup(0)
 	    00
 	   ]
 
- 00000047 23 23 23 23 23	    pmtitle1 db "#################################################################################",0
+ 00000051 23 23 23 23 23	    pmtitle1 db "#################################################################################",0
 	   23 23 23 23 23
 	   23 23 23 23 23
 	   23 23 23 23 23
@@ -53,7 +55,7 @@ CODE.asm						     Page 1 - 1
 	   23 23 23 23 23
 	   23 23 23 23 23
 	   23 00
- 00000099 23 20 20 20 20	    pmtitle2 db "#                                                                               # ",0
+ 000000A3 23 20 20 20 20	    pmtitle2 db "#                                                                               #",0
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -69,8 +71,8 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
-	   23 20 00
- 000000EC 23 20 20 20 20	    pmtitle3 db "#      %%%%%%%%  %%%%%%%  %%%%%%%%     %%%%%   %%%%%  %%%%%%%%   %%      %      #",0
+	   23 00
+ 000000F5 23 20 20 20 20	    pmtitle3 db "#      %%%%%%%%  %%%%%%%  %%%%%%%%     %%%%%   %%%%%  %%%%%%%%   %%      %      #",0
 	   20 20 25 25 25
 	   25 25 25 25 25
 	   20 20 25 25 25
@@ -87,7 +89,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 25 20
 	   20 20 20 20 20
 	   23 00
- 0000013E 23 20 20 20 20		pmtitle4 db "#      %%     %  %     %  %            %   %   %   %  %      %   % %     %      #",0
+ 00000147 23 20 20 20 20		pmtitle4 db "#      %%     %  %     %  %            %   %   %   %  %      %   % %     %      #",0
 	   20 20 25 25 20
 	   20 20 20 20 25
 	   20 20 25 20 20
@@ -104,7 +106,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 25 20
 	   20 20 20 20 20
 	   23 00
- 00000190 23 20 20 20 20		pmtitle5 db "#      %%     %  %     %  %            %   %   %   %  %      %   %  %    %      #",0
+ 00000199 23 20 20 20 20		pmtitle5 db "#      %%     %  %     %  %            %   %   %   %  %      %   %  %    %      #",0
 	   20 20 25 25 20
 	   20 20 20 20 25
 	   20 20 25 20 20
@@ -121,7 +123,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 25 20
 	   20 20 20 20 20
 	   23 00
- 000001E2 23 20 20 20 20		pmtitle6 db "#      %%%%%%%%  %%%%%%%  %       %%%  %   %%%%%   %  %%%%%%%%   %   %   %      #",0
+ 000001EB 23 20 20 20 20		pmtitle6 db "#      %%%%%%%%  %%%%%%%  %       %%%  %   %%%%%   %  %%%%%%%%   %   %   %      #",0
 	   20 20 25 25 25
 	   25 25 25 25 25
 	   20 20 25 25 25
@@ -138,7 +140,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 25 20
 	   20 20 20 20 20
 	   23 00
- 00000234 23 20 20 20 20		pmtitle7 db "#      %%        %     %  %            %           %  %      %   %    %  %      #",0
+ 0000023D 23 20 20 20 20		pmtitle7 db "#      %%        %     %  %            %           %  %      %   %    %  %      #",0
 	   20 20 25 25 20
 	   20 20 20 20 20
 	   20 20 25 20 20
@@ -155,7 +157,7 @@ CODE.asm						     Page 1 - 1
 	   25 20 20 25 20
 	   20 20 20 20 20
 	   23 00
- 00000286 23 20 20 20 20		pmtitle8 db "#      %%        %     %  %            %           %  %      %   %     % %      #",0
+ 0000028F 23 20 20 20 20		pmtitle8 db "#      %%        %     %  %            %           %  %      %   %     % %      #",0
 	   20 20 25 25 20
 	   20 20 20 20 20
 	   20 20 25 20 20
@@ -172,7 +174,7 @@ CODE.asm						     Page 1 - 1
 	   20 25 20 25 20
 	   20 20 20 20 20
 	   23 00
- 000002D8 23 20 20 20 20		pmtitle9 db "#      %%        %     %  %%%%%%%%     %           %  %      %   %      %%      #",0
+ 000002E1 23 20 20 20 20		pmtitle9 db "#      %%        %     %  %%%%%%%%     %           %  %      %   %      %%      #",0
 	   20 20 25 25 20
 	   20 20 20 20 20
 	   20 20 25 20 20
@@ -189,7 +191,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 25 25 20
 	   20 20 20 20 20
 	   23 00
- 0000032A 23 20 20 20 20		pmtitle10 db"#                                                                               #",0
+ 00000333 23 20 20 20 20		pmtitle10 db"#                                                                               #",0
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -206,7 +208,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   23 00
- 0000037C 23 23 23 23 23		pmtitle11 db"#################################################################################",0
+ 00000385 23 23 23 23 23		pmtitle11 db"#################################################################################",0
 	   23 23 23 23 23
 	   23 23 23 23 23
 	   23 23 23 23 23
@@ -223,6 +225,292 @@ CODE.asm						     Page 1 - 1
 	   23 23 23 23 23
 	   23 23 23 23 23
 	   23 00
+
+ 000003D7 20 5F 5F 5F 20	    menutitle0 db " ___     ___ _________  ___     ___ ___   ___ ",0
+	   20 20 20 20 5F
+	   5F 5F 20 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 20 20 5F
+	   5F 5F 20 20 20
+	   20 20 5F 5F 5F
+	   20 5F 5F 5F 20
+	   20 20 5F 5F 5F
+	   20 00
+ 00000406 20 7C 20 20 5C	    menutitle1 db " |  \   /  | |  ______| |  \    | | | |   | | ",0
+	   20 20 20 2F 20
+	   20 7C 20 7C 20
+	   20 5F 5F 5F 5F
+	   5F 5F 7C 20 7C
+	   20 20 5C 20 20
+	   20 20 7C 20 7C
+	   20 7C 20 7C 20
+	   20 20 7C 20 7C
+	   20 00
+ 00000435 20 7C 20 7C 5C	    menutitle2 db " | |\\_//| | | |______  | |\\   | | | |   | |",0
+	   5C 5F 2F 2F 7C
+	   20 7C 20 7C 20
+	   7C 5F 5F 5F 5F
+	   5F 5F 20 20 7C
+	   20 7C 5C 5C 20
+	   20 20 7C 20 7C
+	   20 7C 20 7C 20
+	   20 20 7C 20 7C
+	   00
+ 00000463 20 7C 20 7C 20	    menutitle3 db " | | \_/ | | | _______| | | \\  | | | |   | | ",0
+	   5C 5F 2F 20 7C
+	   20 7C 20 7C 20
+	   5F 5F 5F 5F 5F
+	   5F 5F 7C 20 7C
+	   20 7C 20 5C 5C
+	   20 20 7C 20 7C
+	   20 7C 20 7C 20
+	   20 20 7C 20 7C
+	   20 00
+ 00000492 20 7C 20 7C 20	    menutitle4 db " | |     | | | |______  | |  \\ | | | |___| |",0
+	   20 20 20 20 7C
+	   20 7C 20 7C 20
+	   7C 5F 5F 5F 5F
+	   5F 5F 20 20 7C
+	   20 7C 20 20 5C
+	   5C 20 7C 20 7C
+	   20 7C 20 7C 5F
+	   5F 5F 7C 20 7C
+	   00
+ 000004C0 20 7C 5F 7C 20	    menutitle5 db " |_|     |_| |________| |_|   \\|_| |_______| ",0
+	   20 20 20 20 7C
+	   5F 7C 20 7C 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 7C 20 7C
+	   5F 7C 20 20 20
+	   5C 5C 7C 5F 7C
+	   20 7C 5F 5F 5F
+	   5F 5F 5F 5F 7C
+	   20 00
+
+ 000004EF 2D 2D 2D 2D 2D	    menuopt0 db "---------------------------------",0
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 00
+ 00000511 7C 20 20 31 2E	    menuopt1 db "|  1. Start Game ( 3 levels)    |",0
+	   20 53 74 61 72
+	   74 20 47 61 6D
+	   65 20 28 20 33
+	   20 6C 65 76 65
+	   6C 73 29 20 20
+	   20 20 7C 00
+ 00000533 7C 20 20 32 2E	    menuopt2 db "|  2. Display Game Instructions |",0
+	   20 44 69 73 70
+	   6C 61 79 20 47
+	   61 6D 65 20 49
+	   6E 73 74 72 75
+	   63 74 69 6F 6E
+	   73 20 7C 00
+ 00000555 7C 20 20 33 2E	    menuopt3 db "|  3. View Highscores /scores   |",0
+	   20 56 69 65 77
+	   20 48 69 67 68
+	   73 63 6F 72 65
+	   73 20 2F 73 63
+	   6F 72 65 73 20
+	   20 20 7C 00
+ 00000577 7C 20 20 34 2E	    menuopt4 db "|  4. Exit Game                 |",0
+	   20 45 78 69 74
+	   20 47 61 6D 65
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 7C 00
+ 00000599 7C 5F 5F 5F 5F	    menuopt5 db "|_______________________________|",0
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 7C 00
+
+ 000005BB 45 6E 74 65 72	    menuoptchoose db "Enter your choice:  ",0
+	   20 79 6F 75 72
+	   20 63 68 6F 69
+	   63 65 3A 20 20
+	   00
+
+ 000005D0 2A 20 20 20 20	    level1opt0 db "*     ***** *       * *****  *          **    ",0
+	   20 2A 2A 2A 2A
+	   2A 20 2A 20 20
+	   20 20 20 20 20
+	   2A 20 2A 2A 2A
+	   2A 2A 20 20 2A
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   2A 2A 20 20 20
+	   20 00
+ 000005FF 2A 20 20 20 20	    level1opt1 db "*     *      *     *  *      *          **    ",0
+	   20 2A 20 20 20
+	   20 20 20 2A 20
+	   20 20 20 20 2A
+	   20 20 2A 20 20
+	   20 20 20 20 2A
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   2A 2A 20 20 20
+	   20 00
+ 0000062E 2A 20 20 20 20	    level1opt2 db "*     *****   *   *   *****  *          **    ",0
+	   20 2A 2A 2A 2A
+	   2A 20 20 20 2A
+	   20 20 20 2A 20
+	   20 20 2A 2A 2A
+	   2A 2A 20 20 2A
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   2A 2A 20 20 20
+	   20 00
+ 0000065D 2A 20 20 20 20	    level1opt3 db "*     *        * *    *      *          **    ",0
+	   20 2A 20 20 20
+	   20 20 20 20 20
+	   2A 20 2A 20 20
+	   20 20 2A 20 20
+	   20 20 20 20 2A
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   2A 2A 20 20 20
+	   20 00
+ 0000068C 2A 2A 2A 2A 2A	    level1opt4 db "***** *****     *     *****  *****      **    ",0
+	   20 2A 2A 2A 2A
+	   2A 20 20 20 20
+	   20 2A 20 20 20
+	   20 20 2A 2A 2A
+	   2A 2A 20 20 2A
+	   2A 2A 2A 2A 20
+	   20 20 20 20 20
+	   2A 2A 20 20 20
+	   20 00
+
+ 000006BB 2A 20 20 20 20	    level2opt0 db "*     ***** *       * *****  *         *****  ",0
+	   20 2A 2A 2A 2A
+	   2A 20 2A 20 20
+	   20 20 20 20 20
+	   2A 20 2A 2A 2A
+	   2A 2A 20 20 2A
+	   20 20 20 20 20
+	   20 20 20 20 2A
+	   2A 2A 2A 2A 20
+	   20 00
+ 000006EA 2A 20 20 20 20	    level2opt1 db "*     *      *     *  *      *             *  ",0
+	   20 2A 20 20 20
+	   20 20 20 2A 20
+	   20 20 20 20 2A
+	   20 20 2A 20 20
+	   20 20 20 20 2A
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 2A 20
+	   20 00
+ 00000719 2A 20 20 20 20	    level2opt2 db "*     *****   *   *   *****  *         *****  ",0
+	   20 2A 2A 2A 2A
+	   2A 20 20 20 2A
+	   20 20 20 2A 20
+	   20 20 2A 2A 2A
+	   2A 2A 20 20 2A
+	   20 20 20 20 20
+	   20 20 20 20 2A
+	   2A 2A 2A 2A 20
+	   20 00
+ 00000748 2A 20 20 20 20	    level2opt3 db "*     *        * *    *      *         *      ",0
+	   20 2A 20 20 20
+	   20 20 20 20 20
+	   2A 20 2A 20 20
+	   20 20 2A 20 20
+	   20 20 20 20 2A
+	   20 20 20 20 20
+	   20 20 20 20 2A
+	   20 20 20 20 20
+	   20 00
+ 00000777 2A 2A 2A 2A 2A	    level2opt4 db "***** *****     *     *****  *****     *****  ",0
+	   20 2A 2A 2A 2A
+	   2A 20 20 20 20
+	   20 2A 20 20 20
+	   20 20 2A 2A 2A
+	   2A 2A 20 20 2A
+	   2A 2A 2A 2A 20
+	   20 20 20 20 2A
+	   2A 2A 2A 2A 20
+	   20 00
+
+ 000007A6 2A 20 20 20 20	    level3opt0 db "*     ***** *       * *****  *         *****  ",0
+	   20 2A 2A 2A 2A
+	   2A 20 2A 20 20
+	   20 20 20 20 20
+	   2A 20 2A 2A 2A
+	   2A 2A 20 20 2A
+	   20 20 20 20 20
+	   20 20 20 20 2A
+	   2A 2A 2A 2A 20
+	   20 00
+ 000007D5 2A 20 20 20 20	    level3opt1 db "*     *      *     *  *      *             *  ",0
+	   20 2A 20 20 20
+	   20 20 20 2A 20
+	   20 20 20 20 2A
+	   20 20 2A 20 20
+	   20 20 20 20 2A
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 2A 20
+	   20 00
+ 00000804 2A 20 20 20 20	    level3opt2 db "*     *****   *   *   *****  *         *****  ",0
+	   20 2A 2A 2A 2A
+	   2A 20 20 20 2A
+	   20 20 20 2A 20
+	   20 20 2A 2A 2A
+	   2A 2A 20 20 2A
+	   20 20 20 20 20
+	   20 20 20 20 2A
+	   2A 2A 2A 2A 20
+	   20 00
+ 00000833 2A 20 20 20 20	    level3opt3 db "*     *        * *    *      *             *  ",0
+	   20 2A 20 20 20
+	   20 20 20 20 20
+	   2A 20 2A 20 20
+	   20 20 2A 20 20
+	   20 20 20 20 2A
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 2A 20
+	   20 00
+ 00000862 2A 2A 2A 2A 2A	    level3opt4 db "***** *****     *     *****  *****     *****  ",0
+	   20 2A 2A 2A 2A
+	   2A 20 20 20 20
+	   20 2A 20 20 20
+	   20 20 2A 2A 2A
+	   2A 2A 20 20 2A
+	   2A 2A 2A 2A 20
+	   20 20 20 20 2A
+	   2A 2A 2A 2A 20
+	   20 00
+
+ 00000891 20 45 6E 74 65	    leveloptchoose db " Enter you choice (1: Level 1, 2: Level 2 , 3: Level 3)",0
+	   72 20 79 6F 75
+	   20 63 68 6F 69
+	   63 65 20 28 31
+	   3A 20 4C 65 76
+	   65 6C 20 31 2C
+	   20 32 3A 20 4C
+	   65 76 65 6C 20
+	   32 20 2C 20 33
+	   3A 20 4C 65 76
+	   65 6C 20 33 29
+	   00
+
+
+
+
+
+
+
+
+
+
 
  = 00000004			    redTxt = red+(black*16);
  = 0000000E			    yellowTxt =yellow+(black*16);
@@ -241,21 +529,21 @@ CODE.asm						     Page 1 - 1
 
 				    
  0000000F  B6 05		    mov dh,5
- 00000011  B2 0A		    mov dl,10
+ 00000011  B2 0C		    mov dl,12
  00000013  E8 00000000 E	    call Gotoxy
- 00000018  BA 00000047 R	    mov edx, offset pmtitle1
+ 00000018  BA 00000051 R	    mov edx, offset pmtitle1
  0000001D  E8 00000000 E	    call WriteString
 
  00000022  B6 06		    mov dh, 6
- 00000024  B2 0A		    mov dl, 10
+ 00000024  B2 0C		    mov dl, 12
  00000026  E8 00000000 E	    call Gotoxy
- 0000002B  BA 00000099 R	    mov edx, offset pmtitle2
+ 0000002B  BA 000000A3 R	    mov edx, offset pmtitle2
  00000030  E8 00000000 E	    call WriteString
 
  00000035  B6 07		    mov dh, 7
- 00000037  B2 0A		    mov dl, 10
+ 00000037  B2 0C		    mov dl, 12
  00000039  E8 00000000 E	    call Gotoxy
- 0000003E  BA 000000EC R	    mov edx, offset pmtitle3
+ 0000003E  BA 000000F5 R	    mov edx, offset pmtitle3
  00000043  E8 00000000 E	    call WriteString
 
 
@@ -264,28 +552,28 @@ CODE.asm						     Page 1 - 1
  0000004D  E8 00000000 E	    call SetTextColor
 
  00000052  B6 08		    mov dh, 8
- 00000054  B2 0A		    mov dl, 10
+ 00000054  B2 0C		    mov dl, 12
  00000056  E8 00000000 E	    call Gotoxy
- 0000005B  BA 0000013E R	    mov edx, offset pmtitle4
+ 0000005B  BA 00000147 R	    mov edx, offset pmtitle4
  00000060  E8 00000000 E	    call WriteString
 
  00000065  B6 09		    mov dh, 9
- 00000067  B2 0A		    mov dl, 10
+ 00000067  B2 0C		    mov dl, 12
  00000069  E8 00000000 E	    call Gotoxy
- 0000006E  BA 00000190 R	    mov edx, offset pmtitle5
+ 0000006E  BA 00000199 R	    mov edx, offset pmtitle5
  00000073  E8 00000000 E	    call WriteString
 
  00000078  B6 0A		    mov dh, 10
- 0000007A  B2 0A		    mov dl, 10
+ 0000007A  B2 0C		    mov dl, 12
  0000007C  E8 00000000 E	    call Gotoxy
- 00000081  BA 000001E2 R	    mov edx, offset pmtitle6
+ 00000081  BA 000001EB R	    mov edx, offset pmtitle6
  00000086  E8 00000000 E	    call WriteString
 
 
  0000008B  B6 0B		    mov dh, 11
- 0000008D  B2 0A		    mov dl, 10
+ 0000008D  B2 0C		    mov dl, 12
  0000008F  E8 00000000 E	    call Gotoxy
- 00000094  BA 00000234 R	    mov edx, offset pmtitle7
+ 00000094  BA 0000023D R	    mov edx, offset pmtitle7
  00000099  E8 00000000 E	    call WriteString
 
 
@@ -294,42 +582,42 @@ CODE.asm						     Page 1 - 1
  000000A3  E8 00000000 E	    call SetTextColor
 
  000000A8  B6 0C		    mov dh, 12
- 000000AA  B2 0A		    mov dl, 10
+ 000000AA  B2 0C		    mov dl, 12
  000000AC  E8 00000000 E	    call Gotoxy
- 000000B1  BA 00000286 R	    mov edx, offset pmtitle8
+ 000000B1  BA 0000028F R	    mov edx, offset pmtitle8
  000000B6  E8 00000000 E	    call WriteString
 
 
  000000BB  B6 0D		    mov dh,13
- 000000BD  B2 0A		    mov dl,10
+ 000000BD  B2 0C		    mov dl,12
  000000BF  E8 00000000 E	    call Gotoxy
- 000000C4  BA 000002D8 R	    mov edx, offset pmtitle9
+ 000000C4  BA 000002E1 R	    mov edx, offset pmtitle9
  000000C9  E8 00000000 E	    call WriteString
 
  000000CE  B6 0E		    mov dh, 14
- 000000D0  B2 0A		    mov dl, 10
+ 000000D0  B2 0C		    mov dl, 12
  000000D2  E8 00000000 E	    call Gotoxy
- 000000D7  BA 0000032A R	    mov edx, offset pmtitle10
+ 000000D7  BA 00000333 R	    mov edx, offset pmtitle10
  000000DC  E8 00000000 E	    call WriteString
 
  000000E1  B6 0F		    mov dh, 15
- 000000E3  B2 0A		    mov dl, 10
+ 000000E3  B2 0C		    mov dl, 12
  000000E5  E8 00000000 E	    call Gotoxy
- 000000EA  BA 0000037C R	    mov edx, offset pmtitle11
+ 000000EA  BA 00000385 R	    mov edx, offset pmtitle11
  000000EF  E8 00000000 E	    call WriteString
 
 				    ; Yellow for name input of player
  000000F4  B8 0000000E		    mov eax, yellowTxt
  000000F9  E8 00000000 E	    call SetTextColor
 
- 000000FE  B6 12		    mov dh, 18
- 00000100  B2 0A		    mov dl, 10
+ 000000FE  B6 13		    mov dh, 19
+ 00000100  B2 0C		    mov dl, 12
  00000102  E8 00000000 E	    call Gotoxy
- 00000107  BA 00000000 R	    mov edx, offset inputName
+ 00000107  BA 0000000A R	    mov edx, offset inputName
  0000010C  E8 00000000 E	    call WriteString
 
 				   ;asking for user input
- 00000111  BA 00000015 R	    mov edx, offset userName
+ 00000111  BA 0000001F R	    mov edx, offset userName
  00000116  B9 00000032		    mov ecx, lengthof userName
  0000011B  E8 00000000 E	    call ReadString
 
@@ -339,7 +627,7 @@ CODE.asm						     Page 1 - 1
  00000122  E8 00000000 E   *	    call   ExitProcess
  00000127			main endp
 				end main
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/10/25 18:22:10
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/10/25 22:20:06
 CODE.asm						     Symbols 2 - 1
 
 
@@ -433,7 +721,7 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 000003CE Para	  Public  'DATA'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000008C9 Para	  Public  'DATA'	
 _TEXT  . . . . . . . . . . . . .	32 Bit	 00000127 Para	  Public  'CODE'	
 
 
@@ -766,10 +1054,27 @@ blue . . . . . . . . . . . . . .	Number	 00000001h
 brown  . . . . . . . . . . . . .	Number	 00000006h   
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
+fileName . . . . . . . . . . . .	Byte	 00000000 _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 greenTxt . . . . . . . . . . . .	Number	 00000002h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
-inputName  . . . . . . . . . . .	Byte	 00000000 _DATA	
+inputName  . . . . . . . . . . .	Byte	 0000000A _DATA	
+level1opt0 . . . . . . . . . . .	Byte	 000005D0 _DATA	
+level1opt1 . . . . . . . . . . .	Byte	 000005FF _DATA	
+level1opt2 . . . . . . . . . . .	Byte	 0000062E _DATA	
+level1opt3 . . . . . . . . . . .	Byte	 0000065D _DATA	
+level1opt4 . . . . . . . . . . .	Byte	 0000068C _DATA	
+level2opt0 . . . . . . . . . . .	Byte	 000006BB _DATA	
+level2opt1 . . . . . . . . . . .	Byte	 000006EA _DATA	
+level2opt2 . . . . . . . . . . .	Byte	 00000719 _DATA	
+level2opt3 . . . . . . . . . . .	Byte	 00000748 _DATA	
+level2opt4 . . . . . . . . . . .	Byte	 00000777 _DATA	
+level3opt0 . . . . . . . . . . .	Byte	 000007A6 _DATA	
+level3opt1 . . . . . . . . . . .	Byte	 000007D5 _DATA	
+level3opt2 . . . . . . . . . . .	Byte	 00000804 _DATA	
+level3opt3 . . . . . . . . . . .	Byte	 00000833 _DATA	
+level3opt4 . . . . . . . . . . .	Byte	 00000862 _DATA	
+leveloptchoose . . . . . . . . .	Byte	 00000891 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
@@ -777,20 +1082,33 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-pmtitle10  . . . . . . . . . . .	Byte	 0000032A _DATA	
-pmtitle11  . . . . . . . . . . .	Byte	 0000037C _DATA	
-pmtitle1 . . . . . . . . . . . .	Byte	 00000047 _DATA	
-pmtitle2 . . . . . . . . . . . .	Byte	 00000099 _DATA	
-pmtitle3 . . . . . . . . . . . .	Byte	 000000EC _DATA	
-pmtitle4 . . . . . . . . . . . .	Byte	 0000013E _DATA	
-pmtitle5 . . . . . . . . . . . .	Byte	 00000190 _DATA	
-pmtitle6 . . . . . . . . . . . .	Byte	 000001E2 _DATA	
-pmtitle7 . . . . . . . . . . . .	Byte	 00000234 _DATA	
-pmtitle8 . . . . . . . . . . . .	Byte	 00000286 _DATA	
-pmtitle9 . . . . . . . . . . . .	Byte	 000002D8 _DATA	
+menuopt0 . . . . . . . . . . . .	Byte	 000004EF _DATA	
+menuopt1 . . . . . . . . . . . .	Byte	 00000511 _DATA	
+menuopt2 . . . . . . . . . . . .	Byte	 00000533 _DATA	
+menuopt3 . . . . . . . . . . . .	Byte	 00000555 _DATA	
+menuopt4 . . . . . . . . . . . .	Byte	 00000577 _DATA	
+menuopt5 . . . . . . . . . . . .	Byte	 00000599 _DATA	
+menuoptchoose  . . . . . . . . .	Byte	 000005BB _DATA	
+menutitle0 . . . . . . . . . . .	Byte	 000003D7 _DATA	
+menutitle1 . . . . . . . . . . .	Byte	 00000406 _DATA	
+menutitle2 . . . . . . . . . . .	Byte	 00000435 _DATA	
+menutitle3 . . . . . . . . . . .	Byte	 00000463 _DATA	
+menutitle4 . . . . . . . . . . .	Byte	 00000492 _DATA	
+menutitle5 . . . . . . . . . . .	Byte	 000004C0 _DATA	
+pmtitle10  . . . . . . . . . . .	Byte	 00000333 _DATA	
+pmtitle11  . . . . . . . . . . .	Byte	 00000385 _DATA	
+pmtitle1 . . . . . . . . . . . .	Byte	 00000051 _DATA	
+pmtitle2 . . . . . . . . . . . .	Byte	 000000A3 _DATA	
+pmtitle3 . . . . . . . . . . . .	Byte	 000000F5 _DATA	
+pmtitle4 . . . . . . . . . . . .	Byte	 00000147 _DATA	
+pmtitle5 . . . . . . . . . . . .	Byte	 00000199 _DATA	
+pmtitle6 . . . . . . . . . . . .	Byte	 000001EB _DATA	
+pmtitle7 . . . . . . . . . . . .	Byte	 0000023D _DATA	
+pmtitle8 . . . . . . . . . . . .	Byte	 0000028F _DATA	
+pmtitle9 . . . . . . . . . . . .	Byte	 000002E1 _DATA	
 redTxt . . . . . . . . . . . . .	Number	 00000004h   
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-username . . . . . . . . . . . .	Byte	 00000015 _DATA	
+username . . . . . . . . . . . .	Byte	 0000001F _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellowTxt  . . . . . . . . . . .	Number	 0000000Eh   
