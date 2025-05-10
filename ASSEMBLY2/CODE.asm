@@ -84,24 +84,32 @@ include irvine32.inc
     gamePause4 db "Press 3: Exit Game",0
 
 
-   
-
+    ;yeh colors hain 
     redTxt = red+(black*16);
     yellowTxt =yellow+(black*16);
     greenTxt =green+ (black*16);
     blueTxt =blue+ (black*16);
+    whiteTxt =white+ (black*16);
 
+    userChoice db ?
+    temp db ?
 
 .code
 main proc
+    call Clrscr
+    call WelcomeScreen
+    call MenuScreen
+    
+    exit
+main endp
 
-    call Clrscr         
+;-----------------------------------------------------
+WelcomeScreen proc
 
     ; Red Color
     mov eax, redTxt
     call SetTextColor
 
-    
     mov dh,5
     mov dl,12
     call Gotoxy
@@ -120,9 +128,8 @@ main proc
     mov edx, offset pmtitle3
     call WriteString
 
-
     ; Blue Color
-    mov eax,blueTxt
+    mov eax, blueTxt
     call SetTextColor
 
     mov dh, 8
@@ -143,13 +150,11 @@ main proc
     mov edx, offset pmtitle6
     call WriteString
 
-
     mov dh, 11
     mov dl, 12
     call Gotoxy
     mov edx, offset pmtitle7
     call WriteString
-
 
     ; Green Color 
     mov eax, greenTxt
@@ -160,7 +165,6 @@ main proc
     call Gotoxy
     mov edx, offset pmtitle8
     call WriteString
-
 
     mov dh,13
     mov dl,12
@@ -180,7 +184,7 @@ main proc
     mov edx, offset pmtitle11
     call WriteString
 
-    ; Yellow for name input of player
+    
     mov eax, yellowTxt
     call SetTextColor
 
@@ -190,12 +194,428 @@ main proc
     mov edx, offset inputName
     call WriteString
 
-   ;asking for user input
+    ; asking for user input
     mov edx, offset userName
     mov ecx, lengthof userName
     call ReadString
 
+    mov edx, offset temp
+    call WaitMsg
+    call Clrscr
+    ret
+WelcomeScreen endp
 
+
+;-----------------------------------------------------
+MenuScreen proc
+
+    call Clrscr
+    
+    mov eax, blueTxt
+    call SetTextColor
+    
+    mov dh, 5
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset menutitle0
+    call WriteString
+    
+    mov dh, 6
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset menutitle1
+    call WriteString
+    
+    mov dh, 7
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset menutitle2
+    call WriteString
+    
+    mov dh, 8
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset menutitle3
+    call WriteString
+    
+    mov dh, 9
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset menutitle4
+    call WriteString
+    
+    mov dh, 10
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset menutitle5
+    call WriteString
+    
+    ;menu options in green
+    mov eax, greenTxt
+    call SetTextColor
+    
+    mov dh, 13
+    mov dl, 35
+    call Gotoxy
+    mov edx, offset menuopt0
+    call WriteString
+    
+    mov dh, 14
+    mov dl, 35
+    call Gotoxy
+    mov edx, offset menuopt1
+    call WriteString
+    
+    mov dh, 15
+    mov dl, 35
+    call Gotoxy
+    mov edx, offset menuopt2
+    call WriteString
+    
+    mov dh, 16
+    mov dl, 35
+    call Gotoxy
+    mov edx, offset menuopt3
+    call WriteString
+    
+    mov dh, 17
+    mov dl, 35
+    call Gotoxy
+    mov edx, offset menuopt4
+    call WriteString
+    
+    mov dh, 18
+    mov dl, 35
+    call Gotoxy
+    mov edx, offset menuopt5
+    call WriteString
+    
+    ; user choice
+    mov eax, whiteTxt
+    call SetTextColor
+    
+    mov dh, 20
+    mov dl, 35
+    call Gotoxy
+    mov edx, offset menuoptchoose
+    call WriteString
+    
+    call ReadInt
+    mov userChoice, al
+    
+  
+    cmp userChoice, 1
+    je LevelSelection
+    cmp userChoice, 2
+    je ShowInstructions
+    cmp userChoice, 3
+    je ShowHighscores
+    cmp userChoice, 4
+    je ExitGame
+    
+    ;if user ghalat option then go to menu (already udhr he)
+    jmp MenuScreen
+    
+LevelSelection:
+    call LevelSelectScreen
+    jmp MenuScreen
+    
+ShowInstructions:
+    call InstructionsScreen
+    jmp MenuScreen
+    
+ShowHighscores:
+    call HighscoresScreen
+    jmp MenuScreen
+    
+ExitGame:
+    call Clrscr
     exit
-main endp
+MenuScreen endp
+
+;-----------------------------------------------------
+LevelSelectScreen proc
+
+    call Clrscr
+    
+    ; Display level selection title
+    mov eax, blueTxt
+    call SetTextColor
+    
+    mov dh, 5
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset menutitle0
+    call WriteString
+    
+    ; Display level options
+    mov eax, greenTxt
+    call SetTextColor
+    
+    ; Level 1
+    mov dh, 10
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level1opt0
+    call WriteString
+    
+    mov dh, 11
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level1opt1
+    call WriteString
+    
+    mov dh, 12
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level1opt2
+    call WriteString
+    
+    mov dh, 13
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level1opt3
+    call WriteString
+    
+    mov dh, 14
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level1opt4
+    call WriteString
+    
+    ; Level 2
+    mov dh, 16
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level2opt0
+    call WriteString
+    
+    mov dh, 17
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level2opt1
+    call WriteString
+    
+    mov dh, 18
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level2opt2
+    call WriteString
+    
+    mov dh, 19
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level2opt3
+    call WriteString
+    
+    mov dh, 20
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level2opt4
+    call WriteString
+    
+    ; Level 3
+    mov dh, 22
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level3opt0
+    call WriteString
+    
+    mov dh, 23
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level3opt1
+    call WriteString
+    
+    mov dh, 24
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level3opt2
+    call WriteString
+    
+    mov dh, 25
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level3opt3
+    call WriteString
+    
+    mov dh, 26
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset level3opt4
+    call WriteString
+    
+    ; Get user choice
+    mov eax, whiteTxt
+    call SetTextColor
+    
+    mov dh, 28
+    mov dl, 20
+    call Gotoxy
+    mov edx, offset leveloptchoose1
+    call WriteString
+    
+    mov dh, 29
+    mov dl, 20
+    call Gotoxy
+    mov edx, offset leveloptchoose2
+    call WriteString
+    
+    mov dh, 30
+    mov dl, 20
+    call Gotoxy
+    call ReadInt
+    
+    ; Process choice
+    cmp al, 4
+    je ReturnToMenu
+    cmp al, 5
+    je ExitGame
+    
+    ; Here you would normally start the selected level
+    ; For now, just return to menu
+ReturnToMenu:
+    ret
+    
+ExitGame:
+    call Clrscr
+    exit
+LevelSelectScreen endp
+
+;-----------------------------------------------------
+InstructionsScreen proc
+    call Clrscr
+    
+    ; Display instructions title
+    mov eax, blueTxt
+    call SetTextColor
+    
+    mov dh, 5
+    mov dl, 15
+    call Gotoxy
+    mov edx, offset instruc1
+    call WriteString
+    
+    mov dh, 6
+    mov dl, 15
+    call Gotoxy
+    mov edx, offset instruc2
+    call WriteString
+    
+    ; Display instructions text
+    mov eax, greenTxt
+    call SetTextColor
+    
+    mov dh, 8
+    mov dl, 15
+    call Gotoxy
+    mov edx, offset instruc4
+    call WriteString
+    
+    mov dh, 9
+    mov dl, 15
+    call Gotoxy
+    mov edx, offset instruc5
+    call WriteString
+    
+    mov dh, 10
+    mov dl, 15
+    call Gotoxy
+    mov edx, offset instruc6
+    call WriteString
+    
+    mov dh, 11
+    mov dl, 15
+    call Gotoxy
+    mov edx, offset instruc7
+    call WriteString
+    
+    mov dh, 12
+    mov dl, 15
+    call Gotoxy
+    mov edx, offset instruc8
+    call WriteString
+    
+    ; Get user choice
+    mov eax, whiteTxt
+    call SetTextColor
+    
+    mov dh, 14
+    mov dl, 15
+    call Gotoxy
+    mov edx, offset instrucChoose
+    call WriteString
+    
+    call ReadInt
+    
+    ; Process choice
+    cmp al, 1
+    je ReturnToMenu
+    cmp al, 2
+    je ExitGame
+    
+ReturnToMenu:
+    ret
+    
+ExitGame:
+    call Clrscr
+    exit
+InstructionsScreen endp
+
+;-----------------------------------------------------
+HighscoresScreen proc
+
+    call Clrscr
+    
+    ; Display highscores title
+    mov eax, yellowTxt
+    call SetTextColor
+    
+    mov dh, 5
+    mov dl, 20
+    call Gotoxy
+    mov edx, offset hsTitle0
+    call WriteString
+    
+    mov dh, 6
+    mov dl, 20
+    call Gotoxy
+    mov edx, offset hsTitle1
+    call WriteString
+    
+    mov dh, 7
+    mov dl, 20
+    call Gotoxy
+    mov edx, offset hsTitle2
+    call WriteString
+    
+    mov dh, 8
+    mov dl, 20
+    call Gotoxy
+    mov edx, offset hsTitle3
+    call WriteString
+    
+    mov dh, 9
+    mov dl, 20
+    call Gotoxy
+    mov edx, offset hsTitle4
+    call WriteString
+    
+    ; Here you would normally display the actual high scores
+    ; For now, just display a message
+    mov eax, whiteTxt
+    call SetTextColor
+    
+    mov dh, 12
+    mov dl, 30
+    call Gotoxy
+    mov edx, offset menuoptchoose
+    call WriteString
+    
+    call ReadInt
+    
+    ; Any key returns to menu
+    ret
+HighscoresScreen endp
+
 end main
