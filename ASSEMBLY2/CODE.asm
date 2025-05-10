@@ -56,17 +56,35 @@ include irvine32.inc
     level3opt3 db "*     *        * *    *      *             *  ",0
     level3opt4 db "***** *****     *     *****  *****     *****  ",0
 
-    leveloptchoose db " Enter you choice (1: Level 1, 2: Level 2 , 3: Level 3)",0
+    leveloptchoose1 db " Enter you choice (1: Level 1, 2: Level 2 , 3: Level 3)",0
+    leveloptchoose2 db " Return to Main Menu (press 4), Exit Game (press 5)",0
 
 
+    instruc1 db "                          INSTRUCTIONS                             ",0
+    instruc2 db "_______________________________________________________________________",0
+    instruc3 db "-----------------------------------------------------------------------",0
+    instruc4 db " 1. To earn points eat the pellets.",0
+    instruc5 db " 2. Each pellet is worth one point.",0
+    instruc6 db " 3  Stay away from the ghosts, if one catches you, You lose a life.",0
+    instruc7 db " 4. Use W,A,S,D keys move up,down,left and right respectively.",0
+    instruc8 db "________________________________________________________________________",0
+    instruc9 db "------------------------------------------------------------------------",0
+
+    instrucChoose db "Press 1 to return to menu, Press 2 to Exit Game",0
+
+    hsTitle0 db "        ______        _____  _____ ______ _____ _____ _____  ",0
+    hsTitle1 db "|   | | |      |   |  |      |     |    | |   | |     |      ",0
+    hsTitle2 db "|___| | |  ___ |___|  |____  |     |    | |___| |____ |____  ",0
+    hsTitle3 db "|   | | |    | |   |       | |     |    | | \   |          | ",0
+    hsTitle4 db "|   | | |____| |   |  _____| |____ |____| |  \  |____  ____| ",0
+
+    gamePause1 db "...GAME PAUSED...",0
+    gamePause2 db "Press 1: Resume Game",0
+    gamePause3 db "Press 2: Go to Menu",0
+    gamePause4 db "Press 3: Exit Game",0
 
 
-
-
-
-
-
-
+   
 
     redTxt = red+(black*16);
     yellowTxt =yellow+(black*16);

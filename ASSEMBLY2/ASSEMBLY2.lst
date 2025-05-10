@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/10/25 22:20:06
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/10/25 23:31:52
 CODE.asm						     Page 1 - 1
 
 
@@ -489,7 +489,7 @@ CODE.asm						     Page 1 - 1
 	   2A 2A 2A 2A 20
 	   20 00
 
- 00000891 20 45 6E 74 65	    leveloptchoose db " Enter you choice (1: Level 1, 2: Level 2 , 3: Level 3)",0
+ 00000891 20 45 6E 74 65	    leveloptchoose1 db " Enter you choice (1: Level 1, 2: Level 2 , 3: Level 3)",0
 	   72 20 79 6F 75
 	   20 63 68 6F 69
 	   63 65 20 28 31
@@ -501,7 +501,234 @@ CODE.asm						     Page 1 - 1
 	   3A 20 4C 65 76
 	   65 6C 20 33 29
 	   00
+ 000008C9 20 52 65 74 75	    leveloptchoose2 db " Return to Main Menu (press 4), Exit Game (press 5)",0
+	   72 6E 20 74 6F
+	   20 4D 61 69 6E
+	   20 4D 65 6E 75
+	   20 28 70 72 65
+	   73 73 20 34 29
+	   2C 20 45 78 69
+	   74 20 47 61 6D
+	   65 20 28 70 72
+	   65 73 73 20 35
+	   29 00
 
+
+ 000008FD 20 20 20 20 20	    instruc1 db "                          INSTRUCTIONS                             ",0
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 49 4E 53 54
+	   52 55 43 54 49
+	   4F 4E 53 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 20 20 20
+	   20 20 00
+ 00000941 5F 5F 5F 5F 5F	    instruc2 db "_______________________________________________________________________",0
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 00
+ 00000989 2D 2D 2D 2D 2D	    instruc3 db "-----------------------------------------------------------------------",0
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 00
+ 000009D1 20 31 2E 20 54	    instruc4 db " 1. To earn points eat the pellets.",0
+	   6F 20 65 61 72
+	   6E 20 70 6F 69
+	   6E 74 73 20 65
+	   61 74 20 74 68
+	   65 20 70 65 6C
+	   6C 65 74 73 2E
+	   00
+ 000009F5 20 32 2E 20 45	    instruc5 db " 2. Each pellet is worth one point.",0
+	   61 63 68 20 70
+	   65 6C 6C 65 74
+	   20 69 73 20 77
+	   6F 72 74 68 20
+	   6F 6E 65 20 70
+	   6F 69 6E 74 2E
+	   00
+ 00000A19 20 33 20 20 53	    instruc6 db " 3  Stay away from the ghosts, if one catches you, You lose a life.",0
+	   74 61 79 20 61
+	   77 61 79 20 66
+	   72 6F 6D 20 74
+	   68 65 20 67 68
+	   6F 73 74 73 2C
+	   20 69 66 20 6F
+	   6E 65 20 63 61
+	   74 63 68 65 73
+	   20 79 6F 75 2C
+	   20 59 6F 75 20
+	   6C 6F 73 65 20
+	   61 20 6C 69 66
+	   65 2E 00
+ 00000A5D 20 34 2E 20 55	    instruc7 db " 4. Use W,A,S,D keys move up,down,left and right respectively.",0
+	   73 65 20 57 2C
+	   41 2C 53 2C 44
+	   20 6B 65 79 73
+	   20 6D 6F 76 65
+	   20 75 70 2C 64
+	   6F 77 6E 2C 6C
+	   65 66 74 20 61
+	   6E 64 20 72 69
+	   67 68 74 20 72
+	   65 73 70 65 63
+	   74 69 76 65 6C
+	   79 2E 00
+ 00000A9C 5F 5F 5F 5F 5F	    instruc8 db "________________________________________________________________________",0
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 5F 5F 5F
+	   5F 5F 00
+ 00000AE5 2D 2D 2D 2D 2D	    instruc9 db "------------------------------------------------------------------------",0
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 00
+
+ 00000B2E 50 72 65 73 73	    instrucChoose db "Press 1 to return to menu, Press 2 to Exit Game",0
+	   20 31 20 74 6F
+	   20 72 65 74 75
+	   72 6E 20 74 6F
+	   20 6D 65 6E 75
+	   2C 20 50 72 65
+	   73 73 20 32 20
+	   74 6F 20 45 78
+	   69 74 20 47 61
+	   6D 65 00
+
+ 00000B5E 20 20 20 20 20	    hsTitle0 db "        ______        _____  _____ ______ _____ _____ _____  ",0
+	   20 20 20 5F 5F
+	   5F 5F 5F 5F 20
+	   20 20 20 20 20
+	   20 20 5F 5F 5F
+	   5F 5F 20 20 5F
+	   5F 5F 5F 5F 20
+	   5F 5F 5F 5F 5F
+	   5F 20 5F 5F 5F
+	   5F 5F 20 5F 5F
+	   5F 5F 5F 20 5F
+	   5F 5F 5F 5F 20
+	   20 00
+ 00000B9C 7C 20 20 20 7C	    hsTitle1 db "|   | | |      |   |  |      |     |    | |   | |     |      ",0
+	   20 7C 20 7C 20
+	   20 20 20 20 20
+	   7C 20 20 20 7C
+	   20 20 7C 20 20
+	   20 20 20 20 7C
+	   20 20 20 20 20
+	   7C 20 20 20 20
+	   7C 20 7C 20 20
+	   20 7C 20 7C 20
+	   20 20 20 20 7C
+	   20 20 20 20 20
+	   20 00
+ 00000BDA 7C 5F 5F 5F 7C	    hsTitle2 db "|___| | |  ___ |___|  |____  |     |    | |___| |____ |____  ",0
+	   20 7C 20 7C 20
+	   20 5F 5F 5F 20
+	   7C 5F 5F 5F 7C
+	   20 20 7C 5F 5F
+	   5F 5F 20 20 7C
+	   20 20 20 20 20
+	   7C 20 20 20 20
+	   7C 20 7C 5F 5F
+	   5F 7C 20 7C 5F
+	   5F 5F 5F 20 7C
+	   5F 5F 5F 5F 20
+	   20 00
+ 00000C18 7C 20 20 20 7C	    hsTitle3 db "|   | | |    | |   |       | |     |    | | \   |          | ",0
+	   20 7C 20 7C 20
+	   20 20 20 7C 20
+	   7C 20 20 20 7C
+	   20 20 20 20 20
+	   20 20 7C 20 7C
+	   20 20 20 20 20
+	   7C 20 20 20 20
+	   7C 20 7C 20 5C
+	   20 20 20 7C 20
+	   20 20 20 20 20
+	   20 20 20 20 7C
+	   20 00
+ 00000C56 7C 20 20 20 7C	    hsTitle4 db "|   | | |____| |   |  _____| |____ |____| |  \  |____  ____| ",0
+	   20 7C 20 7C 5F
+	   5F 5F 5F 7C 20
+	   7C 20 20 20 7C
+	   20 20 5F 5F 5F
+	   5F 5F 7C 20 7C
+	   5F 5F 5F 5F 20
+	   7C 5F 5F 5F 5F
+	   7C 20 7C 20 20
+	   5C 20 20 7C 5F
+	   5F 5F 5F 20 20
+	   5F 5F 5F 5F 7C
+	   20 00
+
+ 00000C94 2E 2E 2E 47 41	    gamePause1 db "...GAME PAUSED...",0
+	   4D 45 20 50 41
+	   55 53 45 44 2E
+	   2E 2E 00
+ 00000CA6 50 72 65 73 73	    gamePause2 db "Press 1: Resume Game",0
+	   20 31 3A 20 52
+	   65 73 75 6D 65
+	   20 47 61 6D 65
+	   00
+ 00000CBB 50 72 65 73 73	    gamePause3 db "Press 2: Go to Menu",0
+	   20 32 3A 20 47
+	   6F 20 74 6F 20
+	   4D 65 6E 75 00
+ 00000CCF 50 72 65 73 73	    gamePause4 db "Press 3: Exit Game",0
+	   20 33 3A 20 45
+	   78 69 74 20 47
+	   61 6D 65 00
+
+
+				   
 
 
 
@@ -627,7 +854,7 @@ CODE.asm						     Page 1 - 1
  00000122  E8 00000000 E   *	    call   ExitProcess
  00000127			main endp
 				end main
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/10/25 22:20:06
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/10/25 23:31:52
 CODE.asm						     Symbols 2 - 1
 
 
@@ -721,7 +948,7 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 000008C9 Para	  Public  'DATA'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000CE2 Para	  Public  'DATA'	
 _TEXT  . . . . . . . . . . . . .	32 Bit	 00000127 Para	  Public  'CODE'	
 
 
@@ -1055,10 +1282,29 @@ brown  . . . . . . . . . . . . .	Number	 00000006h
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 fileName . . . . . . . . . . . .	Byte	 00000000 _DATA	
+gamePause1 . . . . . . . . . . .	Byte	 00000C94 _DATA	
+gamePause2 . . . . . . . . . . .	Byte	 00000CA6 _DATA	
+gamePause3 . . . . . . . . . . .	Byte	 00000CBB _DATA	
+gamePause4 . . . . . . . . . . .	Byte	 00000CCF _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 greenTxt . . . . . . . . . . . .	Number	 00000002h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
+hsTitle0 . . . . . . . . . . . .	Byte	 00000B5E _DATA	
+hsTitle1 . . . . . . . . . . . .	Byte	 00000B9C _DATA	
+hsTitle2 . . . . . . . . . . . .	Byte	 00000BDA _DATA	
+hsTitle3 . . . . . . . . . . . .	Byte	 00000C18 _DATA	
+hsTitle4 . . . . . . . . . . . .	Byte	 00000C56 _DATA	
 inputName  . . . . . . . . . . .	Byte	 0000000A _DATA	
+instruc1 . . . . . . . . . . . .	Byte	 000008FD _DATA	
+instruc2 . . . . . . . . . . . .	Byte	 00000941 _DATA	
+instruc3 . . . . . . . . . . . .	Byte	 00000989 _DATA	
+instruc4 . . . . . . . . . . . .	Byte	 000009D1 _DATA	
+instruc5 . . . . . . . . . . . .	Byte	 000009F5 _DATA	
+instruc6 . . . . . . . . . . . .	Byte	 00000A19 _DATA	
+instruc7 . . . . . . . . . . . .	Byte	 00000A5D _DATA	
+instruc8 . . . . . . . . . . . .	Byte	 00000A9C _DATA	
+instruc9 . . . . . . . . . . . .	Byte	 00000AE5 _DATA	
+instrucChoose  . . . . . . . . .	Byte	 00000B2E _DATA	
 level1opt0 . . . . . . . . . . .	Byte	 000005D0 _DATA	
 level1opt1 . . . . . . . . . . .	Byte	 000005FF _DATA	
 level1opt2 . . . . . . . . . . .	Byte	 0000062E _DATA	
@@ -1074,7 +1320,8 @@ level3opt1 . . . . . . . . . . .	Byte	 000007D5 _DATA
 level3opt2 . . . . . . . . . . .	Byte	 00000804 _DATA	
 level3opt3 . . . . . . . . . . .	Byte	 00000833 _DATA	
 level3opt4 . . . . . . . . . . .	Byte	 00000862 _DATA	
-leveloptchoose . . . . . . . . .	Byte	 00000891 _DATA	
+leveloptchoose1  . . . . . . . .	Byte	 00000891 _DATA	
+leveloptchoose2  . . . . . . . .	Byte	 000008C9 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
