@@ -792,16 +792,9 @@ Level1Screen PROC
     call DrawStaticElements
 
 GameLoop:
-    ; Clear old Pac-Man position
-    mov eax, blackTxt
-    call SetTextColor
-    mov dl, oldPacmanX
-    mov dh, oldPacmanY
-    call Gotoxy
-    mov al, emptyChar
-    call WriteChar
 
-    ; Draw dynamic elements
+    call ClearOldPositions
+    call GhostMovement
     call DrawGameElements
 
     ; Handle input
@@ -883,7 +876,9 @@ CancelMoveRight:
 AfterMove:
     ; Check pellet collisions
     call CheckPelletCollision
-
+    call CheckGhostCollision
+    cmp eax, 1
+    je GameOverScreen
 NoInput:
     ; Small delay
     mov eax, 100
@@ -894,6 +889,131 @@ NoInput:
     jne GameLoop
 
 ExitLevel:
+    ret
+
+GameOverScreen:
+    call Clrscr
+    mov eax, redTxt
+    call SetTextColor
+    
+    ; Draw game over message
+    mov dh, 5
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg1
+    call WriteString
+    
+    mov dh, 6
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg2
+    call WriteString
+    
+    mov dh, 6
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg3
+    call WriteString
+    
+    mov dh, 7
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg4
+    call WriteString
+    
+    mov dh, 8
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg5
+    call WriteString
+
+    ; Display score
+    mov dh, 12
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET scoreDisplay
+    call WriteString
+    mov eax, score
+    call WriteDec
+    
+    ; Display return option
+    mov dh, 14
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET returnOption
+    call WriteString
+    
+    ; Wait for input
+    WaitForInput:
+    call ReadChar
+    cmp al, '1'
+    jne WaitForInput
+    ret
+
+LevelCompleteScreen:
+    call Clrscr
+    mov eax, greenTxt
+    call SetTextColor
+    
+    ; Draw level complete message
+    mov dh, 5
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg1
+    call WriteString
+    
+    mov dh, 6
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg2
+    call WriteString
+    
+    mov dh, 7
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg3
+    call WriteString
+
+    mov dh, 8
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg4
+    call WriteString
+
+    mov dh, 9
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg5
+    call WriteString
+
+    mov dh, 10
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg6
+    call WriteString
+
+
+    ; Display score
+    mov dh, 12
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET scoreDisplay
+    call WriteString
+    mov eax, score
+    call WriteDec
+    
+    ; Display return option
+    mov dh, 14
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET returnOption
+    call WriteString
+    
+    ; Wait for input
+    WaitForInput2:
+    call ReadChar
+    cmp al, '1'
+    jne WaitForInput2
     ret
 Level1Screen ENDP
 ;;...........................................
@@ -1264,9 +1384,176 @@ wallLoop:
     pop ecx
     ret
 DrawWall ENDP
-;........................................
+;....................................................
+ClearOldPositions PROC
+    ; Clear old Pac-Man position
+    mov eax, blackTxt
+    call SetTextColor
+    mov dl, oldPacmanX
+    mov dh, oldPacmanY
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    
+    ; Clear old ghost position
+    mov dl, oldGhostX
+    mov dh, oldGhostY
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    ret
+ClearOldPositions ENDP
+;.................................................
+GhostMovement PROC
+    mov al, ghostX
+    mov oldGhostX, al
+    mov al, ghostY
+    mov oldGhostY, al
+    
+    ; 70% chance to move toward Pac-Man, 30% random
+    call Randomize
+    mov eax, 10
+    call RandomRange
+    cmp eax, 7  ; 0-2 = random (30%), 3-9 = toward (70%)
+    jb RandomMove
+    
+    ; Move toward Pac-Man
+    mov bl, pacmanX
+    mov bh, pacmanY
+    
+    cmp ghostX, bl
+    jl MoveGhostRight
+    jg MoveGhostLeft
+    cmp ghostY, bh
+    jl MoveGhostDown
+    jg MoveGhostUp
+    jmp RandomMove
 
+MoveGhostRight:
+    inc ghostX
+    call CheckGhostWallCollision
+    jc UndoGhostMove
+    ret
+MoveGhostLeft:
+    dec ghostX
+    call CheckGhostWallCollision
+    jc UndoGhostMove
+    ret
+MoveGhostUp:
+    dec ghostY
+    call CheckGhostWallCollision
+    jc UndoGhostMove
+    ret
+MoveGhostDown:
+    inc ghostY
+    call CheckGhostWallCollision
+    jc UndoGhostMove
+    ret
 
+RandomMove:
+    ; Random direction (1-4)
+    mov eax, 4
+    call RandomRange
+    inc eax
+    
+    cmp eax, 1
+    je TryRight
+    cmp eax, 2
+    je TryLeft
+    cmp eax, 3
+    je TryUp
+    cmp eax, 4
+    je TryDown
+
+TryRight:
+    inc ghostX
+    call CheckGhostWallCollision
+    jc UndoGhostMove
+    ret
+TryLeft:
+    dec ghostX
+    call CheckGhostWallCollision
+    jc UndoGhostMove
+    ret
+TryUp:
+    dec ghostY
+    call CheckGhostWallCollision
+    jc UndoGhostMove
+    ret
+TryDown:
+    inc ghostY
+    call CheckGhostWallCollision
+    jc UndoGhostMove
+    ret
+
+UndoGhostMove:
+    mov al, oldGhostX
+    mov ghostX, al
+    mov al, oldGhostY
+    mov ghostY, al
+    ret
+GhostMovement ENDP
+;.......................................
+CheckGhostWallCollision PROC
+    mov dl, ghostX
+    mov dh, ghostY
+    call CheckWallPosition
+    ret
+CheckGhostWallCollision ENDP
+;............................................
+CheckGhostCollision PROC
+    ; Check if Pac-Man hit ghost
+    mov al, pacmanX
+    cmp al, ghostX
+    jne NoCollision
+    mov al, pacmanY
+    cmp al, ghostY
+    jne NoCollision
+    
+    ; Collision occurred - decrease lives
+    dec lives
+    
+    ; Update lives display immediately
+    mov eax, whiteTxt
+    call SetTextColor
+    mov dh, 0
+    mov dl, 7  ; Position after "Lives: "
+    call Gotoxy
+    
+    ; CORRECTED: Proper way to load byte into EAX
+    mov eax, lives     ; Load byte into AL
+    movzx eax, al     ; Zero-extend to EAX
+    call WriteDec
+    
+    ; Clear old ghost position before resetting
+    mov dl, ghostX
+    mov dh, ghostY
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    
+    ; Reset positions
+    mov pacmanX, 10
+    mov pacmanY, 15
+    mov ghostX, 50
+    mov ghostY, 15
+    
+    ; Check if game over (lives == 0)
+    cmp lives, 0
+    jle GameOver
+    
+    mov eax, 0  ; Return 0 = collision but game continues
+    ret
+    
+GameOver:
+    mov eax, 1  ; Return 1 = game over
+    ret
+    
+NoCollision:
+    mov eax, 0  ; Return 0 = no collision
+    ret
+CheckGhostCollision ENDP
+;..............................................
 Level2Screen proc
 Level2Screen endp
 

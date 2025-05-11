@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/12/25 01:24:51
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/12/25 01:53:33
 CODE.asm						     Page 1 - 1
 
 
@@ -1401,12 +1401,12 @@ CODE.asm						     Page 1 - 1
  000004B7			StartLevel2:
  000004B7  C6 05 00000F76 R	    mov currentLevel, 2
 	   02
- 000004BE  E8 0000064A		    call Level2Screen  
+ 000004BE  E8 00000973		    call Level2Screen  
 
  000004C3			StartLevel3:
  000004C3  C6 05 00000F76 R	    mov currentLevel, 3
 	   03
- 000004CA  E8 0000063E		    call Level3Screen  
+ 000004CA  E8 00000967		    call Level3Screen  
 				    
  000004CF			ReturnToMenu:
  000004CF  C3			    ret
@@ -1590,498 +1590,790 @@ CODE.asm						     Page 1 - 1
  00000698  C6 05 00000FA0 R	    mov pelletCount, 20
 	   14
 
- 0000069F  E8 0000026D		    call InitializePellets
- 000006A4  E8 00000125		    call DrawStaticElements
+ 0000069F  E8 000003BF		    call InitializePellets
+ 000006A4  E8 00000277		    call DrawStaticElements
 
  000006A9			GameLoop:
-				    ; Clear old Pac-Man position
- 000006A9  B8 00000000		    mov eax, blackTxt
- 000006AE  E8 00000000 E	    call SetTextColor
- 000006B3  8A 15 00000FD9 R	    mov dl, oldPacmanX
- 000006B9  8A 35 00000FDA R	    mov dh, oldPacmanY
- 000006BF  E8 00000000 E	    call Gotoxy
- 000006C4  A0 00000F99 R	    mov al, emptyChar
- 000006C9  E8 00000000 E	    call WriteChar
 
-				    ; Draw dynamic elements
- 000006CE  E8 000001CB		    call DrawGameElements
+ 000006A9  E8 000005B1		    call ClearOldPositions
+ 000006AE  E8 000005ED		    call GhostMovement
+ 000006B3  E8 00000338		    call DrawGameElements
 
 				    ; Handle input
- 000006D3  E8 00000000 E	    call ReadKey
- 000006D8  0F 84 000000D8	    jz NoInput
+ 000006B8  E8 00000000 E	    call ReadKey
+ 000006BD  0F 84 000000E2	    jz NoInput
 
- 000006DE  3C 77		    cmp al, 'w'
- 000006E0  74 1D		    je MoveUp
- 000006E2  3C 61		    cmp al, 'a'
- 000006E4  74 4A		    je MoveLeft
- 000006E6  3C 73		    cmp al, 's'
- 000006E8  74 71		    je MoveDown
- 000006EA  3C 64		    cmp al, 'd'
- 000006EC  0F 84 00000094	    je MoveRight
- 000006F2  3C 31		    cmp al, '1'    ; Return to menu
- 000006F4  0F 84 000000D3	    je ExitLevel
- 000006FA  E9 000000B7		    jmp NoInput
+ 000006C3  3C 77		    cmp al, 'w'
+ 000006C5  74 1D		    je MoveUp
+ 000006C7  3C 61		    cmp al, 'a'
+ 000006C9  74 4A		    je MoveLeft
+ 000006CB  3C 73		    cmp al, 's'
+ 000006CD  74 71		    je MoveDown
+ 000006CF  3C 64		    cmp al, 'd'
+ 000006D1  0F 84 00000094	    je MoveRight
+ 000006D7  3C 31		    cmp al, '1'    ; Return to menu
+ 000006D9  0F 84 000000DD	    je ExitLevel
+ 000006DF  E9 000000C1		    jmp NoInput
 
- 000006FF			MoveUp:
+ 000006E4			MoveUp:
 				    ; Save current position as old position
- 000006FF  A0 00000FC9 R	    mov al, pacmanX
- 00000704  A2 00000FD9 R	    mov oldPacmanX, al
- 00000709  A0 00000FCA R	    mov al, pacmanY
- 0000070E  A2 00000FDA R	    mov oldPacmanY, al
+ 000006E4  A0 00000FC9 R	    mov al, pacmanX
+ 000006E9  A2 00000FD9 R	    mov oldPacmanX, al
+ 000006EE  A0 00000FCA R	    mov al, pacmanY
+ 000006F3  A2 00000FDA R	    mov oldPacmanY, al
 				    
- 00000713  FE 0D 00000FCA R	    dec pacmanY
- 00000719  E8 000002F6		    call CheckWallCollision
- 0000071E  72 05		    jc CancelMoveUp
- 00000720  E9 0000008C		    jmp AfterMove
- 00000725			CancelMoveUp:
- 00000725  FE 05 00000FCA R	    inc pacmanY
- 0000072B  E9 00000081		    jmp AfterMove
+ 000006F8  FE 0D 00000FCA R	    dec pacmanY
+ 000006FE  E8 00000463		    call CheckWallCollision
+ 00000703  72 05		    jc CancelMoveUp
+ 00000705  E9 0000008C		    jmp AfterMove
+ 0000070A			CancelMoveUp:
+ 0000070A  FE 05 00000FCA R	    inc pacmanY
+ 00000710  E9 00000081		    jmp AfterMove
 
- 00000730			MoveLeft:
+ 00000715			MoveLeft:
 				    ; Save current position as old position
- 00000730  A0 00000FC9 R	    mov al, pacmanX
- 00000735  A2 00000FD9 R	    mov oldPacmanX, al
- 0000073A  A0 00000FCA R	    mov al, pacmanY
- 0000073F  A2 00000FDA R	    mov oldPacmanY, al
+ 00000715  A0 00000FC9 R	    mov al, pacmanX
+ 0000071A  A2 00000FD9 R	    mov oldPacmanX, al
+ 0000071F  A0 00000FCA R	    mov al, pacmanY
+ 00000724  A2 00000FDA R	    mov oldPacmanY, al
 				    
- 00000744  FE 0D 00000FC9 R	    dec pacmanX
- 0000074A  E8 000002C5		    call CheckWallCollision
- 0000074F  72 02		    jc CancelMoveLeft
- 00000751  EB 5E		    jmp AfterMove
- 00000753			CancelMoveLeft:
- 00000753  FE 05 00000FC9 R	    inc pacmanX
- 00000759  EB 56		    jmp AfterMove
+ 00000729  FE 0D 00000FC9 R	    dec pacmanX
+ 0000072F  E8 00000432		    call CheckWallCollision
+ 00000734  72 02		    jc CancelMoveLeft
+ 00000736  EB 5E		    jmp AfterMove
+ 00000738			CancelMoveLeft:
+ 00000738  FE 05 00000FC9 R	    inc pacmanX
+ 0000073E  EB 56		    jmp AfterMove
 
- 0000075B			MoveDown:
+ 00000740			MoveDown:
 				    ; Save current position as old position
- 0000075B  A0 00000FC9 R	    mov al, pacmanX
- 00000760  A2 00000FD9 R	    mov oldPacmanX, al
- 00000765  A0 00000FCA R	    mov al, pacmanY
- 0000076A  A2 00000FDA R	    mov oldPacmanY, al
+ 00000740  A0 00000FC9 R	    mov al, pacmanX
+ 00000745  A2 00000FD9 R	    mov oldPacmanX, al
+ 0000074A  A0 00000FCA R	    mov al, pacmanY
+ 0000074F  A2 00000FDA R	    mov oldPacmanY, al
 				    
- 0000076F  FE 05 00000FCA R	    inc pacmanY
- 00000775  E8 0000029A		    call CheckWallCollision
- 0000077A  72 02		    jc CancelMoveDown
- 0000077C  EB 33		    jmp AfterMove
- 0000077E			CancelMoveDown:
- 0000077E  FE 0D 00000FCA R	    dec pacmanY
- 00000784  EB 2B		    jmp AfterMove
+ 00000754  FE 05 00000FCA R	    inc pacmanY
+ 0000075A  E8 00000407		    call CheckWallCollision
+ 0000075F  72 02		    jc CancelMoveDown
+ 00000761  EB 33		    jmp AfterMove
+ 00000763			CancelMoveDown:
+ 00000763  FE 0D 00000FCA R	    dec pacmanY
+ 00000769  EB 2B		    jmp AfterMove
 
- 00000786			MoveRight:
+ 0000076B			MoveRight:
 				    ; Save current position as old position
- 00000786  A0 00000FC9 R	    mov al, pacmanX
- 0000078B  A2 00000FD9 R	    mov oldPacmanX, al
- 00000790  A0 00000FCA R	    mov al, pacmanY
- 00000795  A2 00000FDA R	    mov oldPacmanY, al
+ 0000076B  A0 00000FC9 R	    mov al, pacmanX
+ 00000770  A2 00000FD9 R	    mov oldPacmanX, al
+ 00000775  A0 00000FCA R	    mov al, pacmanY
+ 0000077A  A2 00000FDA R	    mov oldPacmanY, al
 				    
- 0000079A  FE 05 00000FC9 R	    inc pacmanX
- 000007A0  E8 0000026F		    call CheckWallCollision
- 000007A5  72 02		    jc CancelMoveRight
- 000007A7  EB 08		    jmp AfterMove
- 000007A9			CancelMoveRight:
- 000007A9  FE 0D 00000FC9 R	    dec pacmanX
- 000007AF  EB 00		    jmp AfterMove
+ 0000077F  FE 05 00000FC9 R	    inc pacmanX
+ 00000785  E8 000003DC		    call CheckWallCollision
+ 0000078A  72 02		    jc CancelMoveRight
+ 0000078C  EB 08		    jmp AfterMove
+ 0000078E			CancelMoveRight:
+ 0000078E  FE 0D 00000FC9 R	    dec pacmanX
+ 00000794  EB 00		    jmp AfterMove
 
- 000007B1			AfterMove:
+ 00000796			AfterMove:
 				    ; Check pellet collisions
- 000007B1  E8 00000270		    call CheckPelletCollision
-
- 000007B6			NoInput:
+ 00000796  E8 000003DD		    call CheckPelletCollision
+ 0000079B  E8 00000604		    call CheckGhostCollision
+ 000007A0  83 F8 01		    cmp eax, 1
+ 000007A3  74 18		    je GameOverScreen
+ 000007A5			NoInput:
 				    ; Small delay
- 000007B6  B8 00000064		    mov eax, 100
- 000007BB  E8 00000000 E	    call Delay
+ 000007A5  B8 00000064		    mov eax, 100
+ 000007AA  E8 00000000 E	    call Delay
 
 				    ; Check if all pellets collected
- 000007C0  80 3D 00000FA0 R	    cmp pelletCount, 0
+ 000007AF  80 3D 00000FA0 R	    cmp pelletCount, 0
 	   00
- 000007C7  0F 85 FFFFFEDC	    jne GameLoop
+ 000007B6  0F 85 FFFFFEED	    jne GameLoop
 
- 000007CD			ExitLevel:
- 000007CD  C3			    ret
- 000007CE			Level1Screen ENDP
-				;;...........................................
- 000007CE			DrawStaticElements PROC
-				    ; Draw info bar
- 000007CE  B8 0000000F		    mov eax, whiteTxt
- 000007D3  E8 00000000 E	    call SetTextColor
+ 000007BC			ExitLevel:
+ 000007BC  C3			    ret
+
+ 000007BD			GameOverScreen:
+ 000007BD  E8 00000000 E	    call Clrscr
+ 000007C2  B8 00000004		    mov eax, redTxt
+ 000007C7  E8 00000000 E	    call SetTextColor
 				    
- 000007D8  B6 00		    mov dh, 0
- 000007DA  B2 00		    mov dl, 0
- 000007DC  E8 00000000 E	    call Gotoxy
- 000007E1  BA 00000F88 R	    mov edx, OFFSET livesMsg
- 000007E6  E8 00000000 E	    call WriteString
- 000007EB  A1 00000FD1 R	    mov eax, lives
- 000007F0  E8 00000000 E	    call WriteDec
+				    ; Draw game over message
+ 000007CC  B6 05		    mov dh, 5
+ 000007CE  B2 14		    mov dl, 20
+ 000007D0  E8 00000000 E	    call Gotoxy
+ 000007D5  BA 00000D90 R	    mov edx, OFFSET gameOverMsg1
+ 000007DA  E8 00000000 E	    call WriteString
+				    
+ 000007DF  B6 06		    mov dh, 6
+ 000007E1  B2 14		    mov dl, 20
+ 000007E3  E8 00000000 E	    call Gotoxy
+ 000007E8  BA 00000DC4 R	    mov edx, OFFSET gameOverMsg2
+ 000007ED  E8 00000000 E	    call WriteString
+				    
+ 000007F2  B6 06		    mov dh, 6
+ 000007F4  B2 14		    mov dl, 20
+ 000007F6  E8 00000000 E	    call Gotoxy
+ 000007FB  BA 00000DF7 R	    mov edx, OFFSET gameOverMsg3
+ 00000800  E8 00000000 E	    call WriteString
+				    
+ 00000805  B6 07		    mov dh, 7
+ 00000807  B2 14		    mov dl, 20
+ 00000809  E8 00000000 E	    call Gotoxy
+ 0000080E  BA 00000E2B R	    mov edx, OFFSET gameOverMsg4
+ 00000813  E8 00000000 E	    call WriteString
+				    
+ 00000818  B6 08		    mov dh, 8
+ 0000081A  B2 14		    mov dl, 20
+ 0000081C  E8 00000000 E	    call Gotoxy
+ 00000821  BA 00000E5F R	    mov edx, OFFSET gameOverMsg5
+ 00000826  E8 00000000 E	    call WriteString
 
- 000007F5  B6 01		    mov dh, 1
- 000007F7  B2 00		    mov dl, 0
- 000007F9  E8 00000000 E	    call Gotoxy
- 000007FE  BA 000000A7 R	    mov edx, OFFSET userName
- 00000803  E8 00000000 E	    call WriteString
+				    ; Display score
+ 0000082B  B6 0C		    mov dh, 12
+ 0000082D  B2 14		    mov dl, 20
+ 0000082F  E8 00000000 E	    call Gotoxy
+ 00000834  BA 00000E93 R	    mov edx, OFFSET scoreDisplay
+ 00000839  E8 00000000 E	    call WriteString
+ 0000083E  A1 00000FCD R	    mov eax, score
+ 00000843  E8 00000000 E	    call WriteDec
+				    
+				    ; Display return option
+ 00000848  B6 0E		    mov dh, 14
+ 0000084A  B2 14		    mov dl, 20
+ 0000084C  E8 00000000 E	    call Gotoxy
+ 00000851  BA 00000EA6 R	    mov edx, OFFSET returnOption
+ 00000856  E8 00000000 E	    call WriteString
+				    
+				    ; Wait for input
+ 0000085B			    WaitForInput:
+ 0000085B  E8 00000000 E	    call ReadChar
+ 00000860  3C 31		    cmp al, '1'
+ 00000862  75 F7		    jne WaitForInput
+ 00000864  C3			    ret
 
- 00000808  B6 02		    mov dh,2
- 0000080A  B2 4B		    mov dl, 75
- 0000080C  E8 00000000 E	    call Gotoxy
- 00000811  BA 00000F90 R	    mov edx, OFFSET levelMsg
- 00000816  E8 00000000 E	    call WriteString
- 0000081B  A1 00000FD5 R	    mov eax, level
- 00000820  E8 00000000 E	    call WriteDec
+ 00000865			LevelCompleteScreen:
+ 00000865  E8 00000000 E	    call Clrscr
+ 0000086A  B8 00000002		    mov eax, greenTxt
+ 0000086F  E8 00000000 E	    call SetTextColor
+				    
+				    ; Draw level complete message
+ 00000874  B6 05		    mov dh, 5
+ 00000876  B2 14		    mov dl, 20
+ 00000878  E8 00000000 E	    call Gotoxy
+ 0000087D  BA 00000EC0 R	    mov edx, OFFSET levelCompleteMsg1
+ 00000882  E8 00000000 E	    call WriteString
+				    
+ 00000887  B6 06		    mov dh, 6
+ 00000889  B2 14		    mov dl, 20
+ 0000088B  E8 00000000 E	    call Gotoxy
+ 00000890  BA 00000EDE R	    mov edx, OFFSET levelCompleteMsg2
+ 00000895  E8 00000000 E	    call WriteString
+				    
+ 0000089A  B6 07		    mov dh, 7
+ 0000089C  B2 14		    mov dl, 20
+ 0000089E  E8 00000000 E	    call Gotoxy
+ 000008A3  BA 00000EFC R	    mov edx, OFFSET levelCompleteMsg3
+ 000008A8  E8 00000000 E	    call WriteString
+
+ 000008AD  B6 08		    mov dh, 8
+ 000008AF  B2 14		    mov dl, 20
+ 000008B1  E8 00000000 E	    call Gotoxy
+ 000008B6  BA 00000F1A R	    mov edx, OFFSET levelCompleteMsg4
+ 000008BB  E8 00000000 E	    call WriteString
+
+ 000008C0  B6 09		    mov dh, 9
+ 000008C2  B2 14		    mov dl, 20
+ 000008C4  E8 00000000 E	    call Gotoxy
+ 000008C9  BA 00000F38 R	    mov edx, OFFSET levelCompleteMsg5
+ 000008CE  E8 00000000 E	    call WriteString
+
+ 000008D3  B6 0A		    mov dh, 10
+ 000008D5  B2 14		    mov dl, 20
+ 000008D7  E8 00000000 E	    call Gotoxy
+ 000008DC  BA 00000F56 R	    mov edx, OFFSET levelCompleteMsg6
+ 000008E1  E8 00000000 E	    call WriteString
+
+
+				    ; Display score
+ 000008E6  B6 0C		    mov dh, 12
+ 000008E8  B2 14		    mov dl, 20
+ 000008EA  E8 00000000 E	    call Gotoxy
+ 000008EF  BA 00000E93 R	    mov edx, OFFSET scoreDisplay
+ 000008F4  E8 00000000 E	    call WriteString
+ 000008F9  A1 00000FCD R	    mov eax, score
+ 000008FE  E8 00000000 E	    call WriteDec
+				    
+				    ; Display return option
+ 00000903  B6 0E		    mov dh, 14
+ 00000905  B2 14		    mov dl, 20
+ 00000907  E8 00000000 E	    call Gotoxy
+ 0000090C  BA 00000EA6 R	    mov edx, OFFSET returnOption
+ 00000911  E8 00000000 E	    call WriteString
+				    
+				    ; Wait for input
+ 00000916			    WaitForInput2:
+ 00000916  E8 00000000 E	    call ReadChar
+ 0000091B  3C 31		    cmp al, '1'
+ 0000091D  75 F7		    jne WaitForInput2
+ 0000091F  C3			    ret
+ 00000920			Level1Screen ENDP
+				;;...........................................
+ 00000920			DrawStaticElements PROC
+				    ; Draw info bar
+ 00000920  B8 0000000F		    mov eax, whiteTxt
+ 00000925  E8 00000000 E	    call SetTextColor
+				    
+ 0000092A  B6 00		    mov dh, 0
+ 0000092C  B2 00		    mov dl, 0
+ 0000092E  E8 00000000 E	    call Gotoxy
+ 00000933  BA 00000F88 R	    mov edx, OFFSET livesMsg
+ 00000938  E8 00000000 E	    call WriteString
+ 0000093D  A1 00000FD1 R	    mov eax, lives
+ 00000942  E8 00000000 E	    call WriteDec
+
+ 00000947  B6 01		    mov dh, 1
+ 00000949  B2 00		    mov dl, 0
+ 0000094B  E8 00000000 E	    call Gotoxy
+ 00000950  BA 000000A7 R	    mov edx, OFFSET userName
+ 00000955  E8 00000000 E	    call WriteString
+
+ 0000095A  B6 02		    mov dh,2
+ 0000095C  B2 4B		    mov dl, 75
+ 0000095E  E8 00000000 E	    call Gotoxy
+ 00000963  BA 00000F90 R	    mov edx, OFFSET levelMsg
+ 00000968  E8 00000000 E	    call WriteString
+ 0000096D  A1 00000FD5 R	    mov eax, level
+ 00000972  E8 00000000 E	    call WriteDec
 
 				    ; Draw borders and walls (your existing code)
 				    ; Top border
- 00000825  B6 05		    mov dh, 5
- 00000827  B2 00		    mov dl, 0
- 00000829  B9 00000073		    mov ecx, 115
- 0000082E  A0 00000F98 R	    mov al, wallChar
- 00000833			topBorder:
- 00000833  E8 00000000 E	    call Gotoxy
- 00000838  E8 00000000 E	    call WriteChar
- 0000083D  FE C2		    inc dl
- 0000083F  E2 F2		    loop topBorder
+ 00000977  B6 05		    mov dh, 5
+ 00000979  B2 00		    mov dl, 0
+ 0000097B  B9 00000073		    mov ecx, 115
+ 00000980  A0 00000F98 R	    mov al, wallChar
+ 00000985			topBorder:
+ 00000985  E8 00000000 E	    call Gotoxy
+ 0000098A  E8 00000000 E	    call WriteChar
+ 0000098F  FE C2		    inc dl
+ 00000991  E2 F2		    loop topBorder
 
 				    ; Bottom border
- 00000841  B6 1D		    mov dh, 29
- 00000843  B2 00		    mov dl, 0
- 00000845  B9 00000073		    mov ecx, 115
- 0000084A			bottomBorder:
- 0000084A  E8 00000000 E	    call Gotoxy
- 0000084F  E8 00000000 E	    call WriteChar
- 00000854  FE C2		    inc dl
- 00000856  E2 F2		    loop bottomBorder
+ 00000993  B6 1D		    mov dh, 29
+ 00000995  B2 00		    mov dl, 0
+ 00000997  B9 00000073		    mov ecx, 115
+ 0000099C			bottomBorder:
+ 0000099C  E8 00000000 E	    call Gotoxy
+ 000009A1  E8 00000000 E	    call WriteChar
+ 000009A6  FE C2		    inc dl
+ 000009A8  E2 F2		    loop bottomBorder
 
 				    ; Left and right borders 
- 00000858  B6 05		    mov dh, 5
- 0000085A  B9 0000001B		    mov ecx, 27        ; Height
- 0000085F			sideBorders:
+ 000009AA  B6 05		    mov dh, 5
+ 000009AC  B9 0000001B		    mov ecx, 27        ; Height
+ 000009B1			sideBorders:
 				    ; Left border
- 0000085F  B2 00		    mov dl, 0
- 00000861  E8 00000000 E	    call Gotoxy
- 00000866  A0 00000F98 R	    mov al, wallChar
- 0000086B  E8 00000000 E	    call WriteChar
+ 000009B1  B2 00		    mov dl, 0
+ 000009B3  E8 00000000 E	    call Gotoxy
+ 000009B8  A0 00000F98 R	    mov al, wallChar
+ 000009BD  E8 00000000 E	    call WriteChar
 				    ; Right border
- 00000870  B2 72		    mov dl, 114
- 00000872  E8 00000000 E	    call Gotoxy
- 00000877  A0 00000F98 R	    mov al, wallChar
- 0000087C  E8 00000000 E	    call WriteChar
- 00000881  FE C6		    inc dh
- 00000883  E2 DA		    loop sideBorders
+ 000009C2  B2 72		    mov dl, 114
+ 000009C4  E8 00000000 E	    call Gotoxy
+ 000009C9  A0 00000F98 R	    mov al, wallChar
+ 000009CE  E8 00000000 E	    call WriteChar
+ 000009D3  FE C6		    inc dh
+ 000009D5  E2 DA		    loop sideBorders
 
 				    ; Inner walls (your existing code)
- 00000885  E8 000001FE		    call DrawInnerWalls
+ 000009D7  E8 000001FE		    call DrawInnerWalls
 
 				    ; Return message
- 0000088A  B6 03		    mov dh, 3
- 0000088C  B2 02		    mov dl, 2
- 0000088E  E8 00000000 E	    call Gotoxy
- 00000893  BA 000000D9 R	    mov edx, offset returnMsg
- 00000898  E8 00000000 E	    call WriteString
+ 000009DC  B6 03		    mov dh, 3
+ 000009DE  B2 02		    mov dl, 2
+ 000009E0  E8 00000000 E	    call Gotoxy
+ 000009E5  BA 000000D9 R	    mov edx, offset returnMsg
+ 000009EA  E8 00000000 E	    call WriteString
 				    
- 0000089D  C3			    ret
- 0000089E			DrawStaticElements ENDP
+ 000009EF  C3			    ret
+ 000009F0			DrawStaticElements ENDP
 				;;...........................................
- 0000089E			DrawGameElements PROC
+ 000009F0			DrawGameElements PROC
 				    ; Draw pellets
- 0000089E  B8 00000005		    mov eax, purpleTxt
- 000008A3  E8 00000000 E	    call SetTextColor
- 000008A8  BE 00000FA1 R	    mov esi, OFFSET pelletPositions
- 000008AD  B9 00000014		    mov ecx, 20
+ 000009F0  B8 00000005		    mov eax, purpleTxt
+ 000009F5  E8 00000000 E	    call SetTextColor
+ 000009FA  BE 00000FA1 R	    mov esi, OFFSET pelletPositions
+ 000009FF  B9 00000014		    mov ecx, 20
 
- 000008B2			DrawPellets:
- 000008B2  80 3E 00		    cmp byte ptr [esi], 0  ; Skip if pellet collected
- 000008B5  74 14		    je SkipPellet
+ 00000A04			DrawPellets:
+ 00000A04  80 3E 00		    cmp byte ptr [esi], 0  ; Skip if pellet collected
+ 00000A07  74 14		    je SkipPellet
 				    
- 000008B7  8A 16		    mov dl, [esi]    ; X
- 000008B9  8A 76 01		    mov dh, [esi+1]  ; Y
- 000008BC  E8 00000000 E	    call Gotoxy
- 000008C1  A0 00000F9A R	    mov al, pelletChar
- 000008C6  E8 00000000 E	    call WriteChar
+ 00000A09  8A 16		    mov dl, [esi]    ; X
+ 00000A0B  8A 76 01		    mov dh, [esi+1]  ; Y
+ 00000A0E  E8 00000000 E	    call Gotoxy
+ 00000A13  A0 00000F9A R	    mov al, pelletChar
+ 00000A18  E8 00000000 E	    call WriteChar
 
- 000008CB			SkipPellet:
- 000008CB  83 C6 02		    add esi, 2
- 000008CE  E2 E2		    loop DrawPellets
+ 00000A1D			SkipPellet:
+ 00000A1D  83 C6 02		    add esi, 2
+ 00000A20  E2 E2		    loop DrawPellets
 
 				    ; Draw Pac-Man
- 000008D0  B8 0000000F		    mov eax, whiteTxt
- 000008D5  E8 00000000 E	    call SetTextColor
- 000008DA  8A 15 00000FC9 R	    mov dl, pacmanX
- 000008E0  8A 35 00000FCA R	    mov dh, pacmanY
- 000008E6  E8 00000000 E	    call Gotoxy
- 000008EB  A0 00000F9C R	    mov al, pacmanChar
- 000008F0  E8 00000000 E	    call WriteChar
+ 00000A22  B8 0000000F		    mov eax, whiteTxt
+ 00000A27  E8 00000000 E	    call SetTextColor
+ 00000A2C  8A 15 00000FC9 R	    mov dl, pacmanX
+ 00000A32  8A 35 00000FCA R	    mov dh, pacmanY
+ 00000A38  E8 00000000 E	    call Gotoxy
+ 00000A3D  A0 00000F9C R	    mov al, pacmanChar
+ 00000A42  E8 00000000 E	    call WriteChar
 
 				    ; Draw Ghost
- 000008F5  8A 15 00000FCB R	    mov dl, ghostX
- 000008FB  8A 35 00000FCC R	    mov dh, ghostY
- 00000901  E8 00000000 E	    call Gotoxy
- 00000906  A0 00000F9E R	    mov al, ghostChar
- 0000090B  E8 00000000 E	    call WriteChar
+ 00000A47  8A 15 00000FCB R	    mov dl, ghostX
+ 00000A4D  8A 35 00000FCC R	    mov dh, ghostY
+ 00000A53  E8 00000000 E	    call Gotoxy
+ 00000A58  A0 00000F9E R	    mov al, ghostChar
+ 00000A5D  E8 00000000 E	    call WriteChar
 
- 00000910  C3			    ret
- 00000911			DrawGameElements ENDP
+ 00000A62  C3			    ret
+ 00000A63			DrawGameElements ENDP
 				;...........................................
- 00000911			InitializePellets PROC
- 00000911  60			    pushad
- 00000912  B9 00000014		    mov ecx, 20
- 00000917  BE 00000FA1 R	    mov esi, OFFSET pelletPositions
+ 00000A63			InitializePellets PROC
+ 00000A63  60			    pushad
+ 00000A64  B9 00000014		    mov ecx, 20
+ 00000A69  BE 00000FA1 R	    mov esi, OFFSET pelletPositions
 
- 0000091C			PlacePellet:
+ 00000A6E			PlacePellet:
 				    ; Generate random position within play area
- 0000091C  B8 00000071		    mov eax, 113    
- 00000921  E8 00000000 E	    call RandomRange
- 00000926  40			    inc eax          ; X = 1-114
- 00000927  88 06		    mov [esi], al    ; Store X
+ 00000A6E  B8 00000071		    mov eax, 113    
+ 00000A73  E8 00000000 E	    call RandomRange
+ 00000A78  40			    inc eax          ; X = 1-114
+ 00000A79  88 06		    mov [esi], al    ; Store X
 				    
- 00000929  B8 00000017		    mov eax, 23      ; Max Y (29-6)
- 0000092E  E8 00000000 E	    call RandomRange
- 00000933  83 C0 06		    add eax, 6       ; Y = 6-29
- 00000936  88 46 01		    mov [esi+1], al  ; Store Y
+ 00000A7B  B8 00000017		    mov eax, 23      ; Max Y (29-6)
+ 00000A80  E8 00000000 E	    call RandomRange
+ 00000A85  83 C0 06		    add eax, 6       ; Y = 6-29
+ 00000A88  88 46 01		    mov [esi+1], al  ; Store Y
 
 				    ; Check if position is valid (not on wall)
- 00000939  8A 16		    mov dl, [esi]
- 0000093B  8A 76 01		    mov dh, [esi+1]
- 0000093E  E8 00000009		    call CheckWallPosition
- 00000943  72 D7		    jc PlacePellet  ; If invalid, try again
+ 00000A8B  8A 16		    mov dl, [esi]
+ 00000A8D  8A 76 01		    mov dh, [esi+1]
+ 00000A90  E8 00000009		    call CheckWallPosition
+ 00000A95  72 D7		    jc PlacePellet  ; If invalid, try again
 
- 00000945  83 C6 02		    add esi, 2
- 00000948  E2 D2		    loop PlacePellet
+ 00000A97  83 C6 02		    add esi, 2
+ 00000A9A  E2 D2		    loop PlacePellet
 
- 0000094A  61			    popad
- 0000094B  C3			    ret
- 0000094C			InitializePellets ENDP
+ 00000A9C  61			    popad
+ 00000A9D  C3			    ret
+ 00000A9E			InitializePellets ENDP
 				;..........................................
- 0000094C			CheckWallPosition PROC
+ 00000A9E			CheckWallPosition PROC
 				    ; Checks if position (dl=X, dh=Y) is a wall
 				    ; Returns CF=1 if wall, CF=0 if empty
 				    
 				    ; Check borders
- 0000094C  80 FA 00		    cmp dl, 0
- 0000094F  0F 84 000000BD	    je IsWall
- 00000955  80 FA 72		    cmp dl, 114
- 00000958  0F 84 000000B4	    je IsWall
- 0000095E  80 FE 05		    cmp dh, 5
- 00000961  0F 84 000000AB	    je IsWall
- 00000967  80 FE 1D		    cmp dh, 29
- 0000096A  0F 84 000000A2	    je IsWall
+ 00000A9E  80 FA 00		    cmp dl, 0
+ 00000AA1  0F 84 000000BD	    je IsWall
+ 00000AA7  80 FA 72		    cmp dl, 114
+ 00000AAA  0F 84 000000B4	    je IsWall
+ 00000AB0  80 FE 05		    cmp dh, 5
+ 00000AB3  0F 84 000000AB	    je IsWall
+ 00000AB9  80 FE 1D		    cmp dh, 29
+ 00000ABC  0F 84 000000A2	    je IsWall
 
 				    ; Check inner walls (based on your DrawInnerWalls)
 				    
 				    ; Horizontal wall at Y=10, X=20-34
- 00000970  80 FE 0A		    cmp dh, 10
- 00000973  75 0F		    jne NotWall1
- 00000975  80 FA 14		    cmp dl, 20
- 00000978  72 0A		    jb NotWall1
- 0000097A  80 FA 22		    cmp dl, 34
- 0000097D  77 05		    ja NotWall1
- 0000097F  E9 0000008E		    jmp IsWall
+ 00000AC2  80 FE 0A		    cmp dh, 10
+ 00000AC5  75 0F		    jne NotWall1
+ 00000AC7  80 FA 14		    cmp dl, 20
+ 00000ACA  72 0A		    jb NotWall1
+ 00000ACC  80 FA 22		    cmp dl, 34
+ 00000ACF  77 05		    ja NotWall1
+ 00000AD1  E9 0000008E		    jmp IsWall
 
- 00000984			NotWall1:
+ 00000AD6			NotWall1:
 				    ; Horizontal wall at Y=10, X=70-84
- 00000984  80 FE 0A		    cmp dh, 10
- 00000987  75 0C		    jne NotWall2
- 00000989  80 FA 46		    cmp dl, 70
- 0000098C  72 07		    jb NotWall2
- 0000098E  80 FA 54		    cmp dl, 84
- 00000991  77 02		    ja NotWall2
- 00000993  EB 7D		    jmp IsWall
+ 00000AD6  80 FE 0A		    cmp dh, 10
+ 00000AD9  75 0C		    jne NotWall2
+ 00000ADB  80 FA 46		    cmp dl, 70
+ 00000ADE  72 07		    jb NotWall2
+ 00000AE0  80 FA 54		    cmp dl, 84
+ 00000AE3  77 02		    ja NotWall2
+ 00000AE5  EB 7D		    jmp IsWall
 
- 00000995			NotWall2:
+ 00000AE7			NotWall2:
 				    ; Horizontal walls at Y=14
- 00000995  80 FE 0E		    cmp dh, 14
- 00000998  75 3C		    jne NotWall3
+ 00000AE7  80 FE 0E		    cmp dh, 14
+ 00000AEA  75 3C		    jne NotWall3
 				    ; X=15-22
- 0000099A  80 FA 0F		    cmp dl, 15
- 0000099D  72 07		    jb NotWall3a
- 0000099F  80 FA 16		    cmp dl, 22
- 000009A2  77 02		    ja NotWall3a
- 000009A4  EB 6C		    jmp IsWall
- 000009A6			NotWall3a:
+ 00000AEC  80 FA 0F		    cmp dl, 15
+ 00000AEF  72 07		    jb NotWall3a
+ 00000AF1  80 FA 16		    cmp dl, 22
+ 00000AF4  77 02		    ja NotWall3a
+ 00000AF6  EB 6C		    jmp IsWall
+ 00000AF8			NotWall3a:
 				    ; X=35-42
- 000009A6  80 FA 23		    cmp dl, 35
- 000009A9  72 07		    jb NotWall3b
- 000009AB  80 FA 2A		    cmp dl, 42
- 000009AE  77 02		    ja NotWall3b
- 000009B0  EB 60		    jmp IsWall
- 000009B2			NotWall3b:
+ 00000AF8  80 FA 23		    cmp dl, 35
+ 00000AFB  72 07		    jb NotWall3b
+ 00000AFD  80 FA 2A		    cmp dl, 42
+ 00000B00  77 02		    ja NotWall3b
+ 00000B02  EB 60		    jmp IsWall
+ 00000B04			NotWall3b:
 				    ; X=55-62
- 000009B2  80 FA 37		    cmp dl, 55
- 000009B5  72 07		    jb NotWall3c
- 000009B7  80 FA 3E		    cmp dl, 62
- 000009BA  77 02		    ja NotWall3c
- 000009BC  EB 54		    jmp IsWall
- 000009BE			NotWall3c:
+ 00000B04  80 FA 37		    cmp dl, 55
+ 00000B07  72 07		    jb NotWall3c
+ 00000B09  80 FA 3E		    cmp dl, 62
+ 00000B0C  77 02		    ja NotWall3c
+ 00000B0E  EB 54		    jmp IsWall
+ 00000B10			NotWall3c:
 				    ; X=75-82
- 000009BE  80 FA 4B		    cmp dl, 75
- 000009C1  72 07		    jb NotWall3d
- 000009C3  80 FA 52		    cmp dl, 82
- 000009C6  77 02		    ja NotWall3d
- 000009C8  EB 48		    jmp IsWall
- 000009CA			NotWall3d:
+ 00000B10  80 FA 4B		    cmp dl, 75
+ 00000B13  72 07		    jb NotWall3d
+ 00000B15  80 FA 52		    cmp dl, 82
+ 00000B18  77 02		    ja NotWall3d
+ 00000B1A  EB 48		    jmp IsWall
+ 00000B1C			NotWall3d:
 				    ; X=95-102
- 000009CA  80 FA 5F		    cmp dl, 95
- 000009CD  72 07		    jb NotWall3
- 000009CF  80 FA 66		    cmp dl, 102
- 000009D2  77 02		    ja NotWall3
- 000009D4  EB 3C		    jmp IsWall
+ 00000B1C  80 FA 5F		    cmp dl, 95
+ 00000B1F  72 07		    jb NotWall3
+ 00000B21  80 FA 66		    cmp dl, 102
+ 00000B24  77 02		    ja NotWall3
+ 00000B26  EB 3C		    jmp IsWall
 
- 000009D6			NotWall3:
+ 00000B28			NotWall3:
 				    ; Horizontal walls at Y=17
- 000009D6  80 FE 11		    cmp dh, 17
- 000009D9  75 18		    jne NotWall4
+ 00000B28  80 FE 11		    cmp dh, 17
+ 00000B2B  75 18		    jne NotWall4
 				    ; X=30-39
- 000009DB  80 FA 1E		    cmp dl, 30
- 000009DE  72 07		    jb NotWall4a
- 000009E0  80 FA 27		    cmp dl, 39
- 000009E3  77 02		    ja NotWall4a
- 000009E5  EB 2B		    jmp IsWall
- 000009E7			NotWall4a:
+ 00000B2D  80 FA 1E		    cmp dl, 30
+ 00000B30  72 07		    jb NotWall4a
+ 00000B32  80 FA 27		    cmp dl, 39
+ 00000B35  77 02		    ja NotWall4a
+ 00000B37  EB 2B		    jmp IsWall
+ 00000B39			NotWall4a:
 				    ; X=80-89
- 000009E7  80 FA 50		    cmp dl, 80
- 000009EA  72 07		    jb NotWall4
- 000009EC  80 FA 59		    cmp dl, 89
- 000009EF  77 02		    ja NotWall4
- 000009F1  EB 1F		    jmp IsWall
+ 00000B39  80 FA 50		    cmp dl, 80
+ 00000B3C  72 07		    jb NotWall4
+ 00000B3E  80 FA 59		    cmp dl, 89
+ 00000B41  77 02		    ja NotWall4
+ 00000B43  EB 1F		    jmp IsWall
 
- 000009F3			NotWall4:
+ 00000B45			NotWall4:
 				    ; Horizontal walls at Y=22
- 000009F3  80 FE 16		    cmp dh, 22
- 000009F6  75 18		    jne NotWall
+ 00000B45  80 FE 16		    cmp dh, 22
+ 00000B48  75 18		    jne NotWall
 				    ; X=25-44
- 000009F8  80 FA 19		    cmp dl, 25
- 000009FB  72 07		    jb NotWall5a
- 000009FD  80 FA 2C		    cmp dl, 44
- 00000A00  77 02		    ja NotWall5a
- 00000A02  EB 0E		    jmp IsWall
- 00000A04			NotWall5a:
+ 00000B4A  80 FA 19		    cmp dl, 25
+ 00000B4D  72 07		    jb NotWall5a
+ 00000B4F  80 FA 2C		    cmp dl, 44
+ 00000B52  77 02		    ja NotWall5a
+ 00000B54  EB 0E		    jmp IsWall
+ 00000B56			NotWall5a:
 				    ; X=85-104
- 00000A04  80 FA 55		    cmp dl, 85
- 00000A07  72 07		    jb NotWall
- 00000A09  80 FA 68		    cmp dl, 104
- 00000A0C  77 02		    ja NotWall
- 00000A0E  EB 02		    jmp IsWall
+ 00000B56  80 FA 55		    cmp dl, 85
+ 00000B59  72 07		    jb NotWall
+ 00000B5B  80 FA 68		    cmp dl, 104
+ 00000B5E  77 02		    ja NotWall
+ 00000B60  EB 02		    jmp IsWall
 
- 00000A10			NotWall:
- 00000A10  F8			    clc
- 00000A11  C3			    ret
- 00000A12			IsWall:
- 00000A12  F9			    stc
- 00000A13  C3			    ret
- 00000A14			CheckWallPosition ENDP
+ 00000B62			NotWall:
+ 00000B62  F8			    clc
+ 00000B63  C3			    ret
+ 00000B64			IsWall:
+ 00000B64  F9			    stc
+ 00000B65  C3			    ret
+ 00000B66			CheckWallPosition ENDP
 				;...........................................
- 00000A14			CheckWallCollision PROC
+ 00000B66			CheckWallCollision PROC
 				    ; Checks if Pac-Man's current position is a wall
 				    ; Returns CF=1 if collision
- 00000A14  8A 15 00000FC9 R	    mov dl, pacmanX
- 00000A1A  8A 35 00000FCA R	    mov dh, pacmanY
- 00000A20  E8 FFFFFF27		    call CheckWallPosition
- 00000A25  C3			    ret
- 00000A26			CheckWallCollision ENDP
+ 00000B66  8A 15 00000FC9 R	    mov dl, pacmanX
+ 00000B6C  8A 35 00000FCA R	    mov dh, pacmanY
+ 00000B72  E8 FFFFFF27		    call CheckWallPosition
+ 00000B77  C3			    ret
+ 00000B78			CheckWallCollision ENDP
 				;.........................................
- 00000A26			CheckPelletCollision PROC
- 00000A26  60			    pushad
- 00000A27  BE 00000FA1 R	    mov esi, OFFSET pelletPositions
- 00000A2C  B9 00000014		    mov ecx, 20
+ 00000B78			CheckPelletCollision PROC
+ 00000B78  60			    pushad
+ 00000B79  BE 00000FA1 R	    mov esi, OFFSET pelletPositions
+ 00000B7E  B9 00000014		    mov ecx, 20
 
- 00000A31			CheckPellets:
- 00000A31  80 3E 00		    cmp byte ptr [esi], 0  ; Skip if pellet already collected
- 00000A34  74 4B		    je NextPellet
+ 00000B83			CheckPellets:
+ 00000B83  80 3E 00		    cmp byte ptr [esi], 0  ; Skip if pellet already collected
+ 00000B86  74 4B		    je NextPellet
 				    
- 00000A36  8A 06		    mov al, [esi]    ; Pellet X
- 00000A38  3A 05 00000FC9 R	    cmp al, pacmanX
- 00000A3E  75 41		    jne NextPellet
+ 00000B88  8A 06		    mov al, [esi]    ; Pellet X
+ 00000B8A  3A 05 00000FC9 R	    cmp al, pacmanX
+ 00000B90  75 41		    jne NextPellet
 				    
- 00000A40  8A 46 01		    mov al, [esi+1]  ; Pellet Y
- 00000A43  3A 05 00000FCA R	    cmp al, pacmanY
- 00000A49  75 36		    jne NextPellet
+ 00000B92  8A 46 01		    mov al, [esi+1]  ; Pellet Y
+ 00000B95  3A 05 00000FCA R	    cmp al, pacmanY
+ 00000B9B  75 36		    jne NextPellet
 
 				    ; Pac-Man is on this pellet!
- 00000A4B  C6 06 00		    mov byte ptr [esi], 0  ; Remove pellet
- 00000A4E  FF 05 00000FCD R	    inc score
- 00000A54  FE 0D 00000FA0 R	    dec pelletCount
+ 00000B9D  C6 06 00		    mov byte ptr [esi], 0  ; Remove pellet
+ 00000BA0  FF 05 00000FCD R	    inc score
+ 00000BA6  FE 0D 00000FA0 R	    dec pelletCount
 
 				    ; Update score display
- 00000A5A  B8 0000000F		    mov eax, whiteTxt
- 00000A5F  E8 00000000 E	    call SetTextColor
- 00000A64  B6 01		    mov dh, 1
- 00000A66  B2 37		    mov dl, 55
- 00000A68  E8 00000000 E	    call Gotoxy
- 00000A6D  BA 00000F80 R	    mov edx, OFFSET scoreMsg
- 00000A72  E8 00000000 E	    call WriteString
- 00000A77  A1 00000FCD R	    mov eax, score
- 00000A7C  E8 00000000 E	    call WriteDec
+ 00000BAC  B8 0000000F		    mov eax, whiteTxt
+ 00000BB1  E8 00000000 E	    call SetTextColor
+ 00000BB6  B6 01		    mov dh, 1
+ 00000BB8  B2 37		    mov dl, 55
+ 00000BBA  E8 00000000 E	    call Gotoxy
+ 00000BBF  BA 00000F80 R	    mov edx, OFFSET scoreMsg
+ 00000BC4  E8 00000000 E	    call WriteString
+ 00000BC9  A1 00000FCD R	    mov eax, score
+ 00000BCE  E8 00000000 E	    call WriteDec
 
- 00000A81			NextPellet:
- 00000A81  83 C6 02		    add esi, 2
- 00000A84  E2 AB		    loop CheckPellets
+ 00000BD3			NextPellet:
+ 00000BD3  83 C6 02		    add esi, 2
+ 00000BD6  E2 AB		    loop CheckPellets
 
- 00000A86  61			    popad
- 00000A87  C3			    ret
- 00000A88			CheckPelletCollision ENDP
+ 00000BD8  61			    popad
+ 00000BD9  C3			    ret
+ 00000BDA			CheckPelletCollision ENDP
 
 				;.....................................
- 00000A88			DrawInnerWalls PROC
- 00000A88  B6 0A		    mov dh, 10
- 00000A8A  B2 14		    mov dl, 20
- 00000A8C  B9 0000000F		    mov ecx, 15
- 00000A91  E8 00000061		    call DrawWall
- 00000A96  B2 46		    mov dl, 70
- 00000A98  B9 0000000F		    mov ecx, 15
- 00000A9D  E8 00000055		    call DrawWall
+ 00000BDA			DrawInnerWalls PROC
+ 00000BDA  B6 0A		    mov dh, 10
+ 00000BDC  B2 14		    mov dl, 20
+ 00000BDE  B9 0000000F		    mov ecx, 15
+ 00000BE3  E8 00000061		    call DrawWall
+ 00000BE8  B2 46		    mov dl, 70
+ 00000BEA  B9 0000000F		    mov ecx, 15
+ 00000BEF  E8 00000055		    call DrawWall
 
- 00000AA2  B6 0E		    mov dh, 14
- 00000AA4  B2 0F		    mov dl, 15
- 00000AA6  B9 00000008		    mov ecx, 8
- 00000AAB  E8 00000047		    call DrawWall
- 00000AB0  B2 23		    mov dl, 35
- 00000AB2  E8 00000040		    call DrawWall
- 00000AB7  B2 37		    mov dl, 55
- 00000AB9  E8 00000039		    call DrawWall
- 00000ABE  B2 4B		    mov dl, 75
- 00000AC0  E8 00000032		    call DrawWall
- 00000AC5  B2 5F		    mov dl, 95
- 00000AC7  E8 0000002B		    call DrawWall
+ 00000BF4  B6 0E		    mov dh, 14
+ 00000BF6  B2 0F		    mov dl, 15
+ 00000BF8  B9 00000008		    mov ecx, 8
+ 00000BFD  E8 00000047		    call DrawWall
+ 00000C02  B2 23		    mov dl, 35
+ 00000C04  E8 00000040		    call DrawWall
+ 00000C09  B2 37		    mov dl, 55
+ 00000C0B  E8 00000039		    call DrawWall
+ 00000C10  B2 4B		    mov dl, 75
+ 00000C12  E8 00000032		    call DrawWall
+ 00000C17  B2 5F		    mov dl, 95
+ 00000C19  E8 0000002B		    call DrawWall
 
- 00000ACC  B6 11		    mov dh, 17
- 00000ACE  B2 1E		    mov dl, 30
- 00000AD0  B9 0000000A		    mov ecx, 10
- 00000AD5  E8 0000001D		    call DrawWall
- 00000ADA  B2 50		    mov dl, 80
- 00000ADC  E8 00000016		    call DrawWall
+ 00000C1E  B6 11		    mov dh, 17
+ 00000C20  B2 1E		    mov dl, 30
+ 00000C22  B9 0000000A		    mov ecx, 10
+ 00000C27  E8 0000001D		    call DrawWall
+ 00000C2C  B2 50		    mov dl, 80
+ 00000C2E  E8 00000016		    call DrawWall
 
- 00000AE1  B6 16		    mov dh, 22
- 00000AE3  B2 19		    mov dl, 25
- 00000AE5  B9 00000014		    mov ecx, 20
- 00000AEA  E8 00000008		    call DrawWall
- 00000AEF  B2 55		    mov dl, 85
- 00000AF1  E8 00000001		    call DrawWall
- 00000AF6  C3			    ret
- 00000AF7			DrawInnerWalls ENDP
+ 00000C33  B6 16		    mov dh, 22
+ 00000C35  B2 19		    mov dl, 25
+ 00000C37  B9 00000014		    mov ecx, 20
+ 00000C3C  E8 00000008		    call DrawWall
+ 00000C41  B2 55		    mov dl, 85
+ 00000C43  E8 00000001		    call DrawWall
+ 00000C48  C3			    ret
+ 00000C49			DrawInnerWalls ENDP
 				;.................................................
- 00000AF7			DrawWall PROC
- 00000AF7  51			    push ecx
- 00000AF8			wallLoop:
- 00000AF8  E8 00000000 E	    call Gotoxy
- 00000AFD  A0 00000F98 R	    mov al, wallChar
- 00000B02  E8 00000000 E	    call WriteChar
- 00000B07  FE C2		    inc dl
- 00000B09  E2 ED		    loop wallLoop
- 00000B0B  59			    pop ecx
- 00000B0C  C3			    ret
- 00000B0D			DrawWall ENDP
-				;........................................
+ 00000C49			DrawWall PROC
+ 00000C49  51			    push ecx
+ 00000C4A			wallLoop:
+ 00000C4A  E8 00000000 E	    call Gotoxy
+ 00000C4F  A0 00000F98 R	    mov al, wallChar
+ 00000C54  E8 00000000 E	    call WriteChar
+ 00000C59  FE C2		    inc dl
+ 00000C5B  E2 ED		    loop wallLoop
+ 00000C5D  59			    pop ecx
+ 00000C5E  C3			    ret
+ 00000C5F			DrawWall ENDP
+				;....................................................
+ 00000C5F			ClearOldPositions PROC
+				    ; Clear old Pac-Man position
+ 00000C5F  B8 00000000		    mov eax, blackTxt
+ 00000C64  E8 00000000 E	    call SetTextColor
+ 00000C69  8A 15 00000FD9 R	    mov dl, oldPacmanX
+ 00000C6F  8A 35 00000FDA R	    mov dh, oldPacmanY
+ 00000C75  E8 00000000 E	    call Gotoxy
+ 00000C7A  A0 00000F99 R	    mov al, emptyChar
+ 00000C7F  E8 00000000 E	    call WriteChar
+				    
+				    ; Clear old ghost position
+ 00000C84  8A 15 00000FDC R	    mov dl, oldGhostX
+ 00000C8A  8A 35 00000FDD R	    mov dh, oldGhostY
+ 00000C90  E8 00000000 E	    call Gotoxy
+ 00000C95  A0 00000F99 R	    mov al, emptyChar
+ 00000C9A  E8 00000000 E	    call WriteChar
+ 00000C9F  C3			    ret
+ 00000CA0			ClearOldPositions ENDP
+				;.................................................
+ 00000CA0			GhostMovement PROC
+ 00000CA0  A0 00000FCB R	    mov al, ghostX
+ 00000CA5  A2 00000FDC R	    mov oldGhostX, al
+ 00000CAA  A0 00000FCC R	    mov al, ghostY
+ 00000CAF  A2 00000FDD R	    mov oldGhostY, al
+				    
+				    ; 70% chance to move toward Pac-Man, 30% random
+ 00000CB4  E8 00000000 E	    call Randomize
+ 00000CB9  B8 0000000A		    mov eax, 10
+ 00000CBE  E8 00000000 E	    call RandomRange
+ 00000CC3  83 F8 07		    cmp eax, 7  ; 0-2 = random (30%), 3-9 = toward (70%)
+ 00000CC6  72 5E		    jb RandomMove
+				    
+				    ; Move toward Pac-Man
+ 00000CC8  8A 1D 00000FC9 R	    mov bl, pacmanX
+ 00000CCE  8A 3D 00000FCA R	    mov bh, pacmanY
+				    
+ 00000CD4  38 1D 00000FCB R	    cmp ghostX, bl
+ 00000CDA  7C 0E		    jl MoveGhostRight
+ 00000CDC  7F 1E		    jg MoveGhostLeft
+ 00000CDE  38 3D 00000FCC R	    cmp ghostY, bh
+ 00000CE4  7C 32		    jl MoveGhostDown
+ 00000CE6  7F 22		    jg MoveGhostUp
+ 00000CE8  EB 3C		    jmp RandomMove
 
+ 00000CEA			MoveGhostRight:
+ 00000CEA  FE 05 00000FCB R	    inc ghostX
+ 00000CF0  E8 0000009D		    call CheckGhostWallCollision
+ 00000CF5  0F 82 00000082	    jc UndoGhostMove
+ 00000CFB  C3			    ret
+ 00000CFC			MoveGhostLeft:
+ 00000CFC  FE 0D 00000FCB R	    dec ghostX
+ 00000D02  E8 0000008B		    call CheckGhostWallCollision
+ 00000D07  72 74		    jc UndoGhostMove
+ 00000D09  C3			    ret
+ 00000D0A			MoveGhostUp:
+ 00000D0A  FE 0D 00000FCC R	    dec ghostY
+ 00000D10  E8 0000007D		    call CheckGhostWallCollision
+ 00000D15  72 66		    jc UndoGhostMove
+ 00000D17  C3			    ret
+ 00000D18			MoveGhostDown:
+ 00000D18  FE 05 00000FCC R	    inc ghostY
+ 00000D1E  E8 0000006F		    call CheckGhostWallCollision
+ 00000D23  72 58		    jc UndoGhostMove
+ 00000D25  C3			    ret
 
- 00000B0D			Level2Screen proc
- 00000B0D			Level2Screen endp
+ 00000D26			RandomMove:
+				    ; Random direction (1-4)
+ 00000D26  B8 00000004		    mov eax, 4
+ 00000D2B  E8 00000000 E	    call RandomRange
+ 00000D30  40			    inc eax
+				    
+ 00000D31  83 F8 01		    cmp eax, 1
+ 00000D34  74 0F		    je TryRight
+ 00000D36  83 F8 02		    cmp eax, 2
+ 00000D39  74 18		    je TryLeft
+ 00000D3B  83 F8 03		    cmp eax, 3
+ 00000D3E  74 21		    je TryUp
+ 00000D40  83 F8 04		    cmp eax, 4
+ 00000D43  74 2A		    je TryDown
 
- 00000B0D			Level3Screen proc
- 00000B0D			Level3Screen endp
+ 00000D45			TryRight:
+ 00000D45  FE 05 00000FCB R	    inc ghostX
+ 00000D4B  E8 00000042		    call CheckGhostWallCollision
+ 00000D50  72 2B		    jc UndoGhostMove
+ 00000D52  C3			    ret
+ 00000D53			TryLeft:
+ 00000D53  FE 0D 00000FCB R	    dec ghostX
+ 00000D59  E8 00000034		    call CheckGhostWallCollision
+ 00000D5E  72 1D		    jc UndoGhostMove
+ 00000D60  C3			    ret
+ 00000D61			TryUp:
+ 00000D61  FE 0D 00000FCC R	    dec ghostY
+ 00000D67  E8 00000026		    call CheckGhostWallCollision
+ 00000D6C  72 0F		    jc UndoGhostMove
+ 00000D6E  C3			    ret
+ 00000D6F			TryDown:
+ 00000D6F  FE 05 00000FCC R	    inc ghostY
+ 00000D75  E8 00000018		    call CheckGhostWallCollision
+ 00000D7A  72 01		    jc UndoGhostMove
+ 00000D7C  C3			    ret
+
+ 00000D7D			UndoGhostMove:
+ 00000D7D  A0 00000FDC R	    mov al, oldGhostX
+ 00000D82  A2 00000FCB R	    mov ghostX, al
+ 00000D87  A0 00000FDD R	    mov al, oldGhostY
+ 00000D8C  A2 00000FCC R	    mov ghostY, al
+ 00000D91  C3			    ret
+ 00000D92			GhostMovement ENDP
+				;.......................................
+ 00000D92			CheckGhostWallCollision PROC
+ 00000D92  8A 15 00000FCB R	    mov dl, ghostX
+ 00000D98  8A 35 00000FCC R	    mov dh, ghostY
+ 00000D9E  E8 FFFFFCFB		    call CheckWallPosition
+ 00000DA3  C3			    ret
+ 00000DA4			CheckGhostWallCollision ENDP
+				;............................................
+ 00000DA4			CheckGhostCollision PROC
+				    ; Check if Pac-Man hit ghost
+ 00000DA4  A0 00000FC9 R	    mov al, pacmanX
+ 00000DA9  3A 05 00000FCB R	    cmp al, ghostX
+ 00000DAF  75 7F		    jne NoCollision
+ 00000DB1  A0 00000FCA R	    mov al, pacmanY
+ 00000DB6  3A 05 00000FCC R	    cmp al, ghostY
+ 00000DBC  75 72		    jne NoCollision
+				    
+				    ; Collision occurred - decrease lives
+ 00000DBE  FF 0D 00000FD1 R	    dec lives
+				    
+				    ; Update lives display immediately
+ 00000DC4  B8 0000000F		    mov eax, whiteTxt
+ 00000DC9  E8 00000000 E	    call SetTextColor
+ 00000DCE  B6 00		    mov dh, 0
+ 00000DD0  B2 07		    mov dl, 7  ; Position after "Lives: "
+ 00000DD2  E8 00000000 E	    call Gotoxy
+				    
+				    ; CORRECTED: Proper way to load byte into EAX
+ 00000DD7  A1 00000FD1 R	    mov eax, lives     ; Load byte into AL
+ 00000DDC  0F B6 C0		    movzx eax, al     ; Zero-extend to EAX
+ 00000DDF  E8 00000000 E	    call WriteDec
+				    
+				    ; Clear old ghost position before resetting
+ 00000DE4  8A 15 00000FCB R	    mov dl, ghostX
+ 00000DEA  8A 35 00000FCC R	    mov dh, ghostY
+ 00000DF0  E8 00000000 E	    call Gotoxy
+ 00000DF5  A0 00000F99 R	    mov al, emptyChar
+ 00000DFA  E8 00000000 E	    call WriteChar
+				    
+				    ; Reset positions
+ 00000DFF  C6 05 00000FC9 R	    mov pacmanX, 10
+	   0A
+ 00000E06  C6 05 00000FCA R	    mov pacmanY, 15
+	   0F
+ 00000E0D  C6 05 00000FCB R	    mov ghostX, 50
+	   32
+ 00000E14  C6 05 00000FCC R	    mov ghostY, 15
+	   0F
+				    
+				    ; Check if game over (lives == 0)
+ 00000E1B  83 3D 00000FD1 R	    cmp lives, 0
+	   00
+ 00000E22  7E 06		    jle GameOver
+				    
+ 00000E24  B8 00000000		    mov eax, 0  ; Return 0 = collision but game continues
+ 00000E29  C3			    ret
+				    
+ 00000E2A			GameOver:
+ 00000E2A  B8 00000001		    mov eax, 1  ; Return 1 = game over
+ 00000E2F  C3			    ret
+				    
+ 00000E30			NoCollision:
+ 00000E30  B8 00000000		    mov eax, 0  ; Return 0 = no collision
+ 00000E35  C3			    ret
+ 00000E36			CheckGhostCollision ENDP
+				;..............................................
+ 00000E36			Level2Screen proc
+ 00000E36			Level2Screen endp
+
+ 00000E36			Level3Screen proc
+ 00000E36			Level3Screen endp
 
 				end main
 
 
 
 
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/12/25 01:24:51
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/12/25 01:53:33
 CODE.asm						     Symbols 2 - 1
 
 
@@ -2176,30 +2468,35 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 00000FDE Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000B0D Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000E36 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-CheckPelletCollision . . . . . .	P Near	 00000A26 _TEXT	Length= 00000062 Public STDCALL
-  CheckPellets . . . . . . . . .	L Near	 00000A31 _TEXT	
-  NextPellet . . . . . . . . . .	L Near	 00000A81 _TEXT	
-CheckWallCollision . . . . . . .	P Near	 00000A14 _TEXT	Length= 00000012 Public STDCALL
-CheckWallPosition  . . . . . . .	P Near	 0000094C _TEXT	Length= 000000C8 Public STDCALL
-  NotWall1 . . . . . . . . . . .	L Near	 00000984 _TEXT	
-  NotWall2 . . . . . . . . . . .	L Near	 00000995 _TEXT	
-  NotWall3a  . . . . . . . . . .	L Near	 000009A6 _TEXT	
-  NotWall3b  . . . . . . . . . .	L Near	 000009B2 _TEXT	
-  NotWall3c  . . . . . . . . . .	L Near	 000009BE _TEXT	
-  NotWall3d  . . . . . . . . . .	L Near	 000009CA _TEXT	
-  NotWall3 . . . . . . . . . . .	L Near	 000009D6 _TEXT	
-  NotWall4a  . . . . . . . . . .	L Near	 000009E7 _TEXT	
-  NotWall4 . . . . . . . . . . .	L Near	 000009F3 _TEXT	
-  NotWall5a  . . . . . . . . . .	L Near	 00000A04 _TEXT	
-  NotWall  . . . . . . . . . . .	L Near	 00000A10 _TEXT	
-  IsWall . . . . . . . . . . . .	L Near	 00000A12 _TEXT	
+CheckGhostCollision  . . . . . .	P Near	 00000DA4 _TEXT	Length= 00000092 Public STDCALL
+  GameOver . . . . . . . . . . .	L Near	 00000E2A _TEXT	
+  NoCollision  . . . . . . . . .	L Near	 00000E30 _TEXT	
+CheckGhostWallCollision  . . . .	P Near	 00000D92 _TEXT	Length= 00000012 Public STDCALL
+CheckPelletCollision . . . . . .	P Near	 00000B78 _TEXT	Length= 00000062 Public STDCALL
+  CheckPellets . . . . . . . . .	L Near	 00000B83 _TEXT	
+  NextPellet . . . . . . . . . .	L Near	 00000BD3 _TEXT	
+CheckWallCollision . . . . . . .	P Near	 00000B66 _TEXT	Length= 00000012 Public STDCALL
+CheckWallPosition  . . . . . . .	P Near	 00000A9E _TEXT	Length= 000000C8 Public STDCALL
+  NotWall1 . . . . . . . . . . .	L Near	 00000AD6 _TEXT	
+  NotWall2 . . . . . . . . . . .	L Near	 00000AE7 _TEXT	
+  NotWall3a  . . . . . . . . . .	L Near	 00000AF8 _TEXT	
+  NotWall3b  . . . . . . . . . .	L Near	 00000B04 _TEXT	
+  NotWall3c  . . . . . . . . . .	L Near	 00000B10 _TEXT	
+  NotWall3d  . . . . . . . . . .	L Near	 00000B1C _TEXT	
+  NotWall3 . . . . . . . . . . .	L Near	 00000B28 _TEXT	
+  NotWall4a  . . . . . . . . . .	L Near	 00000B39 _TEXT	
+  NotWall4 . . . . . . . . . . .	L Near	 00000B45 _TEXT	
+  NotWall5a  . . . . . . . . . .	L Near	 00000B56 _TEXT	
+  NotWall  . . . . . . . . . . .	L Near	 00000B62 _TEXT	
+  IsWall . . . . . . . . . . . .	L Near	 00000B64 _TEXT	
+ClearOldPositions  . . . . . . .	P Near	 00000C5F _TEXT	Length= 00000041 Public STDCALL
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -2207,16 +2504,16 @@ CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-DrawGameElements . . . . . . . .	P Near	 0000089E _TEXT	Length= 00000073 Public STDCALL
-  DrawPellets  . . . . . . . . .	L Near	 000008B2 _TEXT	
-  SkipPellet . . . . . . . . . .	L Near	 000008CB _TEXT	
-DrawInnerWalls . . . . . . . . .	P Near	 00000A88 _TEXT	Length= 0000006F Public STDCALL
-DrawStaticElements . . . . . . .	P Near	 000007CE _TEXT	Length= 000000D0 Public STDCALL
-  topBorder  . . . . . . . . . .	L Near	 00000833 _TEXT	
-  bottomBorder . . . . . . . . .	L Near	 0000084A _TEXT	
-  sideBorders  . . . . . . . . .	L Near	 0000085F _TEXT	
-DrawWall . . . . . . . . . . . .	P Near	 00000AF7 _TEXT	Length= 00000016 Public STDCALL
-  wallLoop . . . . . . . . . . .	L Near	 00000AF8 _TEXT	
+DrawGameElements . . . . . . . .	P Near	 000009F0 _TEXT	Length= 00000073 Public STDCALL
+  DrawPellets  . . . . . . . . .	L Near	 00000A04 _TEXT	
+  SkipPellet . . . . . . . . . .	L Near	 00000A1D _TEXT	
+DrawInnerWalls . . . . . . . . .	P Near	 00000BDA _TEXT	Length= 0000006F Public STDCALL
+DrawStaticElements . . . . . . .	P Near	 00000920 _TEXT	Length= 000000D0 Public STDCALL
+  topBorder  . . . . . . . . . .	L Near	 00000985 _TEXT	
+  bottomBorder . . . . . . . . .	L Near	 0000099C _TEXT	
+  sideBorders  . . . . . . . . .	L Near	 000009B1 _TEXT	
+DrawWall . . . . . . . . . . . .	P Near	 00000C49 _TEXT	Length= 00000016 Public STDCALL
+  wallLoop . . . . . . . . . . .	L Near	 00000C4A _TEXT	
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -2243,6 +2540,17 @@ GetStdHandle . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 GetSystemTime  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTickCount . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GhostMovement  . . . . . . . . .	P Near	 00000CA0 _TEXT	Length= 000000F2 Public STDCALL
+  MoveGhostRight . . . . . . . .	L Near	 00000CEA _TEXT	
+  MoveGhostLeft  . . . . . . . .	L Near	 00000CFC _TEXT	
+  MoveGhostUp  . . . . . . . . .	L Near	 00000D0A _TEXT	
+  MoveGhostDown  . . . . . . . .	L Near	 00000D18 _TEXT	
+  RandomMove . . . . . . . . . .	L Near	 00000D26 _TEXT	
+  TryRight . . . . . . . . . . .	L Near	 00000D45 _TEXT	
+  TryLeft  . . . . . . . . . . .	L Near	 00000D53 _TEXT	
+  TryUp  . . . . . . . . . . . .	L Near	 00000D61 _TEXT	
+  TryDown  . . . . . . . . . . .	L Near	 00000D6F _TEXT	
+  UndoGhostMove  . . . . . . . .	L Near	 00000D7D _TEXT	
 Gotoxy . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapAlloc  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -2250,27 +2558,31 @@ HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HighscoresScreen . . . . . . . .	P Near	 000005B6 _TEXT	Length= 00000096 Public STDCALL
-InitializePellets  . . . . . . .	P Near	 00000911 _TEXT	Length= 0000003B Public STDCALL
-  PlacePellet  . . . . . . . . .	L Near	 0000091C _TEXT	
+InitializePellets  . . . . . . .	P Near	 00000A63 _TEXT	Length= 0000003B Public STDCALL
+  PlacePellet  . . . . . . . . .	L Near	 00000A6E _TEXT	
 InstructionsScreen . . . . . . .	P Near	 000004DC _TEXT	Length= 000000DA Public STDCALL
   ReturnToMenu . . . . . . . . .	L Near	 000005A9 _TEXT	
   ExitGame . . . . . . . . . . .	L Near	 000005AA _TEXT	
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-Level1Screen . . . . . . . . . .	P Near	 0000064C _TEXT	Length= 00000182 Public STDCALL
+Level1Screen . . . . . . . . . .	P Near	 0000064C _TEXT	Length= 000002D4 Public STDCALL
   GameLoop . . . . . . . . . . .	L Near	 000006A9 _TEXT	
-  MoveUp . . . . . . . . . . . .	L Near	 000006FF _TEXT	
-  CancelMoveUp . . . . . . . . .	L Near	 00000725 _TEXT	
-  MoveLeft . . . . . . . . . . .	L Near	 00000730 _TEXT	
-  CancelMoveLeft . . . . . . . .	L Near	 00000753 _TEXT	
-  MoveDown . . . . . . . . . . .	L Near	 0000075B _TEXT	
-  CancelMoveDown . . . . . . . .	L Near	 0000077E _TEXT	
-  MoveRight  . . . . . . . . . .	L Near	 00000786 _TEXT	
-  CancelMoveRight  . . . . . . .	L Near	 000007A9 _TEXT	
-  AfterMove  . . . . . . . . . .	L Near	 000007B1 _TEXT	
-  NoInput  . . . . . . . . . . .	L Near	 000007B6 _TEXT	
-  ExitLevel  . . . . . . . . . .	L Near	 000007CD _TEXT	
-Level2Screen . . . . . . . . . .	P Near	 00000B0D _TEXT	Length= 00000000 Public STDCALL
-Level3Screen . . . . . . . . . .	P Near	 00000B0D _TEXT	Length= 00000000 Public STDCALL
+  MoveUp . . . . . . . . . . . .	L Near	 000006E4 _TEXT	
+  CancelMoveUp . . . . . . . . .	L Near	 0000070A _TEXT	
+  MoveLeft . . . . . . . . . . .	L Near	 00000715 _TEXT	
+  CancelMoveLeft . . . . . . . .	L Near	 00000738 _TEXT	
+  MoveDown . . . . . . . . . . .	L Near	 00000740 _TEXT	
+  CancelMoveDown . . . . . . . .	L Near	 00000763 _TEXT	
+  MoveRight  . . . . . . . . . .	L Near	 0000076B _TEXT	
+  CancelMoveRight  . . . . . . .	L Near	 0000078E _TEXT	
+  AfterMove  . . . . . . . . . .	L Near	 00000796 _TEXT	
+  NoInput  . . . . . . . . . . .	L Near	 000007A5 _TEXT	
+  ExitLevel  . . . . . . . . . .	L Near	 000007BC _TEXT	
+  GameOverScreen . . . . . . . .	L Near	 000007BD _TEXT	
+  WaitForInput . . . . . . . . .	L Near	 0000085B _TEXT	
+  LevelCompleteScreen  . . . . .	L Near	 00000865 _TEXT	
+  WaitForInput2  . . . . . . . .	L Near	 00000916 _TEXT	
+Level2Screen . . . . . . . . . .	P Near	 00000E36 _TEXT	Length= 00000000 Public STDCALL
+Level3Screen . . . . . . . . . .	P Near	 00000E36 _TEXT	Length= 00000000 Public STDCALL
 LevelSelectScreen  . . . . . . .	P Near	 00000318 _TEXT	Length= 000001C4 Public STDCALL
   StartLevel1  . . . . . . . . .	L Near	 000004AA _TEXT	
   StartLevel2  . . . . . . . . .	L Near	 000004B7 _TEXT	
