@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/11/25 15:36:50
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/11/25 17:23:55
 CODE.asm						     Page 1 - 1
 
 
@@ -8,6 +8,8 @@ CODE.asm						     Page 1 - 1
 
  = 00000028			GRID_WIDTH = 40
  = 00000014			GRID_HEIGHT = 20
+
+
 
 				include irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
@@ -27,44 +29,88 @@ CODE.asm						     Page 1 - 1
 			      C .NOLIST
 			      C .LIST
 			      C 
+				includelib winmm.lib  ; Windows multimedia library
+
+
+ = 00020000			SND_FILENAME      EQU 00020000h
+ = 00000001			SND_ASYNC         EQU 00000001h
+ = 00000000			SND_SYNC          EQU 00000000h
+ = 00000000			NULL              EQU 0
+
+
+				PlaySound PROTO STDCALL, 
+				    pszSound:DWORD, 
+				    hmod:DWORD, 
+				    fdwSound:DWORD
+
 
  00000000			.data
+
+ 00000000 43 3A 5C 55 73	    midSound db "C:\Users\DELL\OneDrive\Desktop\game.wav",0
+	   65 72 73 5C 44
+	   45 4C 4C 5C 4F
+	   6E 65 44 72 69
+	   76 65 5C 44 65
+	   73 6B 74 6F 70
+	   5C 67 61 6D 65
+	   2E 77 61 76 00
+ 00000028 43 3A 5C 55 73	    PacmanIntro db "C:\Users\DELL\OneDrive\Desktop\pacman_beginning.wav",0
+	   65 72 73 5C 44
+	   45 4C 4C 5C 4F
+	   6E 65 44 72 69
+	   76 65 5C 44 65
+	   73 6B 74 6F 70
+	   5C 70 61 63 6D
+	   61 6E 5F 62 65
+	   67 69 6E 6E 69
+	   6E 67 2E 77 61
+	   76 00
+
+ 0000005C 53 6F 75 6E 64	    SoundError db "Sound file not found or couldn't be played!",0
+	   20 66 69 6C 65
+	   20 6E 6F 74 20
+	   66 6F 75 6E 64
+	   20 6F 72 20 63
+	   6F 75 6C 64 6E
+	   27 74 20 62 65
+	   20 70 6C 61 79
+	   65 64 21 00
 				    
- 00000000 53 63 6F 72 65	    fileName  db "Scores.txt" 
+ 00000088 53 63 6F 72 65	    fileName  db "Scores.txt" 
 	   73 2E 74 78 74
- 0000000A 45 6E 74 65 72		inputName db "Enter your name ... ",0
+ 00000092 45 6E 74 65 72		inputName db "Enter your name ... ",0
 	   20 79 6F 75 72
 	   20 6E 61 6D 65
 	   20 2E 2E 2E 20
 	   00
- 0000001F  00000032 [		    username  db 50 dup(0)
+ 000000A7  00000032 [		    username  db 50 dup(0)
 	    00
 	   ]
- 00000051 58 00			    pacmanChar db 'X',0
- 00000053 47 00			    ghostChar db 'G',0
- 00000055 2E 00			    dotChar db '.',0
- 00000057 23 00			    wallChar db '#',0
+ 000000D9 58 00			    pacmanChar db 'X',0
+ 000000DB 47 00			    ghostChar db 'G',0
+ 000000DD 2E 00			    dotChar db '.',0
+ 000000DF 23 00			    wallChar db '#',0
 
- 00000059 00000000		    score dd 0
- 0000005D 03			    lives db 3
- 0000005E 00			    gameOver db 0
- 0000005F 00			    levelComplete db 0
- 00000060 01			    currentLevel db 1 
+ 000000E1 00000000		    score dd 0
+ 000000E5 03			    lives db 3
+ 000000E6 00			    gameOver db 0
+ 000000E7 00			    levelComplete db 0
+ 000000E8 01			    currentLevel db 1 
 
- 00000061  00000320 [		    grid db (40*20) dup(' ')
+ 000000E9  00000320 [		    grid db (40*20) dup(' ')
 	    20
 	   ]
 
- 00000381 0A			    ghost1X db 10
- 00000382 05			    ghost1Y db 5
- 00000383 1E			    ghost2X db 30
- 00000384 05			    ghost2Y db 5
+ 00000409 0A			    ghost1X db 10
+ 0000040A 05			    ghost1Y db 5
+ 0000040B 1E			    ghost2X db 30
+ 0000040C 05			    ghost2Y db 5
 				    
- 00000385 00			    pacmanX db 0
- 00000386 00			    pacmanY db 0
+ 0000040D 00			    pacmanX db 0
+ 0000040E 00			    pacmanY db 0
 
 
- 00000387 23 23 23 23 23	    pmtitle1 db "#################################################################################",0
+ 0000040F 23 23 23 23 23	    pmtitle1 db "#################################################################################",0
 	   23 23 23 23 23
 	   23 23 23 23 23
 	   23 23 23 23 23
@@ -81,7 +127,7 @@ CODE.asm						     Page 1 - 1
 	   23 23 23 23 23
 	   23 23 23 23 23
 	   23 00
- 000003D9 23 20 20 20 20	    pmtitle2 db "#                                                                               #",0
+ 00000461 23 20 20 20 20	    pmtitle2 db "#                                                                               #",0
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -98,7 +144,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   23 00
- 0000042B 23 20 20 20 20	    pmtitle3 db "#      %%%%%%%%  %%%%%%%  %%%%%%%%     %%%%%   %%%%%  %%%%%%%%   %%      %      #",0
+ 000004B3 23 20 20 20 20	    pmtitle3 db "#      %%%%%%%%  %%%%%%%  %%%%%%%%     %%%%%   %%%%%  %%%%%%%%   %%      %      #",0
 	   20 20 25 25 25
 	   25 25 25 25 25
 	   20 20 25 25 25
@@ -115,7 +161,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 25 20
 	   20 20 20 20 20
 	   23 00
- 0000047D 23 20 20 20 20		pmtitle4 db "#      %%     %  %     %  %            %   %   %   %  %      %   % %     %      #",0
+ 00000505 23 20 20 20 20		pmtitle4 db "#      %%     %  %     %  %            %   %   %   %  %      %   % %     %      #",0
 	   20 20 25 25 20
 	   20 20 20 20 25
 	   20 20 25 20 20
@@ -132,7 +178,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 25 20
 	   20 20 20 20 20
 	   23 00
- 000004CF 23 20 20 20 20		pmtitle5 db "#      %%     %  %     %  %            %   %   %   %  %      %   %  %    %      #",0
+ 00000557 23 20 20 20 20		pmtitle5 db "#      %%     %  %     %  %            %   %   %   %  %      %   %  %    %      #",0
 	   20 20 25 25 20
 	   20 20 20 20 25
 	   20 20 25 20 20
@@ -149,7 +195,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 25 20
 	   20 20 20 20 20
 	   23 00
- 00000521 23 20 20 20 20		pmtitle6 db "#      %%%%%%%%  %%%%%%%  %       %%%  %   %%%%%   %  %%%%%%%%   %   %   %      #",0
+ 000005A9 23 20 20 20 20		pmtitle6 db "#      %%%%%%%%  %%%%%%%  %       %%%  %   %%%%%   %  %%%%%%%%   %   %   %      #",0
 	   20 20 25 25 25
 	   25 25 25 25 25
 	   20 20 25 25 25
@@ -166,7 +212,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 25 20
 	   20 20 20 20 20
 	   23 00
- 00000573 23 20 20 20 20		pmtitle7 db "#      %%        %     %  %            %           %  %      %   %    %  %      #",0
+ 000005FB 23 20 20 20 20		pmtitle7 db "#      %%        %     %  %            %           %  %      %   %    %  %      #",0
 	   20 20 25 25 20
 	   20 20 20 20 20
 	   20 20 25 20 20
@@ -183,7 +229,7 @@ CODE.asm						     Page 1 - 1
 	   25 20 20 25 20
 	   20 20 20 20 20
 	   23 00
- 000005C5 23 20 20 20 20		pmtitle8 db "#      %%        %     %  %            %           %  %      %   %     % %      #",0
+ 0000064D 23 20 20 20 20		pmtitle8 db "#      %%        %     %  %            %           %  %      %   %     % %      #",0
 	   20 20 25 25 20
 	   20 20 20 20 20
 	   20 20 25 20 20
@@ -200,7 +246,7 @@ CODE.asm						     Page 1 - 1
 	   20 25 20 25 20
 	   20 20 20 20 20
 	   23 00
- 00000617 23 20 20 20 20		pmtitle9 db "#      %%        %     %  %%%%%%%%     %           %  %      %   %      %%      #",0
+ 0000069F 23 20 20 20 20		pmtitle9 db "#      %%        %     %  %%%%%%%%     %           %  %      %   %      %%      #",0
 	   20 20 25 25 20
 	   20 20 20 20 20
 	   20 20 25 20 20
@@ -217,7 +263,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 25 25 20
 	   20 20 20 20 20
 	   23 00
- 00000669 23 20 20 20 20		pmtitle10 db"#                                                                               #",0
+ 000006F1 23 20 20 20 20		pmtitle10 db"#                                                                               #",0
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -234,7 +280,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   23 00
- 000006BB 23 23 23 23 23		pmtitle11 db"#################################################################################",0
+ 00000743 23 23 23 23 23		pmtitle11 db"#################################################################################",0
 	   23 23 23 23 23
 	   23 23 23 23 23
 	   23 23 23 23 23
@@ -252,7 +298,7 @@ CODE.asm						     Page 1 - 1
 	   23 23 23 23 23
 	   23 00
 
- 0000070D 20 5F 5F 5F 20	    menutitle0 db " ___     ___ _________  ___     ___ ___   ___ ",0
+ 00000795 20 5F 5F 5F 20	    menutitle0 db " ___     ___ _________  ___     ___ ___   ___ ",0
 	   20 20 20 20 5F
 	   5F 5F 20 5F 5F
 	   5F 5F 5F 5F 5F
@@ -262,7 +308,7 @@ CODE.asm						     Page 1 - 1
 	   20 5F 5F 5F 20
 	   20 20 5F 5F 5F
 	   20 00
- 0000073C 20 7C 20 20 5C	    menutitle1 db " |  \   /  | |  ______| |  \    | | | |   | | ",0
+ 000007C4 20 7C 20 20 5C	    menutitle1 db " |  \   /  | |  ______| |  \    | | | |   | | ",0
 	   20 20 20 2F 20
 	   20 7C 20 7C 20
 	   20 5F 5F 5F 5F
@@ -272,7 +318,7 @@ CODE.asm						     Page 1 - 1
 	   20 7C 20 7C 20
 	   20 20 7C 20 7C
 	   20 00
- 0000076B 20 7C 20 7C 5C	    menutitle2 db " | |\\_//| | | |______  | |\\   | | | |   | |",0
+ 000007F3 20 7C 20 7C 5C	    menutitle2 db " | |\\_//| | | |______  | |\\   | | | |   | |",0
 	   5C 5F 2F 2F 7C
 	   20 7C 20 7C 20
 	   7C 5F 5F 5F 5F
@@ -282,7 +328,7 @@ CODE.asm						     Page 1 - 1
 	   20 7C 20 7C 20
 	   20 20 7C 20 7C
 	   00
- 00000799 20 7C 20 7C 20	    menutitle3 db " | | \_/ | | | _______| | | \\  | | | |   | | ",0
+ 00000821 20 7C 20 7C 20	    menutitle3 db " | | \_/ | | | _______| | | \\  | | | |   | | ",0
 	   5C 5F 2F 20 7C
 	   20 7C 20 7C 20
 	   5F 5F 5F 5F 5F
@@ -292,7 +338,7 @@ CODE.asm						     Page 1 - 1
 	   20 7C 20 7C 20
 	   20 20 7C 20 7C
 	   20 00
- 000007C8 20 7C 20 7C 20	    menutitle4 db " | |     | | | |______  | |  \\ | | | |___| |",0
+ 00000850 20 7C 20 7C 20	    menutitle4 db " | |     | | | |______  | |  \\ | | | |___| |",0
 	   20 20 20 20 7C
 	   20 7C 20 7C 20
 	   7C 5F 5F 5F 5F
@@ -302,7 +348,7 @@ CODE.asm						     Page 1 - 1
 	   20 7C 20 7C 5F
 	   5F 5F 7C 20 7C
 	   00
- 000007F6 20 7C 5F 7C 20	    menutitle5 db " |_|     |_| |________| |_|   \\|_| |_______| ",0
+ 0000087E 20 7C 5F 7C 20	    menutitle5 db " |_|     |_| |________| |_|   \\|_| |_______| ",0
 	   20 20 20 20 7C
 	   5F 7C 20 7C 5F
 	   5F 5F 5F 5F 5F
@@ -313,42 +359,42 @@ CODE.asm						     Page 1 - 1
 	   5F 5F 5F 5F 7C
 	   20 00
 
- 00000825 2D 2D 2D 2D 2D	    menuopt0 db "---------------------------------",0
+ 000008AD 2D 2D 2D 2D 2D	    menuopt0 db "---------------------------------",0
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 00
- 00000847 7C 20 20 31 2E	    menuopt1 db "|  1. Start Game ( 3 levels)    |",0
+ 000008CF 7C 20 20 31 2E	    menuopt1 db "|  1. Start Game ( 3 levels)    |",0
 	   20 53 74 61 72
 	   74 20 47 61 6D
 	   65 20 28 20 33
 	   20 6C 65 76 65
 	   6C 73 29 20 20
 	   20 20 7C 00
- 00000869 7C 20 20 32 2E	    menuopt2 db "|  2. Display Game Instructions |",0
+ 000008F1 7C 20 20 32 2E	    menuopt2 db "|  2. Display Game Instructions |",0
 	   20 44 69 73 70
 	   6C 61 79 20 47
 	   61 6D 65 20 49
 	   6E 73 74 72 75
 	   63 74 69 6F 6E
 	   73 20 7C 00
- 0000088B 7C 20 20 33 2E	    menuopt3 db "|  3. View Highscores /scores   |",0
+ 00000913 7C 20 20 33 2E	    menuopt3 db "|  3. View Highscores /scores   |",0
 	   20 56 69 65 77
 	   20 48 69 67 68
 	   73 63 6F 72 65
 	   73 20 2F 73 63
 	   6F 72 65 73 20
 	   20 20 7C 00
- 000008AD 7C 20 20 34 2E	    menuopt4 db "|  4. Exit Game                 |",0
+ 00000935 7C 20 20 34 2E	    menuopt4 db "|  4. Exit Game                 |",0
 	   20 45 78 69 74
 	   20 47 61 6D 65
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 7C 00
- 000008CF 7C 5F 5F 5F 5F	    menuopt5 db "|_______________________________|",0
+ 00000957 7C 5F 5F 5F 5F	    menuopt5 db "|_______________________________|",0
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
@@ -356,13 +402,13 @@ CODE.asm						     Page 1 - 1
 	   5F 5F 5F 5F 5F
 	   5F 5F 7C 00
 
- 000008F1 45 6E 74 65 72	    menuoptchoose db "Enter your choice:  ",0
+ 00000979 45 6E 74 65 72	    menuoptchoose db "Enter your choice:  ",0
 	   20 79 6F 75 72
 	   20 63 68 6F 69
 	   63 65 3A 20 20
 	   00
 
- 00000906 2A 20 20 20 20	    level1opt0 db "*     ***** *       * *****  *          **    ",0
+ 0000098E 2A 20 20 20 20	    level1opt0 db "*     ***** *       * *****  *          **    ",0
 	   20 2A 2A 2A 2A
 	   2A 20 2A 20 20
 	   20 20 20 20 20
@@ -372,7 +418,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   2A 2A 20 20 20
 	   20 00
- 00000935 2A 20 20 20 20	    level1opt1 db "*     *      *     *  *      *          **    ",0
+ 000009BD 2A 20 20 20 20	    level1opt1 db "*     *      *     *  *      *          **    ",0
 	   20 2A 20 20 20
 	   20 20 20 2A 20
 	   20 20 20 20 2A
@@ -382,7 +428,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   2A 2A 20 20 20
 	   20 00
- 00000964 2A 20 20 20 20	    level1opt2 db "*     *****   *   *   *****  *          **    ",0
+ 000009EC 2A 20 20 20 20	    level1opt2 db "*     *****   *   *   *****  *          **    ",0
 	   20 2A 2A 2A 2A
 	   2A 20 20 20 2A
 	   20 20 20 2A 20
@@ -392,7 +438,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   2A 2A 20 20 20
 	   20 00
- 00000993 2A 20 20 20 20	    level1opt3 db "*     *        * *    *      *          **    ",0
+ 00000A1B 2A 20 20 20 20	    level1opt3 db "*     *        * *    *      *          **    ",0
 	   20 2A 20 20 20
 	   20 20 20 20 20
 	   2A 20 2A 20 20
@@ -402,7 +448,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   2A 2A 20 20 20
 	   20 00
- 000009C2 2A 2A 2A 2A 2A	    level1opt4 db "***** *****     *     *****  *****      **    ",0
+ 00000A4A 2A 2A 2A 2A 2A	    level1opt4 db "***** *****     *     *****  *****      **    ",0
 	   20 2A 2A 2A 2A
 	   2A 20 20 20 20
 	   20 2A 20 20 20
@@ -413,7 +459,7 @@ CODE.asm						     Page 1 - 1
 	   2A 2A 20 20 20
 	   20 00
 
- 000009F1 2A 20 20 20 20	    level2opt0 db "*     ***** *       * *****  *         *****  ",0
+ 00000A79 2A 20 20 20 20	    level2opt0 db "*     ***** *       * *****  *         *****  ",0
 	   20 2A 2A 2A 2A
 	   2A 20 2A 20 20
 	   20 20 20 20 20
@@ -423,7 +469,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 2A
 	   2A 2A 2A 2A 20
 	   20 00
- 00000A20 2A 20 20 20 20	    level2opt1 db "*     *      *     *  *      *             *  ",0
+ 00000AA8 2A 20 20 20 20	    level2opt1 db "*     *      *     *  *      *             *  ",0
 	   20 2A 20 20 20
 	   20 20 20 2A 20
 	   20 20 20 20 2A
@@ -433,7 +479,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 2A 20
 	   20 00
- 00000A4F 2A 20 20 20 20	    level2opt2 db "*     *****   *   *   *****  *         *****  ",0
+ 00000AD7 2A 20 20 20 20	    level2opt2 db "*     *****   *   *   *****  *         *****  ",0
 	   20 2A 2A 2A 2A
 	   2A 20 20 20 2A
 	   20 20 20 2A 20
@@ -443,7 +489,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 2A
 	   2A 2A 2A 2A 20
 	   20 00
- 00000A7E 2A 20 20 20 20	    level2opt3 db "*     *        * *    *      *         *      ",0
+ 00000B06 2A 20 20 20 20	    level2opt3 db "*     *        * *    *      *         *      ",0
 	   20 2A 20 20 20
 	   20 20 20 20 20
 	   2A 20 2A 20 20
@@ -453,7 +499,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 2A
 	   20 20 20 20 20
 	   20 00
- 00000AAD 2A 2A 2A 2A 2A	    level2opt4 db "***** *****     *     *****  *****     *****  ",0
+ 00000B35 2A 2A 2A 2A 2A	    level2opt4 db "***** *****     *     *****  *****     *****  ",0
 	   20 2A 2A 2A 2A
 	   2A 20 20 20 20
 	   20 2A 20 20 20
@@ -464,7 +510,7 @@ CODE.asm						     Page 1 - 1
 	   2A 2A 2A 2A 20
 	   20 00
 
- 00000ADC 2A 20 20 20 20	    level3opt0 db "*     ***** *       * *****  *         *****  ",0
+ 00000B64 2A 20 20 20 20	    level3opt0 db "*     ***** *       * *****  *         *****  ",0
 	   20 2A 2A 2A 2A
 	   2A 20 2A 20 20
 	   20 20 20 20 20
@@ -474,7 +520,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 2A
 	   2A 2A 2A 2A 20
 	   20 00
- 00000B0B 2A 20 20 20 20	    level3opt1 db "*     *      *     *  *      *             *  ",0
+ 00000B93 2A 20 20 20 20	    level3opt1 db "*     *      *     *  *      *             *  ",0
 	   20 2A 20 20 20
 	   20 20 20 2A 20
 	   20 20 20 20 2A
@@ -484,7 +530,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 2A 20
 	   20 00
- 00000B3A 2A 20 20 20 20	    level3opt2 db "*     *****   *   *   *****  *         *****  ",0
+ 00000BC2 2A 20 20 20 20	    level3opt2 db "*     *****   *   *   *****  *         *****  ",0
 	   20 2A 2A 2A 2A
 	   2A 20 20 20 2A
 	   20 20 20 2A 20
@@ -494,7 +540,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 2A
 	   2A 2A 2A 2A 20
 	   20 00
- 00000B69 2A 20 20 20 20	    level3opt3 db "*     *        * *    *      *             *  ",0
+ 00000BF1 2A 20 20 20 20	    level3opt3 db "*     *        * *    *      *             *  ",0
 	   20 2A 20 20 20
 	   20 20 20 20 20
 	   2A 20 2A 20 20
@@ -504,7 +550,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 2A 20
 	   20 00
- 00000B98 2A 2A 2A 2A 2A	    level3opt4 db "***** *****     *     *****  *****     *****  ",0
+ 00000C20 2A 2A 2A 2A 2A	    level3opt4 db "***** *****     *     *****  *****     *****  ",0
 	   20 2A 2A 2A 2A
 	   2A 20 20 20 20
 	   20 2A 20 20 20
@@ -515,7 +561,7 @@ CODE.asm						     Page 1 - 1
 	   2A 2A 2A 2A 20
 	   20 00
 
- 00000BC7 20 45 6E 74 65	    leveloptchoose1 db " Enter you choice (1: Level 1, 2: Level 2 , 3: Level 3) ",0
+ 00000C4F 20 45 6E 74 65	    leveloptchoose1 db " Enter you choice (1: Level 1, 2: Level 2 , 3: Level 3) ",0
 	   72 20 79 6F 75
 	   20 63 68 6F 69
 	   63 65 20 28 31
@@ -527,7 +573,7 @@ CODE.asm						     Page 1 - 1
 	   3A 20 4C 65 76
 	   65 6C 20 33 29
 	   20 00
- 00000C00 20 52 65 74 75	    leveloptchoose2 db " Return to Main Menu (press 4), Exit Game (press 5) ",0
+ 00000C88 20 52 65 74 75	    leveloptchoose2 db " Return to Main Menu (press 4), Exit Game (press 5) ",0
 	   72 6E 20 74 6F
 	   20 4D 61 69 6E
 	   20 4D 65 6E 75
@@ -540,7 +586,7 @@ CODE.asm						     Page 1 - 1
 	   29 20 00
 
 
- 00000C35 20 20 20 20 20	    instruc1 db "                          INSTRUCTIONS                             ",0
+ 00000CBD 20 20 20 20 20	    instruc1 db "                          INSTRUCTIONS                             ",0
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -554,7 +600,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 00
- 00000C79 5F 5F 5F 5F 5F	    instruc2 db "_______________________________________________________________________",0
+ 00000D01 5F 5F 5F 5F 5F	    instruc2 db "_______________________________________________________________________",0
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
@@ -569,7 +615,7 @@ CODE.asm						     Page 1 - 1
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
 	   5F 00
- 00000CC1 2D 2D 2D 2D 2D	    instruc3 db "-----------------------------------------------------------------------",0
+ 00000D49 2D 2D 2D 2D 2D	    instruc3 db "-----------------------------------------------------------------------",0
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
@@ -584,7 +630,7 @@ CODE.asm						     Page 1 - 1
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
 	   2D 00
- 00000D09 20 31 2E 20 54	    instruc4 db " 1. To earn points eat the pellets.",0
+ 00000D91 20 31 2E 20 54	    instruc4 db " 1. To earn points eat the pellets.",0
 	   6F 20 65 61 72
 	   6E 20 70 6F 69
 	   6E 74 73 20 65
@@ -592,7 +638,7 @@ CODE.asm						     Page 1 - 1
 	   65 20 70 65 6C
 	   6C 65 74 73 2E
 	   00
- 00000D2D 20 32 2E 20 45	    instruc5 db " 2. Each pellet is worth one point.",0
+ 00000DB5 20 32 2E 20 45	    instruc5 db " 2. Each pellet is worth one point.",0
 	   61 63 68 20 70
 	   65 6C 6C 65 74
 	   20 69 73 20 77
@@ -600,7 +646,7 @@ CODE.asm						     Page 1 - 1
 	   6F 6E 65 20 70
 	   6F 69 6E 74 2E
 	   00
- 00000D51 20 33 20 20 53	    instruc6 db " 3  Stay away from the ghosts, if one catches you, You lose a life.",0
+ 00000DD9 20 33 20 20 53	    instruc6 db " 3  Stay away from the ghosts, if one catches you, You lose a life.",0
 	   74 61 79 20 61
 	   77 61 79 20 66
 	   72 6F 6D 20 74
@@ -614,7 +660,7 @@ CODE.asm						     Page 1 - 1
 	   6C 6F 73 65 20
 	   61 20 6C 69 66
 	   65 2E 00
- 00000D95 20 34 2E 20 55	    instruc7 db " 4. Use W,A,S,D keys move up,down,left and right respectively.",0
+ 00000E1D 20 34 2E 20 55	    instruc7 db " 4. Use W,A,S,D keys move up,down,left and right respectively.",0
 	   73 65 20 57 2C
 	   41 2C 53 2C 44
 	   20 6B 65 79 73
@@ -627,7 +673,7 @@ CODE.asm						     Page 1 - 1
 	   65 73 70 65 63
 	   74 69 76 65 6C
 	   79 2E 00
- 00000DD4 5F 5F 5F 5F 5F	    instruc8 db "________________________________________________________________________",0
+ 00000E5C 5F 5F 5F 5F 5F	    instruc8 db "________________________________________________________________________",0
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
@@ -642,7 +688,7 @@ CODE.asm						     Page 1 - 1
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
 	   5F 5F 00
- 00000E1D 2D 2D 2D 2D 2D	    instruc9 db "------------------------------------------------------------------------",0
+ 00000EA5 2D 2D 2D 2D 2D	    instruc9 db "------------------------------------------------------------------------",0
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
@@ -658,7 +704,7 @@ CODE.asm						     Page 1 - 1
 	   2D 2D 2D 2D 2D
 	   2D 2D 00
 
- 00000E66 50 72 65 73 73	    instrucChoose db "Press 1 to return to menu, Press 2 to Exit Game: ",0
+ 00000EEE 50 72 65 73 73	    instrucChoose db "Press 1 to return to menu, Press 2 to Exit Game: ",0
 	   20 31 20 74 6F
 	   20 72 65 74 75
 	   72 6E 20 74 6F
@@ -669,7 +715,7 @@ CODE.asm						     Page 1 - 1
 	   69 74 20 47 61
 	   6D 65 3A 20 00
 
- 00000E98 20 20 20 20 20	    hsTitle0 db "        ______        _____  _____ ______ _____ _____ _____  ",0
+ 00000F20 20 20 20 20 20	    hsTitle0 db "        ______        _____  _____ ______ _____ _____ _____  ",0
 	   20 20 20 5F 5F
 	   5F 5F 5F 5F 20
 	   20 20 20 20 20
@@ -682,7 +728,7 @@ CODE.asm						     Page 1 - 1
 	   5F 5F 5F 20 5F
 	   5F 5F 5F 5F 20
 	   20 00
- 00000ED6 7C 20 20 20 7C	    hsTitle1 db "|   | | |      |   |  |      |     |    | |   | |     |      ",0
+ 00000F5E 7C 20 20 20 7C	    hsTitle1 db "|   | | |      |   |  |      |     |    | |   | |     |      ",0
 	   20 7C 20 7C 20
 	   20 20 20 20 20
 	   7C 20 20 20 7C
@@ -695,7 +741,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 7C
 	   20 20 20 20 20
 	   20 00
- 00000F14 7C 5F 5F 5F 7C	    hsTitle2 db "|___| | |  ___ |___|  |____  |     |    | |___| |____ |____  ",0
+ 00000F9C 7C 5F 5F 5F 7C	    hsTitle2 db "|___| | |  ___ |___|  |____  |     |    | |___| |____ |____  ",0
 	   20 7C 20 7C 20
 	   20 5F 5F 5F 20
 	   7C 5F 5F 5F 7C
@@ -708,7 +754,7 @@ CODE.asm						     Page 1 - 1
 	   5F 5F 5F 20 7C
 	   5F 5F 5F 5F 20
 	   20 00
- 00000F52 7C 20 20 20 7C	    hsTitle3 db "|   | | |    | |   |       | |     |    | | \   |          | ",0
+ 00000FDA 7C 20 20 20 7C	    hsTitle3 db "|   | | |    | |   |       | |     |    | | \   |          | ",0
 	   20 7C 20 7C 20
 	   20 20 20 7C 20
 	   7C 20 20 20 7C
@@ -721,7 +767,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 20 7C
 	   20 00
- 00000F90 7C 20 20 20 7C	    hsTitle4 db "|   | | |____| |   |  _____| |____ |____| |  \  |____  ____| ",0
+ 00001018 7C 20 20 20 7C	    hsTitle4 db "|   | | |____| |   |  _____| |____ |____| |  \  |____  ____| ",0
 	   20 7C 20 7C 5F
 	   5F 5F 5F 7C 20
 	   7C 20 20 20 7C
@@ -735,20 +781,20 @@ CODE.asm						     Page 1 - 1
 	   5F 5F 5F 5F 7C
 	   20 00
 
- 00000FCE 2E 2E 2E 47 41	    gamePause1 db "...GAME PAUSED...",0
+ 00001056 2E 2E 2E 47 41	    gamePause1 db "...GAME PAUSED...",0
 	   4D 45 20 50 41
 	   55 53 45 44 2E
 	   2E 2E 00
- 00000FE0 50 72 65 73 73	    gamePause2 db "Press 1: Resume Game",0
+ 00001068 50 72 65 73 73	    gamePause2 db "Press 1: Resume Game",0
 	   20 31 3A 20 52
 	   65 73 75 6D 65
 	   20 47 61 6D 65
 	   00
- 00000FF5 50 72 65 73 73	    gamePause3 db "Press 2: Go to Menu",0
+ 0000107D 50 72 65 73 73	    gamePause3 db "Press 2: Go to Menu",0
 	   20 32 3A 20 47
 	   6F 20 74 6F 20
 	   4D 65 6E 75 00
- 00001009 50 72 65 73 73	    gamePause4 db "Press 3: Exit Game",0
+ 00001091 50 72 65 73 73	    gamePause4 db "Press 3: Exit Game",0
 	   20 33 3A 20 45
 	   78 69 74 20 47
 	   61 6D 65 00
@@ -761,39 +807,39 @@ CODE.asm						     Page 1 - 1
  = 00000001			    blueTxt =blue+ (black*16);
  = 0000000F			    whiteTxt =white+ (black *16);
 
- 0000101C 00			    userChoice db ?
- 0000101D 00			    temp db ?
+ 000010A4 00			    userChoice db ?
+ 000010A5 00			    temp db ?
 
 
- 0000101E 4C 45 56 45 4C	    level1Text db "LEVEL 1",0
+ 000010A6 4C 45 56 45 4C	    level1Text db "LEVEL 1",0
 	   20 31 00
- 00001026 53 63 6F 72 65	    scoreText db "Score: ",0
+ 000010AE 53 63 6F 72 65	    scoreText db "Score: ",0
 	   3A 20 00
- 0000102E 4C 69 76 65 73	    livesText db "Lives: ",0
+ 000010B6 4C 69 76 65 73	    livesText db "Lives: ",0
 	   3A 20 00
- 00001036 47 41 4D 45 20	    gameOverText db "GAME OVER",0
+ 000010BE 47 41 4D 45 20	    gameOverText db "GAME OVER",0
 	   4F 56 45 52 00
- 00001040 31 2E 20 52 65	    playAgainText db "1. Return to Menu",0
+ 000010C8 31 2E 20 52 65	    playAgainText db "1. Return to Menu",0
 	   74 75 72 6E 20
 	   74 6F 20 4D 65
 	   6E 75 00
- 00001052 32 2E 20 45 78	    exitText db "2. Exit Game",0
+ 000010DA 32 2E 20 45 78	    exitText db "2. Exit Game",0
 	   69 74 20 47 61
 	   6D 65 00
- 0000105F 43 68 6F 6F 73	    chooseOptionText db "Choose option: ",0
+ 000010E7 43 68 6F 6F 73	    chooseOptionText db "Choose option: ",0
 	   65 20 6F 70 74
 	   69 6F 6E 3A 20
 	   00
 
- 0000106F 00			    dotsRemaining db ?
- 00001070 00			    ghost1Dir db ?
- 00001071 00			    ghost2Dir db ?
+ 000010F7 00			    dotsRemaining db ?
+ 000010F8 00			    ghost1Dir db ?
+ 000010F9 00			    ghost2Dir db ?
 
  00000000			.code
  00000000			main proc
  00000000  E8 00000000 E	    call Clrscr
- 00000005  E8 0000000C		    call WelcomeScreen
- 0000000A  E8 0000013B		    call MenuScreen
+ 00000005  E8 00000054		    call WelcomeScreen
+ 0000000A  E8 00000188		    call MenuScreen
 				    
 				    exit
  0000000F  6A 00	   *	    push   +000000000h
@@ -801,1186 +847,634 @@ CODE.asm						     Page 1 - 1
  00000016			main endp
 
 				;-----------------------------------------------------
- 00000016			WelcomeScreen proc
+ 00000016			introSound PROC
+ 00000016  50			    push eax
+ 00000017  52			    push edx
+				    
+				    ; Note: Changed to STDCALL convention to match our prototype
+				    INVOKE PlaySound, OFFSET PacmanIntro, NULL, SND_FILENAME OR SND_ASYNC
+ 00000018  68 00020001	   *	    push   +000020001h
+ 0000001D  6A 00	   *	    push   +000000000h
+ 0000001F  68 00000028 R   *	    push   dword  ptr OFFSET FLAT: PacmanIntro
+ 00000024  E8 00000000 E   *	    call   PlaySound
+				    
+				    ; Simple error check
+ 00000029  85 C0		    test eax, eax
+ 0000002B  75 0A		    jnz no_error1
+ 0000002D  BA 0000005C R	    mov edx, OFFSET SoundError
+ 00000032  E8 00000000 E	    call WriteString
+ 00000037			no_error1:
+ 00000037  5A			    pop edx
+ 00000038  58			    pop eax
+ 00000039  C3			    ret
+ 0000003A			introSound ENDP
+
+				;-----------------------------------------------------
+ 0000003A			levelSound PROC
+ 0000003A  50			    push eax
+ 0000003B  52			    push edx
+				    
+				    ; Fixed: Changed from midSound to GhostSound (assuming this was intended)
+				    ; Make sure you have GhostSound defined in .data if you want to use it
+				    INVOKE PlaySound, OFFSET midSound, NULL, SND_FILENAME OR SND_SYNC
+ 0000003C  68 00020000	   *	    push   +000020000h
+ 00000041  6A 00	   *	    push   +000000000h
+ 00000043  68 00000000 R   *	    push   dword  ptr OFFSET FLAT: midSound
+ 00000048  E8 00000000 E   *	    call   PlaySound
+				    
+				    ; Simple error check
+ 0000004D  85 C0		    test eax, eax
+ 0000004F  75 0A		    jnz no_error2
+ 00000051  BA 0000005C R	    mov edx, OFFSET SoundError
+ 00000056  E8 00000000 E	    call WriteString
+ 0000005B			no_error2:
+ 0000005B  5A			    pop edx
+ 0000005C  58			    pop eax
+ 0000005D  C3			    ret
+ 0000005E			levelSound ENDP
+				;-----------------------------------------------------
+ 0000005E			WelcomeScreen proc
+
+ 0000005E  E8 FFFFFFB3		    call introSound
 
 				    ; Red Color
- 00000016  B8 00000004		    mov eax, redTxt
- 0000001B  E8 00000000 E	    call SetTextColor
+ 00000063  B8 00000004		    mov eax, redTxt
+ 00000068  E8 00000000 E	    call SetTextColor
 
- 00000020  B6 05		    mov dh,5
- 00000022  B2 0C		    mov dl,12
- 00000024  E8 00000000 E	    call Gotoxy
- 00000029  BA 00000387 R	    mov edx, offset pmtitle1
- 0000002E  E8 00000000 E	    call WriteString
+ 0000006D  B6 05		    mov dh,5
+ 0000006F  B2 0C		    mov dl,12
+ 00000071  E8 00000000 E	    call Gotoxy
+ 00000076  BA 0000040F R	    mov edx, offset pmtitle1
+ 0000007B  E8 00000000 E	    call WriteString
 
- 00000033  B6 06		    mov dh, 6
- 00000035  B2 0C		    mov dl, 12
- 00000037  E8 00000000 E	    call Gotoxy
- 0000003C  BA 000003D9 R	    mov edx, offset pmtitle2
- 00000041  E8 00000000 E	    call WriteString
+ 00000080  B6 06		    mov dh, 6
+ 00000082  B2 0C		    mov dl, 12
+ 00000084  E8 00000000 E	    call Gotoxy
+ 00000089  BA 00000461 R	    mov edx, offset pmtitle2
+ 0000008E  E8 00000000 E	    call WriteString
 
- 00000046  B6 07		    mov dh, 7
- 00000048  B2 0C		    mov dl, 12
- 0000004A  E8 00000000 E	    call Gotoxy
- 0000004F  BA 0000042B R	    mov edx, offset pmtitle3
- 00000054  E8 00000000 E	    call WriteString
+ 00000093  B6 07		    mov dh, 7
+ 00000095  B2 0C		    mov dl, 12
+ 00000097  E8 00000000 E	    call Gotoxy
+ 0000009C  BA 000004B3 R	    mov edx, offset pmtitle3
+ 000000A1  E8 00000000 E	    call WriteString
 
 				    ; Blue Color
- 00000059  B8 00000001		    mov eax, blueTxt
- 0000005E  E8 00000000 E	    call SetTextColor
+ 000000A6  B8 00000001		    mov eax, blueTxt
+ 000000AB  E8 00000000 E	    call SetTextColor
 
- 00000063  B6 08		    mov dh, 8
- 00000065  B2 0C		    mov dl, 12
- 00000067  E8 00000000 E	    call Gotoxy
- 0000006C  BA 0000047D R	    mov edx, offset pmtitle4
- 00000071  E8 00000000 E	    call WriteString
+ 000000B0  B6 08		    mov dh, 8
+ 000000B2  B2 0C		    mov dl, 12
+ 000000B4  E8 00000000 E	    call Gotoxy
+ 000000B9  BA 00000505 R	    mov edx, offset pmtitle4
+ 000000BE  E8 00000000 E	    call WriteString
 
- 00000076  B6 09		    mov dh, 9
- 00000078  B2 0C		    mov dl, 12
- 0000007A  E8 00000000 E	    call Gotoxy
- 0000007F  BA 000004CF R	    mov edx, offset pmtitle5
- 00000084  E8 00000000 E	    call WriteString
+ 000000C3  B6 09		    mov dh, 9
+ 000000C5  B2 0C		    mov dl, 12
+ 000000C7  E8 00000000 E	    call Gotoxy
+ 000000CC  BA 00000557 R	    mov edx, offset pmtitle5
+ 000000D1  E8 00000000 E	    call WriteString
 
- 00000089  B6 0A		    mov dh, 10
- 0000008B  B2 0C		    mov dl, 12
- 0000008D  E8 00000000 E	    call Gotoxy
- 00000092  BA 00000521 R	    mov edx, offset pmtitle6
- 00000097  E8 00000000 E	    call WriteString
+ 000000D6  B6 0A		    mov dh, 10
+ 000000D8  B2 0C		    mov dl, 12
+ 000000DA  E8 00000000 E	    call Gotoxy
+ 000000DF  BA 000005A9 R	    mov edx, offset pmtitle6
+ 000000E4  E8 00000000 E	    call WriteString
 
- 0000009C  B6 0B		    mov dh, 11
- 0000009E  B2 0C		    mov dl, 12
- 000000A0  E8 00000000 E	    call Gotoxy
- 000000A5  BA 00000573 R	    mov edx, offset pmtitle7
- 000000AA  E8 00000000 E	    call WriteString
+ 000000E9  B6 0B		    mov dh, 11
+ 000000EB  B2 0C		    mov dl, 12
+ 000000ED  E8 00000000 E	    call Gotoxy
+ 000000F2  BA 000005FB R	    mov edx, offset pmtitle7
+ 000000F7  E8 00000000 E	    call WriteString
 
 				    ; Green Color 
- 000000AF  B8 00000002		    mov eax, greenTxt
- 000000B4  E8 00000000 E	    call SetTextColor
+ 000000FC  B8 00000002		    mov eax, greenTxt
+ 00000101  E8 00000000 E	    call SetTextColor
 
- 000000B9  B6 0C		    mov dh, 12
- 000000BB  B2 0C		    mov dl, 12
- 000000BD  E8 00000000 E	    call Gotoxy
- 000000C2  BA 000005C5 R	    mov edx, offset pmtitle8
- 000000C7  E8 00000000 E	    call WriteString
+ 00000106  B6 0C		    mov dh, 12
+ 00000108  B2 0C		    mov dl, 12
+ 0000010A  E8 00000000 E	    call Gotoxy
+ 0000010F  BA 0000064D R	    mov edx, offset pmtitle8
+ 00000114  E8 00000000 E	    call WriteString
 
- 000000CC  B6 0D		    mov dh,13
- 000000CE  B2 0C		    mov dl,12
- 000000D0  E8 00000000 E	    call Gotoxy
- 000000D5  BA 00000617 R	    mov edx, offset pmtitle9
- 000000DA  E8 00000000 E	    call WriteString
+ 00000119  B6 0D		    mov dh,13
+ 0000011B  B2 0C		    mov dl,12
+ 0000011D  E8 00000000 E	    call Gotoxy
+ 00000122  BA 0000069F R	    mov edx, offset pmtitle9
+ 00000127  E8 00000000 E	    call WriteString
 
- 000000DF  B6 0E		    mov dh, 14
- 000000E1  B2 0C		    mov dl, 12
- 000000E3  E8 00000000 E	    call Gotoxy
- 000000E8  BA 00000669 R	    mov edx, offset pmtitle10
- 000000ED  E8 00000000 E	    call WriteString
+ 0000012C  B6 0E		    mov dh, 14
+ 0000012E  B2 0C		    mov dl, 12
+ 00000130  E8 00000000 E	    call Gotoxy
+ 00000135  BA 000006F1 R	    mov edx, offset pmtitle10
+ 0000013A  E8 00000000 E	    call WriteString
 
- 000000F2  B6 0F		    mov dh, 15
- 000000F4  B2 0C		    mov dl, 12
- 000000F6  E8 00000000 E	    call Gotoxy
- 000000FB  BA 000006BB R	    mov edx, offset pmtitle11
- 00000100  E8 00000000 E	    call WriteString
+ 0000013F  B6 0F		    mov dh, 15
+ 00000141  B2 0C		    mov dl, 12
+ 00000143  E8 00000000 E	    call Gotoxy
+ 00000148  BA 00000743 R	    mov edx, offset pmtitle11
+ 0000014D  E8 00000000 E	    call WriteString
 
 				    
- 00000105  B8 0000000E		    mov eax, yellowTxt
- 0000010A  E8 00000000 E	    call SetTextColor
+ 00000152  B8 0000000E		    mov eax, yellowTxt
+ 00000157  E8 00000000 E	    call SetTextColor
 
- 0000010F  B6 13		    mov dh, 19
- 00000111  B2 0C		    mov dl, 12
- 00000113  E8 00000000 E	    call Gotoxy
- 00000118  BA 0000000A R	    mov edx, offset inputName
- 0000011D  E8 00000000 E	    call WriteString
+ 0000015C  B6 13		    mov dh, 19
+ 0000015E  B2 0C		    mov dl, 12
+ 00000160  E8 00000000 E	    call Gotoxy
+ 00000165  BA 00000092 R	    mov edx, offset inputName
+ 0000016A  E8 00000000 E	    call WriteString
 
 				    ; asking for user input
- 00000122  BA 0000001F R	    mov edx, offset userName
- 00000127  B9 00000032		    mov ecx, lengthof userName
- 0000012C  E8 00000000 E	    call ReadString
+ 0000016F  BA 000000A7 R	    mov edx, offset userName
+ 00000174  B9 00000032		    mov ecx, lengthof userName
+ 00000179  E8 00000000 E	    call ReadString
 
- 00000131  B6 16		    mov dh, 22
- 00000133  B2 0B		    mov dl,11
- 00000135  E8 00000000 E	    call Gotoxy
- 0000013A  BA 0000101D R	    mov edx, offset temp
- 0000013F  E8 00000000 E	    call WaitMsg
- 00000144  E8 00000000 E	    call Clrscr
- 00000149  C3			    ret
- 0000014A			WelcomeScreen endp
+ 0000017E  B6 16		    mov dh, 22
+ 00000180  B2 0B		    mov dl,11
+ 00000182  E8 00000000 E	    call Gotoxy
+ 00000187  BA 000010A5 R	    mov edx, offset temp
+ 0000018C  E8 00000000 E	    call WaitMsg
+ 00000191  E8 00000000 E	    call Clrscr
+ 00000196  C3			    ret
+ 00000197			WelcomeScreen endp
 
 
 				;-----------------------------------------------------
- 0000014A			MenuScreen proc
+ 00000197			MenuScreen proc
 
- 0000014A  E8 00000000 E	    call Clrscr
+ 00000197  E8 FFFFFE7A		    call introSound
+
+ 0000019C  E8 00000000 E	    call Clrscr
 				    
- 0000014F  B8 00000001		    mov eax, blueTxt
- 00000154  E8 00000000 E	    call SetTextColor
+ 000001A1  B8 00000001		    mov eax, blueTxt
+ 000001A6  E8 00000000 E	    call SetTextColor
 				    
- 00000159  B6 05		    mov dh, 5
- 0000015B  B2 1E		    mov dl, 30
- 0000015D  E8 00000000 E	    call Gotoxy
- 00000162  BA 0000070D R	    mov edx, offset menutitle0
- 00000167  E8 00000000 E	    call WriteString
+ 000001AB  B6 05		    mov dh, 5
+ 000001AD  B2 1E		    mov dl, 30
+ 000001AF  E8 00000000 E	    call Gotoxy
+ 000001B4  BA 00000795 R	    mov edx, offset menutitle0
+ 000001B9  E8 00000000 E	    call WriteString
 				    
- 0000016C  B6 06		    mov dh, 6
- 0000016E  B2 1E		    mov dl, 30
- 00000170  E8 00000000 E	    call Gotoxy
- 00000175  BA 0000073C R	    mov edx, offset menutitle1
- 0000017A  E8 00000000 E	    call WriteString
+ 000001BE  B6 06		    mov dh, 6
+ 000001C0  B2 1E		    mov dl, 30
+ 000001C2  E8 00000000 E	    call Gotoxy
+ 000001C7  BA 000007C4 R	    mov edx, offset menutitle1
+ 000001CC  E8 00000000 E	    call WriteString
 				    
- 0000017F  B6 07		    mov dh, 7
- 00000181  B2 1E		    mov dl, 30
- 00000183  E8 00000000 E	    call Gotoxy
- 00000188  BA 0000076B R	    mov edx, offset menutitle2
- 0000018D  E8 00000000 E	    call WriteString
+ 000001D1  B6 07		    mov dh, 7
+ 000001D3  B2 1E		    mov dl, 30
+ 000001D5  E8 00000000 E	    call Gotoxy
+ 000001DA  BA 000007F3 R	    mov edx, offset menutitle2
+ 000001DF  E8 00000000 E	    call WriteString
 				    
- 00000192  B6 08		    mov dh, 8
- 00000194  B2 1E		    mov dl, 30
- 00000196  E8 00000000 E	    call Gotoxy
- 0000019B  BA 00000799 R	    mov edx, offset menutitle3
- 000001A0  E8 00000000 E	    call WriteString
+ 000001E4  B6 08		    mov dh, 8
+ 000001E6  B2 1E		    mov dl, 30
+ 000001E8  E8 00000000 E	    call Gotoxy
+ 000001ED  BA 00000821 R	    mov edx, offset menutitle3
+ 000001F2  E8 00000000 E	    call WriteString
 				    
- 000001A5  B6 09		    mov dh, 9
- 000001A7  B2 1E		    mov dl, 30
- 000001A9  E8 00000000 E	    call Gotoxy
- 000001AE  BA 000007C8 R	    mov edx, offset menutitle4
- 000001B3  E8 00000000 E	    call WriteString
+ 000001F7  B6 09		    mov dh, 9
+ 000001F9  B2 1E		    mov dl, 30
+ 000001FB  E8 00000000 E	    call Gotoxy
+ 00000200  BA 00000850 R	    mov edx, offset menutitle4
+ 00000205  E8 00000000 E	    call WriteString
 				    
- 000001B8  B6 0A		    mov dh, 10
- 000001BA  B2 1E		    mov dl, 30
- 000001BC  E8 00000000 E	    call Gotoxy
- 000001C1  BA 000007F6 R	    mov edx, offset menutitle5
- 000001C6  E8 00000000 E	    call WriteString
+ 0000020A  B6 0A		    mov dh, 10
+ 0000020C  B2 1E		    mov dl, 30
+ 0000020E  E8 00000000 E	    call Gotoxy
+ 00000213  BA 0000087E R	    mov edx, offset menutitle5
+ 00000218  E8 00000000 E	    call WriteString
 				    
 				    ;menu options in green
- 000001CB  B8 00000002		    mov eax, greenTxt
- 000001D0  E8 00000000 E	    call SetTextColor
+ 0000021D  B8 00000002		    mov eax, greenTxt
+ 00000222  E8 00000000 E	    call SetTextColor
 				    
- 000001D5  B6 0D		    mov dh, 13
- 000001D7  B2 23		    mov dl, 35
- 000001D9  E8 00000000 E	    call Gotoxy
- 000001DE  BA 00000825 R	    mov edx, offset menuopt0
- 000001E3  E8 00000000 E	    call WriteString
+ 00000227  B6 0D		    mov dh, 13
+ 00000229  B2 23		    mov dl, 35
+ 0000022B  E8 00000000 E	    call Gotoxy
+ 00000230  BA 000008AD R	    mov edx, offset menuopt0
+ 00000235  E8 00000000 E	    call WriteString
 				    
- 000001E8  B6 0E		    mov dh, 14
- 000001EA  B2 23		    mov dl, 35
- 000001EC  E8 00000000 E	    call Gotoxy
- 000001F1  BA 00000847 R	    mov edx, offset menuopt1
- 000001F6  E8 00000000 E	    call WriteString
+ 0000023A  B6 0E		    mov dh, 14
+ 0000023C  B2 23		    mov dl, 35
+ 0000023E  E8 00000000 E	    call Gotoxy
+ 00000243  BA 000008CF R	    mov edx, offset menuopt1
+ 00000248  E8 00000000 E	    call WriteString
 				    
- 000001FB  B6 0F		    mov dh, 15
- 000001FD  B2 23		    mov dl, 35
- 000001FF  E8 00000000 E	    call Gotoxy
- 00000204  BA 00000869 R	    mov edx, offset menuopt2
- 00000209  E8 00000000 E	    call WriteString
+ 0000024D  B6 0F		    mov dh, 15
+ 0000024F  B2 23		    mov dl, 35
+ 00000251  E8 00000000 E	    call Gotoxy
+ 00000256  BA 000008F1 R	    mov edx, offset menuopt2
+ 0000025B  E8 00000000 E	    call WriteString
 				    
- 0000020E  B6 10		    mov dh, 16
- 00000210  B2 23		    mov dl, 35
- 00000212  E8 00000000 E	    call Gotoxy
- 00000217  BA 0000088B R	    mov edx, offset menuopt3
- 0000021C  E8 00000000 E	    call WriteString
+ 00000260  B6 10		    mov dh, 16
+ 00000262  B2 23		    mov dl, 35
+ 00000264  E8 00000000 E	    call Gotoxy
+ 00000269  BA 00000913 R	    mov edx, offset menuopt3
+ 0000026E  E8 00000000 E	    call WriteString
 				    
- 00000221  B6 11		    mov dh, 17
- 00000223  B2 23		    mov dl, 35
- 00000225  E8 00000000 E	    call Gotoxy
- 0000022A  BA 000008AD R	    mov edx, offset menuopt4
- 0000022F  E8 00000000 E	    call WriteString
+ 00000273  B6 11		    mov dh, 17
+ 00000275  B2 23		    mov dl, 35
+ 00000277  E8 00000000 E	    call Gotoxy
+ 0000027C  BA 00000935 R	    mov edx, offset menuopt4
+ 00000281  E8 00000000 E	    call WriteString
 				    
- 00000234  B6 12		    mov dh, 18
- 00000236  B2 23		    mov dl, 35
- 00000238  E8 00000000 E	    call Gotoxy
- 0000023D  BA 000008CF R	    mov edx, offset menuopt5
- 00000242  E8 00000000 E	    call WriteString
+ 00000286  B6 12		    mov dh, 18
+ 00000288  B2 23		    mov dl, 35
+ 0000028A  E8 00000000 E	    call Gotoxy
+ 0000028F  BA 00000957 R	    mov edx, offset menuopt5
+ 00000294  E8 00000000 E	    call WriteString
 				    
 				    ; user choice
- 00000247  B8 0000000F		    mov eax, whiteTxt
- 0000024C  E8 00000000 E	    call SetTextColor
+ 00000299  B8 0000000F		    mov eax, whiteTxt
+ 0000029E  E8 00000000 E	    call SetTextColor
 				    
- 00000251  B6 14		    mov dh, 20
- 00000253  B2 23		    mov dl, 35
- 00000255  E8 00000000 E	    call Gotoxy
- 0000025A  BA 000008F1 R	    mov edx, offset menuoptchoose
- 0000025F  E8 00000000 E	    call WriteString
+ 000002A3  B6 14		    mov dh, 20
+ 000002A5  B2 23		    mov dl, 35
+ 000002A7  E8 00000000 E	    call Gotoxy
+ 000002AC  BA 00000979 R	    mov edx, offset menuoptchoose
+ 000002B1  E8 00000000 E	    call WriteString
 				    
- 00000264  E8 00000000 E	    call ReadInt
- 00000269  A2 0000101C R	    mov userChoice, al
+ 000002B6  E8 00000000 E	    call ReadInt
+ 000002BB  A2 000010A4 R	    mov userChoice, al
 				    
 				  
- 0000026E  80 3D 0000101C R	    cmp userChoice, 1
+ 000002C0  80 3D 000010A4 R	    cmp userChoice, 1
 	   01
- 00000275  74 20		    je LevelSelection
- 00000277  80 3D 0000101C R	    cmp userChoice, 2
+ 000002C7  74 20		    je LevelSelection
+ 000002C9  80 3D 000010A4 R	    cmp userChoice, 2
 	   02
- 0000027E  74 21		    je ShowInstructions
- 00000280  80 3D 0000101C R	    cmp userChoice, 3
+ 000002D0  74 21		    je ShowInstructions
+ 000002D2  80 3D 000010A4 R	    cmp userChoice, 3
 	   03
- 00000287  74 22		    je ShowHighscores
- 00000289  80 3D 0000101C R	    cmp userChoice, 4
+ 000002D9  74 22		    je ShowHighscores
+ 000002DB  80 3D 000010A4 R	    cmp userChoice, 4
 	   04
- 00000290  74 23		    je ExitGame
+ 000002E2  74 23		    je ExitGame
 				    
 				    ;if user ghalat option then go to menu (already udhr he)
- 00000292  E9 FFFFFEB3		    jmp MenuScreen
+ 000002E4  E9 FFFFFEAE		    jmp MenuScreen
 				    
- 00000297			LevelSelection:
- 00000297  E8 00000025		    call LevelSelectScreen
- 0000029C  E9 FFFFFEA9		    jmp MenuScreen
+ 000002E9			LevelSelection:
+ 000002E9  E8 00000025		    call LevelSelectScreen
+ 000002EE  E9 FFFFFEA4		    jmp MenuScreen
 				    
- 000002A1			ShowInstructions:
- 000002A1  E8 000001D5		    call InstructionsScreen
- 000002A6  E9 FFFFFE9F		    jmp MenuScreen
+ 000002F3			ShowInstructions:
+ 000002F3  E8 000001E4		    call InstructionsScreen
+ 000002F8  E9 FFFFFE9A		    jmp MenuScreen
 				    
- 000002AB			ShowHighscores:
- 000002AB  E8 000002A0		    call HighscoresScreen
- 000002B0  E9 FFFFFE95		    jmp MenuScreen
+ 000002FD			ShowHighscores:
+ 000002FD  E8 000002B4		    call HighscoresScreen
+ 00000302  E9 FFFFFE90		    jmp MenuScreen
 				    
- 000002B5			ExitGame:
- 000002B5  E8 00000000 E	    call Clrscr
+ 00000307			ExitGame:
+ 00000307  E8 00000000 E	    call Clrscr
 				    exit
- 000002BA  6A 00	   *	    push   +000000000h
- 000002BC  E8 00000000 E   *	    call   ExitProcess
- 000002C1			MenuScreen endp
+ 0000030C  6A 00	   *	    push   +000000000h
+ 0000030E  E8 00000000 E   *	    call   ExitProcess
+ 00000313			MenuScreen endp
 
 				;-----------------------------------------------------
- 000002C1			LevelSelectScreen proc
+ 00000313			LevelSelectScreen proc
 
- 000002C1  E8 00000000 E	    call Clrscr
+ 00000313  E8 FFFFFCFE		    call introSound
+
+ 00000318  E8 00000000 E	    call Clrscr
 				    
 				    ; Display level selection title
- 000002C6  B8 00000001		    mov eax, blueTxt
- 000002CB  E8 00000000 E	    call SetTextColor
+ 0000031D  B8 00000001		    mov eax, blueTxt
+ 00000322  E8 00000000 E	    call SetTextColor
 				    
 				    
 				    ; level options
- 000002D0  B8 00000004		    mov eax, redTxt
- 000002D5  E8 00000000 E	    call SetTextColor
+ 00000327  B8 00000004		    mov eax, redTxt
+ 0000032C  E8 00000000 E	    call SetTextColor
 				    
 				    ; Level 1
- 000002DA  B6 05		    mov dh, 5
- 000002DC  B2 1E		    mov dl, 30
- 000002DE  E8 00000000 E	    call Gotoxy
- 000002E3  BA 00000906 R	    mov edx, offset level1opt0
- 000002E8  E8 00000000 E	    call WriteString
+ 00000331  B6 05		    mov dh, 5
+ 00000333  B2 1E		    mov dl, 30
+ 00000335  E8 00000000 E	    call Gotoxy
+ 0000033A  BA 0000098E R	    mov edx, offset level1opt0
+ 0000033F  E8 00000000 E	    call WriteString
 				    
- 000002ED  B6 06		    mov dh, 6
- 000002EF  B2 1E		    mov dl, 30
- 000002F1  E8 00000000 E	    call Gotoxy
- 000002F6  BA 00000935 R	    mov edx, offset level1opt1
- 000002FB  E8 00000000 E	    call WriteString
+ 00000344  B6 06		    mov dh, 6
+ 00000346  B2 1E		    mov dl, 30
+ 00000348  E8 00000000 E	    call Gotoxy
+ 0000034D  BA 000009BD R	    mov edx, offset level1opt1
+ 00000352  E8 00000000 E	    call WriteString
 				    
- 00000300  B6 07		    mov dh, 7
- 00000302  B2 1E		    mov dl, 30
- 00000304  E8 00000000 E	    call Gotoxy
- 00000309  BA 00000964 R	    mov edx, offset level1opt2
- 0000030E  E8 00000000 E	    call WriteString
+ 00000357  B6 07		    mov dh, 7
+ 00000359  B2 1E		    mov dl, 30
+ 0000035B  E8 00000000 E	    call Gotoxy
+ 00000360  BA 000009EC R	    mov edx, offset level1opt2
+ 00000365  E8 00000000 E	    call WriteString
 				    
- 00000313  B6 08		    mov dh, 8
- 00000315  B2 1E		    mov dl, 30
- 00000317  E8 00000000 E	    call Gotoxy
- 0000031C  BA 00000993 R	    mov edx, offset level1opt3
- 00000321  E8 00000000 E	    call WriteString
+ 0000036A  B6 08		    mov dh, 8
+ 0000036C  B2 1E		    mov dl, 30
+ 0000036E  E8 00000000 E	    call Gotoxy
+ 00000373  BA 00000A1B R	    mov edx, offset level1opt3
+ 00000378  E8 00000000 E	    call WriteString
 				    
- 00000326  B6 09		    mov dh, 9
- 00000328  B2 1E		    mov dl, 30
- 0000032A  E8 00000000 E	    call Gotoxy
- 0000032F  BA 000009C2 R	    mov edx, offset level1opt4
- 00000334  E8 00000000 E	    call WriteString
+ 0000037D  B6 09		    mov dh, 9
+ 0000037F  B2 1E		    mov dl, 30
+ 00000381  E8 00000000 E	    call Gotoxy
+ 00000386  BA 00000A4A R	    mov edx, offset level1opt4
+ 0000038B  E8 00000000 E	    call WriteString
 				    
 				    ; Level 2
- 00000339  B6 0A		    mov dh, 10
- 0000033B  B2 1E		    mov dl, 30
- 0000033D  E8 00000000 E	    call Gotoxy
- 00000342  BA 000009F1 R	    mov edx, offset level2opt0
- 00000347  E8 00000000 E	    call WriteString
+ 00000390  B6 0A		    mov dh, 10
+ 00000392  B2 1E		    mov dl, 30
+ 00000394  E8 00000000 E	    call Gotoxy
+ 00000399  BA 00000A79 R	    mov edx, offset level2opt0
+ 0000039E  E8 00000000 E	    call WriteString
 				    
- 0000034C  B6 0B		    mov dh, 11
- 0000034E  B2 1E		    mov dl, 30
- 00000350  E8 00000000 E	    call Gotoxy
- 00000355  BA 00000A20 R	    mov edx, offset level2opt1
- 0000035A  E8 00000000 E	    call WriteString
+ 000003A3  B6 0B		    mov dh, 11
+ 000003A5  B2 1E		    mov dl, 30
+ 000003A7  E8 00000000 E	    call Gotoxy
+ 000003AC  BA 00000AA8 R	    mov edx, offset level2opt1
+ 000003B1  E8 00000000 E	    call WriteString
 				    
- 0000035F  B6 0C		    mov dh, 12
- 00000361  B2 1E		    mov dl, 30
- 00000363  E8 00000000 E	    call Gotoxy
- 00000368  BA 00000A4F R	    mov edx, offset level2opt2
- 0000036D  E8 00000000 E	    call WriteString
+ 000003B6  B6 0C		    mov dh, 12
+ 000003B8  B2 1E		    mov dl, 30
+ 000003BA  E8 00000000 E	    call Gotoxy
+ 000003BF  BA 00000AD7 R	    mov edx, offset level2opt2
+ 000003C4  E8 00000000 E	    call WriteString
 				    
- 00000372  B6 0D		    mov dh, 13
- 00000374  B2 1E		    mov dl, 30
- 00000376  E8 00000000 E	    call Gotoxy
- 0000037B  BA 00000A7E R	    mov edx, offset level2opt3
- 00000380  E8 00000000 E	    call WriteString
+ 000003C9  B6 0D		    mov dh, 13
+ 000003CB  B2 1E		    mov dl, 30
+ 000003CD  E8 00000000 E	    call Gotoxy
+ 000003D2  BA 00000B06 R	    mov edx, offset level2opt3
+ 000003D7  E8 00000000 E	    call WriteString
 				    
- 00000385  B6 0E		    mov dh, 14
- 00000387  B2 1E		    mov dl, 30
- 00000389  E8 00000000 E	    call Gotoxy
- 0000038E  BA 00000AAD R	    mov edx, offset level2opt4
- 00000393  E8 00000000 E	    call WriteString
+ 000003DC  B6 0E		    mov dh, 14
+ 000003DE  B2 1E		    mov dl, 30
+ 000003E0  E8 00000000 E	    call Gotoxy
+ 000003E5  BA 00000B35 R	    mov edx, offset level2opt4
+ 000003EA  E8 00000000 E	    call WriteString
 				    
 				    ; Level 3
- 00000398  B6 0F		    mov dh, 15
- 0000039A  B2 1E		    mov dl, 30
- 0000039C  E8 00000000 E	    call Gotoxy
- 000003A1  BA 00000ADC R	    mov edx, offset level3opt0
- 000003A6  E8 00000000 E	    call WriteString
+ 000003EF  B6 0F		    mov dh, 15
+ 000003F1  B2 1E		    mov dl, 30
+ 000003F3  E8 00000000 E	    call Gotoxy
+ 000003F8  BA 00000B64 R	    mov edx, offset level3opt0
+ 000003FD  E8 00000000 E	    call WriteString
 				    
- 000003AB  B6 10		    mov dh, 16
- 000003AD  B2 1E		    mov dl, 30
- 000003AF  E8 00000000 E	    call Gotoxy
- 000003B4  BA 00000B0B R	    mov edx, offset level3opt1
- 000003B9  E8 00000000 E	    call WriteString
+ 00000402  B6 10		    mov dh, 16
+ 00000404  B2 1E		    mov dl, 30
+ 00000406  E8 00000000 E	    call Gotoxy
+ 0000040B  BA 00000B93 R	    mov edx, offset level3opt1
+ 00000410  E8 00000000 E	    call WriteString
 				    
- 000003BE  B6 11		    mov dh, 17
- 000003C0  B2 1E		    mov dl, 30
- 000003C2  E8 00000000 E	    call Gotoxy
- 000003C7  BA 00000B3A R	    mov edx, offset level3opt2
- 000003CC  E8 00000000 E	    call WriteString
+ 00000415  B6 11		    mov dh, 17
+ 00000417  B2 1E		    mov dl, 30
+ 00000419  E8 00000000 E	    call Gotoxy
+ 0000041E  BA 00000BC2 R	    mov edx, offset level3opt2
+ 00000423  E8 00000000 E	    call WriteString
 				    
- 000003D1  B6 12		    mov dh, 18
- 000003D3  B2 1E		    mov dl, 30
- 000003D5  E8 00000000 E	    call Gotoxy
- 000003DA  BA 00000B69 R	    mov edx, offset level3opt3
- 000003DF  E8 00000000 E	    call WriteString
+ 00000428  B6 12		    mov dh, 18
+ 0000042A  B2 1E		    mov dl, 30
+ 0000042C  E8 00000000 E	    call Gotoxy
+ 00000431  BA 00000BF1 R	    mov edx, offset level3opt3
+ 00000436  E8 00000000 E	    call WriteString
 				    
- 000003E4  B6 13		    mov dh, 19
- 000003E6  B2 1E		    mov dl, 30
- 000003E8  E8 00000000 E	    call Gotoxy
- 000003ED  BA 00000B98 R	    mov edx, offset level3opt4
- 000003F2  E8 00000000 E	    call WriteString
+ 0000043B  B6 13		    mov dh, 19
+ 0000043D  B2 1E		    mov dl, 30
+ 0000043F  E8 00000000 E	    call Gotoxy
+ 00000444  BA 00000C20 R	    mov edx, offset level3opt4
+ 00000449  E8 00000000 E	    call WriteString
 				    
 				    ;user choice
- 000003F7  B8 0000000F		    mov eax, whiteTxt
- 000003FC  E8 00000000 E	    call SetTextColor
+ 0000044E  B8 0000000F		    mov eax, whiteTxt
+ 00000453  E8 00000000 E	    call SetTextColor
 				    
- 00000401  B6 16		    mov dh, 22
- 00000403  B2 14		    mov dl, 20
- 00000405  E8 00000000 E	    call Gotoxy
- 0000040A  BA 00000BC7 R	    mov edx, offset leveloptchoose1
- 0000040F  E8 00000000 E	    call WriteString
+ 00000458  B6 16		    mov dh, 22
+ 0000045A  B2 14		    mov dl, 20
+ 0000045C  E8 00000000 E	    call Gotoxy
+ 00000461  BA 00000C4F R	    mov edx, offset leveloptchoose1
+ 00000466  E8 00000000 E	    call WriteString
 				    
- 00000414  B6 17		    mov dh, 23
- 00000416  B2 14		    mov dl, 20
- 00000418  E8 00000000 E	    call Gotoxy
- 0000041D  BA 00000C00 R	    mov edx, offset leveloptchoose2
- 00000422  E8 00000000 E	    call WriteString
+ 0000046B  B6 17		    mov dh, 23
+ 0000046D  B2 14		    mov dl, 20
+ 0000046F  E8 00000000 E	    call Gotoxy
+ 00000474  BA 00000C88 R	    mov edx, offset leveloptchoose2
+ 00000479  E8 00000000 E	    call WriteString
 				    
- 00000427  B6 18		    mov dh, 24
- 00000429  B2 14		    mov dl, 20
- 0000042B  E8 00000000 E	    call Gotoxy
- 00000430  E8 00000000 E	    call ReadInt
+ 0000047E  B6 18		    mov dh, 24
+ 00000480  B2 14		    mov dl, 20
+ 00000482  E8 00000000 E	    call Gotoxy
+ 00000487  E8 00000000 E	    call ReadInt
 				    
 				    ; Processing choice made
- 00000435  3C 01		    cmp al, 1
- 00000437  74 15		    je StartLevel1
- 00000439  3C 02		    cmp al, 2
- 0000043B  74 1F		    je StartLevel2
- 0000043D  3C 03		    cmp al, 3
- 0000043F  74 24		    je StartLevel3
- 00000441  3C 04		    cmp al, 4
- 00000443  74 29		    je ReturnToMenu
- 00000445  3C 05		    cmp al, 5
- 00000447  74 26		    je ExitGame
+ 0000048C  3C 01		    cmp al, 1
+ 0000048E  74 15		    je StartLevel1
+ 00000490  3C 02		    cmp al, 2
+ 00000492  74 1F		    je StartLevel2
+ 00000494  3C 03		    cmp al, 3
+ 00000496  74 29		    je StartLevel3
+ 00000498  3C 04		    cmp al, 4
+ 0000049A  74 33		    je ReturnToMenu
+ 0000049C  3C 05		    cmp al, 5
+ 0000049E  74 30		    je ExitGame
 				    
 				    ; Invalid choice - show menu again
- 00000449  E9 FFFFFE73		    jmp LevelSelectScreen
+ 000004A0  E9 FFFFFE6E		    jmp LevelSelectScreen
 
- 0000044E			StartLevel1:
- 0000044E  C6 05 00000060 R	    mov currentLevel, 1
+ 000004A5			StartLevel1:
+ 000004A5  C6 05 000000E8 R	    mov currentLevel, 1
 	   01
- 00000455  E8 00000187		    call Level1Screen
- 0000045A  EB 12		    jmp ReturnToMenu
+ 000004AC  E8 0000019B		    call Level1Screen
+ 000004B1  EB 1C		    jmp ReturnToMenu
 
- 0000045C			StartLevel2:
- 0000045C  C6 05 00000060 R	    mov currentLevel, 2
+ 000004B3			StartLevel2:
+ 000004B3  C6 05 000000E8 R	    mov currentLevel, 2
 	   02
-				    ; call Level2Screen  ; You'll implement this later
- 00000463  EB 09		    jmp ReturnToMenu
+ 000004BA  E8 00000193		    call Level2Screen  
+ 000004BF  EB 0E		    jmp ReturnToMenu
 
- 00000465			StartLevel3:
- 00000465  C6 05 00000060 R	    mov currentLevel, 3
+ 000004C1			StartLevel3:
+ 000004C1  C6 05 000000E8 R	    mov currentLevel, 3
 	   03
-				    ; call Level3Screen  ; You'll implement this later
- 0000046C  EB 00		    jmp ReturnToMenu
+ 000004C8  E8 0000018B		    call Level3Screen  
+ 000004CD  EB 00		    jmp ReturnToMenu
 				    
- 0000046E			ReturnToMenu:
- 0000046E  C3			    ret
+ 000004CF			ReturnToMenu:
+ 000004CF  C3			    ret
 				    
- 0000046F			ExitGame:
- 0000046F  E8 00000000 E	    call Clrscr
+ 000004D0			ExitGame:
+ 000004D0  E8 00000000 E	    call Clrscr
 				    exit
- 00000474  6A 00	   *	    push   +000000000h
- 00000476  E8 00000000 E   *	    call   ExitProcess
- 0000047B			LevelSelectScreen endp
+ 000004D5  6A 00	   *	    push   +000000000h
+ 000004D7  E8 00000000 E   *	    call   ExitProcess
+ 000004DC			LevelSelectScreen endp
 
 				;-----------------------------------------------------
- 0000047B			InstructionsScreen proc
- 0000047B  E8 00000000 E	    call Clrscr
+ 000004DC			InstructionsScreen proc
+
+ 000004DC  E8 FFFFFB35		    call introSound
+
+ 000004E1  E8 00000000 E	    call Clrscr
 				    
 				    ; Display instructions title
- 00000480  B8 00000001		    mov eax, blueTxt
- 00000485  E8 00000000 E	    call SetTextColor
+ 000004E6  B8 00000001		    mov eax, blueTxt
+ 000004EB  E8 00000000 E	    call SetTextColor
 				    
- 0000048A  B6 05		    mov dh, 5
- 0000048C  B2 0F		    mov dl, 15
- 0000048E  E8 00000000 E	    call Gotoxy
- 00000493  BA 00000C35 R	    mov edx, offset instruc1
- 00000498  E8 00000000 E	    call WriteString
+ 000004F0  B6 05		    mov dh, 5
+ 000004F2  B2 0F		    mov dl, 15
+ 000004F4  E8 00000000 E	    call Gotoxy
+ 000004F9  BA 00000CBD R	    mov edx, offset instruc1
+ 000004FE  E8 00000000 E	    call WriteString
 				    
- 0000049D  B6 06		    mov dh, 6
- 0000049F  B2 0F		    mov dl, 15
- 000004A1  E8 00000000 E	    call Gotoxy
- 000004A6  BA 00000C79 R	    mov edx, offset instruc2
- 000004AB  E8 00000000 E	    call WriteString
+ 00000503  B6 06		    mov dh, 6
+ 00000505  B2 0F		    mov dl, 15
+ 00000507  E8 00000000 E	    call Gotoxy
+ 0000050C  BA 00000D01 R	    mov edx, offset instruc2
+ 00000511  E8 00000000 E	    call WriteString
 				    
 				    ; Display instructions text
- 000004B0  B8 00000002		    mov eax, greenTxt
- 000004B5  E8 00000000 E	    call SetTextColor
+ 00000516  B8 00000002		    mov eax, greenTxt
+ 0000051B  E8 00000000 E	    call SetTextColor
 				    
- 000004BA  B6 08		    mov dh, 8
- 000004BC  B2 0F		    mov dl, 15
- 000004BE  E8 00000000 E	    call Gotoxy
- 000004C3  BA 00000D09 R	    mov edx, offset instruc4
- 000004C8  E8 00000000 E	    call WriteString
+ 00000520  B6 08		    mov dh, 8
+ 00000522  B2 0F		    mov dl, 15
+ 00000524  E8 00000000 E	    call Gotoxy
+ 00000529  BA 00000D91 R	    mov edx, offset instruc4
+ 0000052E  E8 00000000 E	    call WriteString
 				    
- 000004CD  B6 09		    mov dh, 9
- 000004CF  B2 0F		    mov dl, 15
- 000004D1  E8 00000000 E	    call Gotoxy
- 000004D6  BA 00000D2D R	    mov edx, offset instruc5
- 000004DB  E8 00000000 E	    call WriteString
+ 00000533  B6 09		    mov dh, 9
+ 00000535  B2 0F		    mov dl, 15
+ 00000537  E8 00000000 E	    call Gotoxy
+ 0000053C  BA 00000DB5 R	    mov edx, offset instruc5
+ 00000541  E8 00000000 E	    call WriteString
 				    
- 000004E0  B6 0A		    mov dh, 10
- 000004E2  B2 0F		    mov dl, 15
- 000004E4  E8 00000000 E	    call Gotoxy
- 000004E9  BA 00000D51 R	    mov edx, offset instruc6
- 000004EE  E8 00000000 E	    call WriteString
+ 00000546  B6 0A		    mov dh, 10
+ 00000548  B2 0F		    mov dl, 15
+ 0000054A  E8 00000000 E	    call Gotoxy
+ 0000054F  BA 00000DD9 R	    mov edx, offset instruc6
+ 00000554  E8 00000000 E	    call WriteString
 				    
- 000004F3  B6 0B		    mov dh, 11
- 000004F5  B2 0F		    mov dl, 15
- 000004F7  E8 00000000 E	    call Gotoxy
- 000004FC  BA 00000D95 R	    mov edx, offset instruc7
- 00000501  E8 00000000 E	    call WriteString
+ 00000559  B6 0B		    mov dh, 11
+ 0000055B  B2 0F		    mov dl, 15
+ 0000055D  E8 00000000 E	    call Gotoxy
+ 00000562  BA 00000E1D R	    mov edx, offset instruc7
+ 00000567  E8 00000000 E	    call WriteString
 				    
- 00000506  B6 0C		    mov dh, 12
- 00000508  B2 0F		    mov dl, 15
- 0000050A  E8 00000000 E	    call Gotoxy
- 0000050F  BA 00000DD4 R	    mov edx, offset instruc8
- 00000514  E8 00000000 E	    call WriteString
+ 0000056C  B6 0C		    mov dh, 12
+ 0000056E  B2 0F		    mov dl, 15
+ 00000570  E8 00000000 E	    call Gotoxy
+ 00000575  BA 00000E5C R	    mov edx, offset instruc8
+ 0000057A  E8 00000000 E	    call WriteString
 				    
 				    ; Get user choice
- 00000519  B8 0000000F		    mov eax, whiteTxt
- 0000051E  E8 00000000 E	    call SetTextColor
+ 0000057F  B8 0000000F		    mov eax, whiteTxt
+ 00000584  E8 00000000 E	    call SetTextColor
 				    
- 00000523  B6 0E		    mov dh, 14
- 00000525  B2 0F		    mov dl, 15
- 00000527  E8 00000000 E	    call Gotoxy
- 0000052C  BA 00000E66 R	    mov edx, offset instrucChoose
- 00000531  E8 00000000 E	    call WriteString
+ 00000589  B6 0E		    mov dh, 14
+ 0000058B  B2 0F		    mov dl, 15
+ 0000058D  E8 00000000 E	    call Gotoxy
+ 00000592  BA 00000EEE R	    mov edx, offset instrucChoose
+ 00000597  E8 00000000 E	    call WriteString
 				    
- 00000536  E8 00000000 E	    call ReadInt
+ 0000059C  E8 00000000 E	    call ReadInt
 				    
 				    ; Process choice
- 0000053B  3C 01		    cmp al, 1
- 0000053D  74 04		    je ReturnToMenu
- 0000053F  3C 02		    cmp al, 2
- 00000541  74 01		    je ExitGame
+ 000005A1  3C 01		    cmp al, 1
+ 000005A3  74 04		    je ReturnToMenu
+ 000005A5  3C 02		    cmp al, 2
+ 000005A7  74 01		    je ExitGame
 				    
- 00000543			ReturnToMenu:
- 00000543  C3			    ret
+ 000005A9			ReturnToMenu:
+ 000005A9  C3			    ret
 				    
- 00000544			ExitGame:
- 00000544  E8 00000000 E	    call Clrscr
+ 000005AA			ExitGame:
+ 000005AA  E8 00000000 E	    call Clrscr
 				    exit
- 00000549  6A 00	   *	    push   +000000000h
- 0000054B  E8 00000000 E   *	    call   ExitProcess
- 00000550			InstructionsScreen endp
+ 000005AF  6A 00	   *	    push   +000000000h
+ 000005B1  E8 00000000 E   *	    call   ExitProcess
+ 000005B6			InstructionsScreen endp
 
 				;-----------------------------------------------------
- 00000550			HighscoresScreen proc
+ 000005B6			HighscoresScreen proc
 
- 00000550  E8 00000000 E	    call Clrscr
+
+ 000005B6  E8 FFFFFA5B		    call introSound
+
+ 000005BB  E8 00000000 E	    call Clrscr
 				    
 
- 00000555  B8 0000000E		    mov eax, yellowTxt
- 0000055A  E8 00000000 E	    call SetTextColor
+ 000005C0  B8 0000000E		    mov eax, yellowTxt
+ 000005C5  E8 00000000 E	    call SetTextColor
 				    
- 0000055F  B6 05		    mov dh, 5
- 00000561  B2 14		    mov dl, 20
- 00000563  E8 00000000 E	    call Gotoxy
- 00000568  BA 00000E98 R	    mov edx, offset hsTitle0
- 0000056D  E8 00000000 E	    call WriteString
+ 000005CA  B6 05		    mov dh, 5
+ 000005CC  B2 14		    mov dl, 20
+ 000005CE  E8 00000000 E	    call Gotoxy
+ 000005D3  BA 00000F20 R	    mov edx, offset hsTitle0
+ 000005D8  E8 00000000 E	    call WriteString
 				    
- 00000572  B6 06		    mov dh, 6
- 00000574  B2 14		    mov dl, 20
- 00000576  E8 00000000 E	    call Gotoxy
- 0000057B  BA 00000ED6 R	    mov edx, offset hsTitle1
- 00000580  E8 00000000 E	    call WriteString
+ 000005DD  B6 06		    mov dh, 6
+ 000005DF  B2 14		    mov dl, 20
+ 000005E1  E8 00000000 E	    call Gotoxy
+ 000005E6  BA 00000F5E R	    mov edx, offset hsTitle1
+ 000005EB  E8 00000000 E	    call WriteString
 				    
- 00000585  B6 07		    mov dh, 7
- 00000587  B2 14		    mov dl, 20
- 00000589  E8 00000000 E	    call Gotoxy
- 0000058E  BA 00000F14 R	    mov edx, offset hsTitle2
- 00000593  E8 00000000 E	    call WriteString
+ 000005F0  B6 07		    mov dh, 7
+ 000005F2  B2 14		    mov dl, 20
+ 000005F4  E8 00000000 E	    call Gotoxy
+ 000005F9  BA 00000F9C R	    mov edx, offset hsTitle2
+ 000005FE  E8 00000000 E	    call WriteString
 				    
- 00000598  B6 08		    mov dh, 8
- 0000059A  B2 14		    mov dl, 20
- 0000059C  E8 00000000 E	    call Gotoxy
- 000005A1  BA 00000F52 R	    mov edx, offset hsTitle3
- 000005A6  E8 00000000 E	    call WriteString
+ 00000603  B6 08		    mov dh, 8
+ 00000605  B2 14		    mov dl, 20
+ 00000607  E8 00000000 E	    call Gotoxy
+ 0000060C  BA 00000FDA R	    mov edx, offset hsTitle3
+ 00000611  E8 00000000 E	    call WriteString
 				    
- 000005AB  B6 09		    mov dh, 9
- 000005AD  B2 14		    mov dl, 20
- 000005AF  E8 00000000 E	    call Gotoxy
- 000005B4  BA 00000F90 R	    mov edx, offset hsTitle4
- 000005B9  E8 00000000 E	    call WriteString
+ 00000616  B6 09		    mov dh, 9
+ 00000618  B2 14		    mov dl, 20
+ 0000061A  E8 00000000 E	    call Gotoxy
+ 0000061F  BA 00001018 R	    mov edx, offset hsTitle4
+ 00000624  E8 00000000 E	    call WriteString
 				    
 				    ; Here you would normally display the actual high scores
 				    ; For now, just display a message
- 000005BE  B8 0000000F		    mov eax, whiteTxt
- 000005C3  E8 00000000 E	    call SetTextColor
+ 00000629  B8 0000000F		    mov eax, whiteTxt
+ 0000062E  E8 00000000 E	    call SetTextColor
 				    
- 000005C8  B6 0C		    mov dh, 12
- 000005CA  B2 1E		    mov dl, 30
- 000005CC  E8 00000000 E	    call Gotoxy
- 000005D1  BA 00000E66 R	    mov edx, offset instrucChoose
- 000005D6  E8 00000000 E	    call WriteString
+ 00000633  B6 0C		    mov dh, 12
+ 00000635  B2 1E		    mov dl, 30
+ 00000637  E8 00000000 E	    call Gotoxy
+ 0000063C  BA 00000EEE R	    mov edx, offset instrucChoose
+ 00000641  E8 00000000 E	    call WriteString
 				    
- 000005DB  E8 00000000 E	    call ReadInt
+ 00000646  E8 00000000 E	    call ReadInt
 				    
 				    ; Any key returns to menu
- 000005E0  C3			    ret
- 000005E1			HighscoresScreen endp
+ 0000064B  C3			    ret
+ 0000064C			HighscoresScreen endp
 
 				;-----------------------------------------------------
+ 0000064C			Level1Screen proc
+ 0000064C  E8 FFFFF9E9		    call levelSound
+				    ; ... game implementation ...
+ 00000651  C3			    ret
+ 00000652			Level1Screen endp
 
- 000005E1			Level1Screen proc
- 000005E1  E8 000000C3		    call InitializeLevel1
- 000005E6  E8 00000298		    call DrawLevel1Screen
-				    
- 000005EB			GameLoop:
-				    ; Handle input
- 000005EB  E8 00000000 E	    call ReadKey
- 000005F0  0F 84 00000098	    jz NoKeyPress
-				    
-				    ; Check for WASD keys
- 000005F6  3C 77		    cmp al, 'w'
- 000005F8  74 11		    je MoveUp
- 000005FA  3C 61		    cmp al, 'a'
- 000005FC  74 26		    je MoveLeft
- 000005FE  3C 73		    cmp al, 's'
- 00000600  74 3B		    je MoveDown
- 00000602  3C 64		    cmp al, 'd'
- 00000604  74 50		    je MoveRight
- 00000606  E9 00000083		    jmp NoKeyPress
-				    
- 0000060B			MoveUp:
- 0000060B  A0 00000386 R	    mov al, pacmanY
- 00000610  FE C8		    dec al
- 00000612  3C 00		    cmp al, 0
- 00000614  7E 78		    jle NoKeyPress
- 00000616  E8 000002ED		    call CheckCollision
- 0000061B  72 71		    jc NoKeyPress
- 0000061D  A2 00000386 R	    mov pacmanY, al
- 00000622  EB 49		    jmp UpdateGame
-				    
- 00000624			MoveLeft:
- 00000624  A0 00000385 R	    mov al, pacmanX
- 00000629  FE C8		    dec al
- 0000062B  3C 00		    cmp al, 0
- 0000062D  7E 5F		    jle NoKeyPress
- 0000062F  E8 000002D4		    call CheckCollision
- 00000634  72 58		    jc NoKeyPress
- 00000636  A2 00000385 R	    mov pacmanX, al
- 0000063B  EB 30		    jmp UpdateGame
-				    
- 0000063D			MoveDown:
- 0000063D  A0 00000386 R	    mov al, pacmanY
- 00000642  FE C0		    inc al
- 00000644  3C 13		    cmp al, 19
- 00000646  7D 46		    jge NoKeyPress
- 00000648  E8 000002BB		    call CheckCollision
- 0000064D  72 3F		    jc NoKeyPress
- 0000064F  A2 00000386 R	    mov pacmanY, al
- 00000654  EB 17		    jmp UpdateGame
-				    
- 00000656			MoveRight:
- 00000656  A0 00000385 R	    mov al, pacmanX
- 0000065B  FE C0		    inc al
- 0000065D  3C 27		    cmp al, 39
- 0000065F  7D 2D		    jge NoKeyPress
- 00000661  E8 000002A2		    call CheckCollision
- 00000666  72 26		    jc NoKeyPress
- 00000668  A2 00000385 R	    mov pacmanX, al
-				    
- 0000066D			UpdateGame:
-				    ; Move ghosts
- 0000066D  E8 000002C4		    call MoveGhosts
-				    
-				    ; Check ghost collisions
- 00000672  E8 00000350		    call CheckGhostCollision
-				    
-				    ; Check if game over
- 00000677  80 3D 0000005E R	    cmp gameOver, 1
-	   01
- 0000067E  74 22		    je GameEnd
-				    
-				    ; Check if level complete
- 00000680  E8 00000396		    call CheckLevelComplete
- 00000685  80 3D 0000005F R	    cmp levelComplete, 1
-	   01
- 0000068C  74 1A		    je LevelCompleted
-				    
- 0000068E			NoKeyPress:
- 0000068E  E8 000001F0		    call DrawLevel1Screen
- 00000693  B8 00000064		    mov eax, 100 ; Delay to control game speed
- 00000698  E8 00000000 E	    call Delay
- 0000069D  E9 FFFFFF49		    jmp GameLoop
-				    
- 000006A2			GameEnd:
- 000006A2  E8 0000038F		    call GameOverScreen
- 000006A7  C3			    ret
-				    
- 000006A8			LevelCompleted:
-				    ; Handle level completion
- 000006A8  C3			    ret
- 000006A9			Level1Screen endp
+ 00000652			Level2Screen proc
+				    ; Play level 2 sound
+ 00000652  E8 FFFFF9E3		    call levelSound
+				    ; ... game implementation ...
+ 00000657  C3			    ret
+ 00000658			Level2Screen endp
 
-				;-----------------------------------------------------
- 000006A9			InitializeLevel1 proc
-				    ; Clear the entire grid with spaces
- 000006A9  BF 00000061 R	    mov edi, offset grid
- 000006AE  B9 00000320		    mov ecx, GRID_WIDTH * GRID_HEIGHT
- 000006B3  B0 20		    mov al, ' '
- 000006B5  F3/ AA		    rep stosb
-
-				    ; Draw border walls
-				    ; Top border
- 000006B7  B9 00000028		    mov ecx, GRID_WIDTH
- 000006BC  BE 00000061 R	    mov esi, offset grid ; Top row
- 000006C1			DrawTopBorder:
- 000006C1  C6 06 23		    mov byte ptr [esi], '#' ; Wall character
- 000006C4  46			    inc esi
- 000006C5  E2 FA		    loop DrawTopBorder
-
-				    ; Bottom border
- 000006C7  B9 00000028		    mov ecx, GRID_WIDTH
- 000006CC  BF 00000359 R	    mov edi, offset grid + (GRID_HEIGHT-1)*GRID_WIDTH ; Bottom row
- 000006D1			DrawBottomBorder:
- 000006D1  C6 07 23		    mov byte ptr [edi], '#'
- 000006D4  47			    inc edi
- 000006D5  E2 FA		    loop DrawBottomBorder
-
-				    ; Left and right borders
- 000006D7  B9 00000012		    mov ecx, GRID_HEIGHT-2 ; Skip top and bottom rows
- 000006DC  BE 00000089 R	    mov esi, offset grid + GRID_WIDTH ; Start at first column of second row
- 000006E1  BF 000000B0 R	    mov edi, offset grid + GRID_WIDTH + (GRID_WIDTH-1) ; Last column of second row
- 000006E6			DrawSideWalls:
- 000006E6  C6 06 23		    mov byte ptr [esi], '#'
- 000006E9  C6 07 23		    mov byte ptr [edi], '#'
- 000006EC  83 C6 28		    add esi, GRID_WIDTH
- 000006EF  83 C7 28		    add edi, GRID_WIDTH
- 000006F2  E2 F2		    loop DrawSideWalls
-
-				    ; Add internal walls with proper patterns
-				    ; Horizontal wall 1
- 000006F4  BF 0000012E R	    mov edi, offset grid + 5*GRID_WIDTH + 5
- 000006F9  B9 0000000A		    mov ecx, 10
- 000006FE			HorizontalWall1:
- 000006FE  C6 07 23		    mov byte ptr [edi], '#'
- 00000701  47			    inc edi
- 00000702  E2 FA		    loop HorizontalWall1
-
-				    ; Vertical wall 1
- 00000704  BF 000000C0 R	    mov edi, offset grid + 2*GRID_WIDTH + 15
- 00000709  B9 00000008		    mov ecx, 8
- 0000070E			VerticalWall1:
- 0000070E  C6 07 23		    mov byte ptr [edi], '#'
- 00000711  83 C7 28		    add edi, GRID_WIDTH
- 00000714  E2 F8		    loop VerticalWall1
-
-				    ; L-shaped wall
- 00000716  BF 000001BA R	    mov edi, offset grid + 8*GRID_WIDTH + 25
- 0000071B  B9 00000007		    mov ecx, 7
- 00000720			LShapeHorizontal:
- 00000720  C6 07 23		    mov byte ptr [edi], '#'
- 00000723  47			    inc edi
- 00000724  E2 FA		    loop LShapeHorizontal
-				    
- 00000726  B9 00000005		    mov ecx, 5
- 0000072B			LShapeVertical:
- 0000072B  C6 07 23		    mov byte ptr [edi], '#'
- 0000072E  83 C7 28		    add edi, GRID_WIDTH
- 00000731  E2 F8		    loop LShapeVertical
-
-				    ; T-shaped wall
- 00000733  BF 0000024B R	    mov edi, offset grid + 12*GRID_WIDTH + 10
- 00000738  B9 00000007		    mov ecx, 7
- 0000073D			TShapeHorizontal:
- 0000073D  C6 07 23		    mov byte ptr [edi], '#'
- 00000740  47			    inc edi
- 00000741  E2 FA		    loop TShapeHorizontal
-				    
- 00000743  BF 0000024E R	    mov edi, offset grid + 12*GRID_WIDTH + 13
- 00000748  B9 00000006		    mov ecx, 6
- 0000074D			TShapeVertical:
- 0000074D  C6 07 23		    mov byte ptr [edi], '#'
- 00000750  83 C7 28		    add edi, GRID_WIDTH
- 00000753  E2 F8		    loop TShapeVertical
-
-				    ; Place dots only in empty spaces
- 00000755  B9 00000320		    mov ecx, GRID_WIDTH * GRID_HEIGHT
- 0000075A  BE 00000061 R	    mov esi, offset grid
- 0000075F			PlaceDots:
- 0000075F  80 3E 20		    cmp byte ptr [esi], ' '
- 00000762  75 03		    jne SkipDotPlacement
- 00000764  C6 06 2E		    mov byte ptr [esi], '.' ; Dot character
- 00000767			SkipDotPlacement:
- 00000767  46			    inc esi
- 00000768  E2 F5		    loop PlaceDots
-
-				    ; Initialize player and ghost positions
-				    ; Pacman starting position (center)
- 0000076A  C6 05 00000385 R	    mov pacmanX, 20
-	   14
- 00000771  C6 05 00000386 R	    mov pacmanY, 10
-	   0A
-				    
-				    ; Ghost 1 (top-left area)
- 00000778  C6 05 00000381 R	    mov ghost1X, 10
-	   0A
- 0000077F  C6 05 00000382 R	    mov ghost1Y, 5
-	   05
- 00000786  C6 05 00001070 R	    mov ghost1Dir, 1 ; Right
-	   01
-				    
-				    ; Ghost 2 (top-right area)
- 0000078D  C6 05 00000383 R	    mov ghost2X, 30
-	   1E
- 00000794  C6 05 00000384 R	    mov ghost2Y, 5
-	   05
- 0000079B  C6 05 00001071 R	    mov ghost2Dir, 3 ; Left
-	   03
-				    
-
-				    ; Initialize game state
- 000007A2  C7 05 00000059 R	    mov score, 0
-	   00000000
- 000007AC  C6 05 0000005D R	    mov lives, 3
-	   03
- 000007B3  C6 05 0000005E R	    mov gameOver, 0
-	   00
- 000007BA  C6 05 0000005F R	    mov levelComplete, 0
-	   00
- 000007C1  C6 05 0000106F R	    mov dotsRemaining, 0 ; Will be calculated
-	   00
-				    
-				    ; Count initial dots
- 000007C8  B9 00000320		    mov ecx, GRID_WIDTH * GRID_HEIGHT
- 000007CD  BE 00000061 R	    mov esi, offset grid
- 000007D2			CountDots:
- 000007D2  80 3E 2E		    cmp byte ptr [esi], '.'
- 000007D5  75 06		    jne NotADot
- 000007D7  FE 05 0000106F R	    inc dotsRemaining
- 000007DD			NotADot:
- 000007DD  46			    inc esi
- 000007DE  E2 F2		    loop CountDots
-				    
- 000007E0  C3			    ret
- 000007E1			InitializeLevel1 endp
-				;-----------------------------------------------------
- 000007E1			GenerateWalls proc
-				    ; First line (2 walls)
- 000007E1  B9 00000002		    mov ecx, 2
- 000007E6  E8 0000001F		    call GenerateWallLine
-				    
-				    ; Second line (5 walls)
- 000007EB  B9 00000005		    mov ecx, 5
- 000007F0  E8 00000015		    call GenerateWallLine
-				    
-				    ; Third line (2 walls)
- 000007F5  B9 00000002		    mov ecx, 2
- 000007FA  E8 0000000B		    call GenerateWallLine
-				    
-				    ; Fourth line (2 walls)
- 000007FF  B9 00000002		    mov ecx, 2
- 00000804  E8 00000001		    call GenerateWallLine
- 00000809  C3			    ret
- 0000080A			GenerateWalls endp
-
-				;-----------------------------------------------------
- 0000080A			GenerateWallLine proc
-				    ; ECX = number of walls to generate
- 0000080A  51			    push ecx
-				    
-				    ; Get random Y position (1-18)
- 0000080B  B8 00000012		    mov eax, 18
- 00000810  E8 00000000 E	    call RandomRange
- 00000815  40			    inc eax
-				    
-				    ; Calculate row offset
- 00000816  BA 00000028		    mov edx, 40
- 0000081B  F7 E2		    mul edx
- 0000081D  BF 00000061 R	    mov edi, offset grid
- 00000822  03 F8		    add edi, eax
-				    
-				    ; Generate walls
- 00000824  8B 0C 24		    mov ecx, [esp] ; Get count from stack
- 00000827			GenerateWall:
- 00000827  51			    push ecx
-				    
-				    ; Get random X position (1-38)
- 00000828  B8 00000026		    mov eax, 38
- 0000082D  E8 00000000 E	    call RandomRange
- 00000832  40			    inc eax
-				    
-				    ; Place wall (FIXED: added byte ptr)
- 00000833  C6 04 07 23		    mov byte ptr [edi + eax], '#'
-				    
-				    ; Randomly extend wall (create L-shapes, etc.)
- 00000837  B8 00000004		    mov eax, 4
- 0000083C  E8 00000000 E	    call RandomRange
- 00000841  83 F8 01		    cmp eax, 1
- 00000844  7C 38		    jl NoExtend
- 00000846  74 0A		    je ExtendRight
- 00000848  83 F8 02		    cmp eax, 2
- 0000084B  74 11		    je ExtendDown
- 0000084D  83 F8 03		    cmp eax, 3
- 00000850  74 22		    je ExtendLeft
-				    
- 00000852			ExtendRight:
- 00000852  40			    inc eax
- 00000853  83 F8 27		    cmp eax, 39
- 00000856  7D 26		    jge NoExtend
- 00000858  C6 04 07 23		    mov byte ptr [edi + eax], '#'  ; FIXED: added byte ptr
- 0000085C  EB 20		    jmp NoExtend
-				    
- 0000085E			ExtendDown:
- 0000085E  BA 00000028		    mov edx, 40
- 00000863  03 D7		    add edx, edi
- 00000865  03 D0		    add edx, eax
- 00000867  81 FA 00000381 R	    cmp edx, offset grid + 40*20
- 0000086D  7D 0F		    jge NoExtend
- 0000086F  C6 02 23		    mov byte ptr [edx], '#'        ; FIXED: added byte ptr
- 00000872  EB 0A		    jmp NoExtend
-				    
- 00000874			ExtendLeft:
- 00000874  48			    dec eax
- 00000875  83 F8 00		    cmp eax, 0
- 00000878  7E 04		    jle NoExtend
- 0000087A  C6 04 07 23		    mov byte ptr [edi + eax], '#'  ; FIXED: added byte ptr
-				    
- 0000087E			NoExtend:
- 0000087E  59			    pop ecx
- 0000087F  E2 A6		    loop GenerateWall
-				    
- 00000881  59			    pop ecx
- 00000882  C3			    ret
- 00000883			GenerateWallLine endp
-
-				;-----------------------------------------------------
- 00000883			DrawLevel1Screen proc
- 00000883  E8 00000000 E	    call Clrscr
-				    
-				    ; Draw game stats on left side
- 00000888  B2 05		    mov dl, 5
- 0000088A  B6 02		    mov dh, 2
- 0000088C  E8 00000000 E	    call Gotoxy
- 00000891  BA 0000101E R	    mov edx, offset level1Text
- 00000896  E8 00000000 E	    call WriteString
-				    
- 0000089B  B2 05		    mov dl, 5
- 0000089D  B6 04		    mov dh, 4
- 0000089F  E8 00000000 E	    call Gotoxy
- 000008A4  BA 00001026 R	    mov edx, offset scoreText
- 000008A9  E8 00000000 E	    call WriteString
- 000008AE  A1 00000059 R	    mov eax, score
- 000008B3  E8 00000000 E	    call WriteDec
-				    
- 000008B8  B2 05		    mov dl, 5
- 000008BA  B6 06		    mov dh, 6
- 000008BC  E8 00000000 E	    call Gotoxy
- 000008C1  BA 0000102E R	    mov edx, offset livesText
- 000008C6  E8 00000000 E	    call WriteString
- 000008CB  0F B6 05		    movzx eax, lives
-	   0000005D R
- 000008D2  E8 00000000 E	    call WriteDec
-				    
-				    ; Draw game grid on right side
- 000008D7  B9 00000014		    mov ecx, 20
- 000008DC  B6 00		    mov dh, 0
- 000008DE  B2 1E		    mov dl, 30  ; Start grid at column 30
- 000008E0			DrawRow:
- 000008E0  51			    push ecx
- 000008E1  52			    push edx
-				    
-				    ; Calculate row offset
- 000008E2  B8 00000028		    mov eax, 40
- 000008E7  F6 E6		    mul dh
- 000008E9  BE 00000061 R	    mov esi, offset grid
- 000008EE  03 F0		    add esi, eax
-				    
-				    ; Draw row
- 000008F0  B9 00000028		    mov ecx, 40
- 000008F5			DrawColumn:
- 000008F5  8A 06		    mov al, [esi]
- 000008F7  E8 00000000 E	    call WriteChar
- 000008FC  46			    inc esi
- 000008FD  FE C2		    inc dl
- 000008FF  E2 F4		    loop DrawColumn
-				    
- 00000901  5A			    pop edx
- 00000902  59			    pop ecx
- 00000903  FE C6		    inc dh
- 00000905  E2 D9		    loop DrawRow
-				    
-				    ; Draw pacman and ghosts...
- 00000907  C3			    ret
- 00000908			DrawLevel1Screen endp
-
-				;-----------------------------------------------------
- 00000908			CheckCollision proc
-				    ; Check if position (al=X, ah=Y) is valid
-				    ; Returns CF=1 if collision with wall
-				    
-				    ; Calculate grid offset
- 00000908  0F B6 D4		    movzx edx, ah
- 0000090B  6B D2 28		    imul edx, 40
- 0000090E  0F B6 C8		    movzx ecx, al
- 00000911  03 D1		    add edx, ecx
-				    
-				    ; Check grid position (FIXED: added byte ptr)
- 00000913  80 BA 00000061 R	    cmp byte ptr grid[edx], '#'
-	   23
- 0000091A  74 18		    je WallCollision
-				    
-				    ; Check if dot was collected (FIXED: added byte ptr)
- 0000091C  80 BA 00000061 R	    cmp byte ptr grid[edx], '.'
-	   2E
- 00000923  75 0D		    jne NoCollision
-				    
-				    ; Collect dot (FIXED: added byte ptr)
- 00000925  C6 82 00000061 R	    mov byte ptr grid[edx], ' '
-	   20
- 0000092C  FF 05 00000059 R	    inc score
-				    
- 00000932			NoCollision:
- 00000932  F8			    clc
- 00000933  C3			    ret
-				    
- 00000934			WallCollision:
- 00000934  F9			    stc
- 00000935  C3			    ret
- 00000936			CheckCollision endp
-
-				;-----------------------------------------------------
- 00000936			MoveGhosts proc
-				    ; Move ghost 1
- 00000936  A0 00000381 R	    mov al, ghost1X
- 0000093B  8A 25 00000382 R	    mov ah, ghost1Y
- 00000941  E8 00000027		    call MoveGhost
- 00000946  A2 00000381 R	    mov ghost1X, al
- 0000094B  88 25 00000382 R	    mov ghost1Y, ah
-				    
-				    ; Move ghost 2
- 00000951  A0 00000383 R	    mov al, ghost2X
- 00000956  8A 25 00000384 R	    mov ah, ghost2Y
- 0000095C  E8 0000000C		    call MoveGhost
- 00000961  A2 00000383 R	    mov ghost2X, al
- 00000966  88 25 00000384 R	    mov ghost2Y, ah
-				    
- 0000096C  C3			    ret
- 0000096D			MoveGhosts endp
-
-				;-----------------------------------------------------
- 0000096D			MoveGhost proc
-				    ; Simple random ghost movement
-				    ; Input: al=X, ah=Y
-				    ; Output: Updated X,Y in al,ah
-				    
- 0000096D  50			    push eax
-				    
-				    ; Get random direction (0-3)
- 0000096E  B8 00000004		    mov eax, 4
- 00000973  E8 00000000 E	    call RandomRange
-				    
- 00000978  5B			    pop ebx ; Restore original position
-				    
- 00000979  3C 00		    cmp al, 0
- 0000097B  74 0A		    je MoveRight
- 0000097D  3C 01		    cmp al, 1
- 0000097F  74 0F		    je MoveLeft
- 00000981  3C 02		    cmp al, 2
- 00000983  74 14		    je MoveUp
- 00000985  EB 1B		    jmp MoveDown
-				    
- 00000987			MoveRight:
- 00000987  FE C3		    inc bl
- 00000989  80 FB 27		    cmp bl, 39
- 0000098C  7D 34		    jge GhostNoMove
- 0000098E  EB 19		    jmp CheckGhostMove
-				    
- 00000990			MoveLeft:
- 00000990  FE CB		    dec bl
- 00000992  80 FB 00		    cmp bl, 0
- 00000995  7E 2B		    jle GhostNoMove
- 00000997  EB 10		    jmp CheckGhostMove
-				    
- 00000999			MoveUp:
- 00000999  FE CF		    dec bh
- 0000099B  80 FF 00		    cmp bh, 0
- 0000099E  7E 22		    jle GhostNoMove
- 000009A0  EB 07		    jmp CheckGhostMove
-				    
- 000009A2			MoveDown:
- 000009A2  FE C7		    inc bh
- 000009A4  80 FF 13		    cmp bh, 19
- 000009A7  7D 19		    jge GhostNoMove
-				    
- 000009A9			CheckGhostMove:
-				    ; Check if new position is walkable
- 000009A9  0F B6 D7		    movzx edx, bh
- 000009AC  6B D2 28		    imul edx, 40
- 000009AF  0F B6 CB		    movzx ecx, bl
- 000009B2  03 D1		    add edx, ecx
- 000009B4  80 BA 00000061 R	    cmp grid[edx], '#'
-	   23
- 000009BB  74 05		    je GhostNoMove
-				    
-				    ; Move is valid
- 000009BD  8A C3		    mov al, bl
- 000009BF  8A E7		    mov ah, bh
- 000009C1  C3			    ret
-				    
- 000009C2			GhostNoMove:
- 000009C2  8A C3		    mov al, bl
- 000009C4  8A E7		    mov ah, bh
- 000009C6  C3			    ret
- 000009C7			MoveGhost endp
-
-				;-----------------------------------------------------
- 000009C7			CheckGhostCollision proc
-				    ; Check if pacman collided with any ghost
- 000009C7  A0 00000385 R	    mov al, pacmanX
- 000009CC  8A 25 00000386 R	    mov ah, pacmanY
-				    
-				    ; Check ghost 1
- 000009D2  3A 05 00000381 R	    cmp al, ghost1X
- 000009D8  75 0A		    jne CheckGhost2
- 000009DA  3A 25 00000382 R	    cmp ah, ghost1Y
- 000009E0  75 02		    jne CheckGhost2
- 000009E2  EB 10		    jmp GhostCollision
-				    
- 000009E4			CheckGhost2:
- 000009E4  3A 05 00000383 R	    cmp al, ghost2X
- 000009EA  75 2E		    jne NoGhostCollision
- 000009EC  3A 25 00000384 R	    cmp ah, ghost2Y
- 000009F2  75 26		    jne NoGhostCollision
-				    
- 000009F4			GhostCollision:
-				    ; Lose a life
- 000009F4  FE 0D 0000005D R	    dec lives
- 000009FA  80 3D 0000005D R	    cmp lives, 0
-	   00
- 00000A01  7F 08		    jg ResetPositions
-				    
-				    ; Game over
- 00000A03  C6 05 0000005E R	    mov gameOver, 1
-	   01
- 00000A0A  C3			    ret
-				    
- 00000A0B			ResetPositions:
-				    ; Reset positions after collision
- 00000A0B  C6 05 00000385 R	    mov pacmanX, 20
-	   14
- 00000A12  C6 05 00000386 R	    mov pacmanY, 10
-	   0A
- 00000A19  C3			    ret
-				    
- 00000A1A			NoGhostCollision:
- 00000A1A  C3			    ret
- 00000A1B			CheckGhostCollision endp
-
-				;-----------------------------------------------------
- 00000A1B			CheckLevelComplete proc
-				    ; Check if all dots are collected
- 00000A1B  B9 00000320		    mov ecx, 40*20
- 00000A20  BE 00000061 R	    mov esi, offset grid
- 00000A25			CheckDots:
- 00000A25  80 3E 2E		    cmp byte ptr [esi], '.'
- 00000A28  74 0B		    je DotFound
- 00000A2A  46			    inc esi
- 00000A2B  E2 F8		    loop CheckDots
-				    
-				    ; No dots found - level complete
- 00000A2D  C6 05 0000005F R	    mov levelComplete, 1
-	   01
- 00000A34  C3			    ret
-				    
- 00000A35			DotFound:
- 00000A35  C3			    ret
- 00000A36			CheckLevelComplete endp
-
-				;-----------------------------------------------------
- 00000A36			GameOverScreen proc
- 00000A36  E8 00000000 E	    call Clrscr
-				    
-				    ; Display game over message
- 00000A3B  B8 00000004		    mov eax, redTxt
- 00000A40  E8 00000000 E	    call SetTextColor
-				    
- 00000A45  B6 0A		    mov dh, 10
- 00000A47  B2 23		    mov dl, 35
- 00000A49  E8 00000000 E	    call Gotoxy
- 00000A4E  BA 00001036 R	    mov edx, offset gameOverText
- 00000A53  E8 00000000 E	    call WriteString
-				    
-				    ; Display score
- 00000A58  B8 0000000F		    mov eax, whiteTxt
- 00000A5D  E8 00000000 E	    call SetTextColor
-				    
- 00000A62  B6 0C		    mov dh, 12
- 00000A64  B2 23		    mov dl, 35
- 00000A66  E8 00000000 E	    call Gotoxy
- 00000A6B  BA 00001026 R	    mov edx, offset scoreText
- 00000A70  E8 00000000 E	    call WriteString
- 00000A75  A1 00000059 R	    mov eax, score
- 00000A7A  E8 00000000 E	    call WriteDec
-				    
-				    ; Display options
- 00000A7F  B6 0E		    mov dh, 14
- 00000A81  B2 23		    mov dl, 35
- 00000A83  E8 00000000 E	    call Gotoxy
- 00000A88  BA 00001040 R	    mov edx, offset playAgainText
- 00000A8D  E8 00000000 E	    call WriteString
-				    
- 00000A92  B6 0F		    mov dh, 15
- 00000A94  B2 23		    mov dl, 35
- 00000A96  E8 00000000 E	    call Gotoxy
- 00000A9B  BA 00001052 R	    mov edx, offset exitText
- 00000AA0  E8 00000000 E	    call WriteString
-				    
- 00000AA5  B6 11		    mov dh, 17
- 00000AA7  B2 23		    mov dl, 35
- 00000AA9  E8 00000000 E	    call Gotoxy
- 00000AAE  BA 0000105F R	    mov edx, offset chooseOptionText
- 00000AB3  E8 00000000 E	    call WriteString
-				    
-				    ; Get user choice
- 00000AB8  E8 00000000 E	    call ReadInt
- 00000ABD  3C 01		    cmp al, 1
- 00000ABF  74 04		    je ReturnToMenu
- 00000AC1  3C 02		    cmp al, 2
- 00000AC3  74 01		    je ExitGame
-				    
- 00000AC5			ReturnToMenu:
- 00000AC5  C3			    ret
-				    
- 00000AC6			ExitGame:
- 00000AC6  E8 00000000 E	    call Clrscr
-				    exit
- 00000ACB  6A 00	   *	    push   +000000000h
- 00000ACD  E8 00000000 E   *	    call   ExitProcess
- 00000AD2			GameOverScreen endp
+ 00000658			Level3Screen proc
+				    ; Play level 3 sound
+ 00000658  E8 FFFFF9DD		    call levelSound
+				    ; ... game implementation ...
+ 0000065D  C3			    ret
+ 0000065E			Level3Screen endp
 
 				end main
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/11/25 15:36:50
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/11/25 17:23:55
 CODE.asm						     Symbols 2 - 1
 
 
@@ -2074,25 +1568,14 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00001072 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000AD2 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000010FA Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000065E Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-CheckCollision . . . . . . . . .	P Near	 00000908 _TEXT	Length= 0000002E Public STDCALL
-  NoCollision  . . . . . . . . .	L Near	 00000932 _TEXT	
-  WallCollision  . . . . . . . .	L Near	 00000934 _TEXT	
-CheckGhostCollision  . . . . . .	P Near	 000009C7 _TEXT	Length= 00000054 Public STDCALL
-  CheckGhost2  . . . . . . . . .	L Near	 000009E4 _TEXT	
-  GhostCollision . . . . . . . .	L Near	 000009F4 _TEXT	
-  ResetPositions . . . . . . . .	L Near	 00000A0B _TEXT	
-  NoGhostCollision . . . . . . .	L Near	 00000A1A _TEXT	
-CheckLevelComplete . . . . . . .	P Near	 00000A1B _TEXT	Length= 0000001B Public STDCALL
-  CheckDots  . . . . . . . . . .	L Near	 00000A25 _TEXT	
-  DotFound . . . . . . . . . . .	L Near	 00000A35 _TEXT	
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -2100,9 +1583,6 @@ CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-DrawLevel1Screen . . . . . . . .	P Near	 00000883 _TEXT	Length= 00000085 Public STDCALL
-  DrawRow  . . . . . . . . . . .	L Near	 000008E0 _TEXT	
-  DrawColumn . . . . . . . . . .	L Near	 000008F5 _TEXT	
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -2110,16 +1590,6 @@ FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FlushConsoleInputBuffer  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FormatMessageA . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-GameOverScreen . . . . . . . . .	P Near	 00000A36 _TEXT	Length= 0000009C Public STDCALL
-  ReturnToMenu . . . . . . . . .	L Near	 00000AC5 _TEXT	
-  ExitGame . . . . . . . . . . .	L Near	 00000AC6 _TEXT	
-GenerateWallLine . . . . . . . .	P Near	 0000080A _TEXT	Length= 00000079 Public STDCALL
-  GenerateWall . . . . . . . . .	L Near	 00000827 _TEXT	
-  ExtendRight  . . . . . . . . .	L Near	 00000852 _TEXT	
-  ExtendDown . . . . . . . . . .	L Near	 0000085E _TEXT	
-  ExtendLeft . . . . . . . . . .	L Near	 00000874 _TEXT	
-  NoExtend . . . . . . . . . . .	L Near	 0000087E _TEXT	
-GenerateWalls  . . . . . . . . .	P Near	 000007E1 _TEXT	Length= 00000029 Public STDCALL
 GetCommandLineA  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetCommandTail . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetConsoleCP . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -2145,62 +1615,34 @@ HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-HighscoresScreen . . . . . . . .	P Near	 00000550 _TEXT	Length= 00000091 Public STDCALL
-InitializeLevel1 . . . . . . . .	P Near	 000006A9 _TEXT	Length= 00000138 Public STDCALL
-  DrawTopBorder  . . . . . . . .	L Near	 000006C1 _TEXT	
-  DrawBottomBorder . . . . . . .	L Near	 000006D1 _TEXT	
-  DrawSideWalls  . . . . . . . .	L Near	 000006E6 _TEXT	
-  HorizontalWall1  . . . . . . .	L Near	 000006FE _TEXT	
-  VerticalWall1  . . . . . . . .	L Near	 0000070E _TEXT	
-  LShapeHorizontal . . . . . . .	L Near	 00000720 _TEXT	
-  LShapeVertical . . . . . . . .	L Near	 0000072B _TEXT	
-  TShapeHorizontal . . . . . . .	L Near	 0000073D _TEXT	
-  TShapeVertical . . . . . . . .	L Near	 0000074D _TEXT	
-  PlaceDots  . . . . . . . . . .	L Near	 0000075F _TEXT	
-  SkipDotPlacement . . . . . . .	L Near	 00000767 _TEXT	
-  CountDots  . . . . . . . . . .	L Near	 000007D2 _TEXT	
-  NotADot  . . . . . . . . . . .	L Near	 000007DD _TEXT	
-InstructionsScreen . . . . . . .	P Near	 0000047B _TEXT	Length= 000000D5 Public STDCALL
-  ReturnToMenu . . . . . . . . .	L Near	 00000543 _TEXT	
-  ExitGame . . . . . . . . . . .	L Near	 00000544 _TEXT	
+HighscoresScreen . . . . . . . .	P Near	 000005B6 _TEXT	Length= 00000096 Public STDCALL
+InstructionsScreen . . . . . . .	P Near	 000004DC _TEXT	Length= 000000DA Public STDCALL
+  ReturnToMenu . . . . . . . . .	L Near	 000005A9 _TEXT	
+  ExitGame . . . . . . . . . . .	L Near	 000005AA _TEXT	
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-Level1Screen . . . . . . . . . .	P Near	 000005E1 _TEXT	Length= 000000C8 Public STDCALL
-  GameLoop . . . . . . . . . . .	L Near	 000005EB _TEXT	
-  MoveUp . . . . . . . . . . . .	L Near	 0000060B _TEXT	
-  MoveLeft . . . . . . . . . . .	L Near	 00000624 _TEXT	
-  MoveDown . . . . . . . . . . .	L Near	 0000063D _TEXT	
-  MoveRight  . . . . . . . . . .	L Near	 00000656 _TEXT	
-  UpdateGame . . . . . . . . . .	L Near	 0000066D _TEXT	
-  NoKeyPress . . . . . . . . . .	L Near	 0000068E _TEXT	
-  GameEnd  . . . . . . . . . . .	L Near	 000006A2 _TEXT	
-  LevelCompleted . . . . . . . .	L Near	 000006A8 _TEXT	
-LevelSelectScreen  . . . . . . .	P Near	 000002C1 _TEXT	Length= 000001BA Public STDCALL
-  StartLevel1  . . . . . . . . .	L Near	 0000044E _TEXT	
-  StartLevel2  . . . . . . . . .	L Near	 0000045C _TEXT	
-  StartLevel3  . . . . . . . . .	L Near	 00000465 _TEXT	
-  ReturnToMenu . . . . . . . . .	L Near	 0000046E _TEXT	
-  ExitGame . . . . . . . . . . .	L Near	 0000046F _TEXT	
+Level1Screen . . . . . . . . . .	P Near	 0000064C _TEXT	Length= 00000006 Public STDCALL
+Level2Screen . . . . . . . . . .	P Near	 00000652 _TEXT	Length= 00000006 Public STDCALL
+Level3Screen . . . . . . . . . .	P Near	 00000658 _TEXT	Length= 00000006 Public STDCALL
+LevelSelectScreen  . . . . . . .	P Near	 00000313 _TEXT	Length= 000001C9 Public STDCALL
+  StartLevel1  . . . . . . . . .	L Near	 000004A5 _TEXT	
+  StartLevel2  . . . . . . . . .	L Near	 000004B3 _TEXT	
+  StartLevel3  . . . . . . . . .	L Near	 000004C1 _TEXT	
+  ReturnToMenu . . . . . . . . .	L Near	 000004CF _TEXT	
+  ExitGame . . . . . . . . . . .	L Near	 000004D0 _TEXT	
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-MenuScreen . . . . . . . . . . .	P Near	 0000014A _TEXT	Length= 00000177 Public STDCALL
-  LevelSelection . . . . . . . .	L Near	 00000297 _TEXT	
-  ShowInstructions . . . . . . .	L Near	 000002A1 _TEXT	
-  ShowHighscores . . . . . . . .	L Near	 000002AB _TEXT	
-  ExitGame . . . . . . . . . . .	L Near	 000002B5 _TEXT	
+MenuScreen . . . . . . . . . . .	P Near	 00000197 _TEXT	Length= 0000017C Public STDCALL
+  LevelSelection . . . . . . . .	L Near	 000002E9 _TEXT	
+  ShowInstructions . . . . . . .	L Near	 000002F3 _TEXT	
+  ShowHighscores . . . . . . . .	L Near	 000002FD _TEXT	
+  ExitGame . . . . . . . . . . .	L Near	 00000307 _TEXT	
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-MoveGhosts . . . . . . . . . . .	P Near	 00000936 _TEXT	Length= 00000037 Public STDCALL
-MoveGhost  . . . . . . . . . . .	P Near	 0000096D _TEXT	Length= 0000005A Public STDCALL
-  MoveRight  . . . . . . . . . .	L Near	 00000987 _TEXT	
-  MoveLeft . . . . . . . . . . .	L Near	 00000990 _TEXT	
-  MoveUp . . . . . . . . . . . .	L Near	 00000999 _TEXT	
-  MoveDown . . . . . . . . . . .	L Near	 000009A2 _TEXT	
-  CheckGhostMove . . . . . . . .	L Near	 000009A9 _TEXT	
-  GhostNoMove  . . . . . . . . .	L Near	 000009C2 _TEXT	
 MsgBoxAsk  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MsgBox . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 OpenInputFile  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+PlaySound  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -2236,7 +1678,7 @@ Str_trim . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 Str_ucase  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SystemTimeToFileTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WaitMsg  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-WelcomeScreen  . . . . . . . . .	P Near	 00000016 _TEXT	Length= 00000134 Public STDCALL
+WelcomeScreen  . . . . . . . . .	P Near	 0000005E _TEXT	Length= 00000139 Public STDCALL
 WriteBinB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteBin . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteChar  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -2254,6 +1696,10 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+introSound . . . . . . . . . . .	P Near	 00000016 _TEXT	Length= 00000024 Public STDCALL
+  no_error1  . . . . . . . . . .	L Near	 00000037 _TEXT	
+levelSound . . . . . . . . . . .	P Near	 0000003A _TEXT	Length= 00000024 Public STDCALL
+  no_error2  . . . . . . . . . .	L Near	 0000005B _TEXT	
 main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000016 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -2379,6 +1825,7 @@ NULL . . . . . . . . . . . . . .	Number	 00000000h
 NUMLOCK_ON . . . . . . . . . . .	Number	 00000020h   
 OPEN_ALWAYS  . . . . . . . . . .	Number	 00000004h   
 OPEN_EXISTING  . . . . . . . . .	Number	 00000003h   
+PacmanIntro  . . . . . . . . . .	Byte	 00000028 _DATA	
 PeekConsoleInput . . . . . . . .	Text   	 PeekConsoleInputA
 RIGHT_ALT_PRESSED  . . . . . . .	Number	 00000001h   
 RIGHT_CTRL_PRESSED . . . . . . .	Number	 00000004h   
@@ -2387,10 +1834,14 @@ ReadConsole  . . . . . . . . . .	Text   	 ReadConsoleA
 SCROLLLOCK_ON  . . . . . . . . .	Number	 00000040h   
 SHIFT_MASK . . . . . . . . . . .	Number	 00000010h   
 SHIFT_PRESSED  . . . . . . . . .	Number	 00000010h   
+SND_ASYNC  . . . . . . . . . . .	Number	 00000001h   
+SND_FILENAME . . . . . . . . . .	Number	 00020000h   
+SND_SYNC . . . . . . . . . . . .	Number	 00000000h   
 STD_ERROR_HANDLE . . . . . . . .	Number	 -0000000Ch   
 STD_INPUT_HANDLE . . . . . . . .	Number	 -0000000Ah   
 STD_OUTPUT_HANDLE  . . . . . . .	Number	 -0000000Bh   
 SetConsoleTitle  . . . . . . . .	Text   	 SetConsoleTitleA
+SoundError . . . . . . . . . . .	Byte	 0000005C _DATA	
 TAB  . . . . . . . . . . . . . .	Number	 00000009h   
 TRUE . . . . . . . . . . . . . .	Number	 00000001h   
 TRUNCATE_EXISTING  . . . . . . .	Number	 00000005h   
@@ -2479,111 +1930,112 @@ black  . . . . . . . . . . . . .	Number	 00000000h
 blueTxt  . . . . . . . . . . . .	Number	 00000001h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
-chooseOptionText . . . . . . . .	Byte	 0000105F _DATA	
-currentLevel . . . . . . . . . .	Byte	 00000060 _DATA	
+chooseOptionText . . . . . . . .	Byte	 000010E7 _DATA	
+currentLevel . . . . . . . . . .	Byte	 000000E8 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
-dotChar  . . . . . . . . . . . .	Byte	 00000055 _DATA	
-dotsRemaining  . . . . . . . . .	Byte	 0000106F _DATA	
-exitText . . . . . . . . . . . .	Byte	 00001052 _DATA	
+dotChar  . . . . . . . . . . . .	Byte	 000000DD _DATA	
+dotsRemaining  . . . . . . . . .	Byte	 000010F7 _DATA	
+exitText . . . . . . . . . . . .	Byte	 000010DA _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-fileName . . . . . . . . . . . .	Byte	 00000000 _DATA	
-gameOverText . . . . . . . . . .	Byte	 00001036 _DATA	
-gameOver . . . . . . . . . . . .	Byte	 0000005E _DATA	
-gamePause1 . . . . . . . . . . .	Byte	 00000FCE _DATA	
-gamePause2 . . . . . . . . . . .	Byte	 00000FE0 _DATA	
-gamePause3 . . . . . . . . . . .	Byte	 00000FF5 _DATA	
-gamePause4 . . . . . . . . . . .	Byte	 00001009 _DATA	
-ghost1Dir  . . . . . . . . . . .	Byte	 00001070 _DATA	
-ghost1X  . . . . . . . . . . . .	Byte	 00000381 _DATA	
-ghost1Y  . . . . . . . . . . . .	Byte	 00000382 _DATA	
-ghost2Dir  . . . . . . . . . . .	Byte	 00001071 _DATA	
-ghost2X  . . . . . . . . . . . .	Byte	 00000383 _DATA	
-ghost2Y  . . . . . . . . . . . .	Byte	 00000384 _DATA	
-ghostChar  . . . . . . . . . . .	Byte	 00000053 _DATA	
+fileName . . . . . . . . . . . .	Byte	 00000088 _DATA	
+gameOverText . . . . . . . . . .	Byte	 000010BE _DATA	
+gameOver . . . . . . . . . . . .	Byte	 000000E6 _DATA	
+gamePause1 . . . . . . . . . . .	Byte	 00001056 _DATA	
+gamePause2 . . . . . . . . . . .	Byte	 00001068 _DATA	
+gamePause3 . . . . . . . . . . .	Byte	 0000107D _DATA	
+gamePause4 . . . . . . . . . . .	Byte	 00001091 _DATA	
+ghost1Dir  . . . . . . . . . . .	Byte	 000010F8 _DATA	
+ghost1X  . . . . . . . . . . . .	Byte	 00000409 _DATA	
+ghost1Y  . . . . . . . . . . . .	Byte	 0000040A _DATA	
+ghost2Dir  . . . . . . . . . . .	Byte	 000010F9 _DATA	
+ghost2X  . . . . . . . . . . . .	Byte	 0000040B _DATA	
+ghost2Y  . . . . . . . . . . . .	Byte	 0000040C _DATA	
+ghostChar  . . . . . . . . . . .	Byte	 000000DB _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 greenTxt . . . . . . . . . . . .	Number	 00000002h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
-grid . . . . . . . . . . . . . .	Byte	 00000061 _DATA	
-hsTitle0 . . . . . . . . . . . .	Byte	 00000E98 _DATA	
-hsTitle1 . . . . . . . . . . . .	Byte	 00000ED6 _DATA	
-hsTitle2 . . . . . . . . . . . .	Byte	 00000F14 _DATA	
-hsTitle3 . . . . . . . . . . . .	Byte	 00000F52 _DATA	
-hsTitle4 . . . . . . . . . . . .	Byte	 00000F90 _DATA	
-inputName  . . . . . . . . . . .	Byte	 0000000A _DATA	
-instruc1 . . . . . . . . . . . .	Byte	 00000C35 _DATA	
-instruc2 . . . . . . . . . . . .	Byte	 00000C79 _DATA	
-instruc3 . . . . . . . . . . . .	Byte	 00000CC1 _DATA	
-instruc4 . . . . . . . . . . . .	Byte	 00000D09 _DATA	
-instruc5 . . . . . . . . . . . .	Byte	 00000D2D _DATA	
-instruc6 . . . . . . . . . . . .	Byte	 00000D51 _DATA	
-instruc7 . . . . . . . . . . . .	Byte	 00000D95 _DATA	
-instruc8 . . . . . . . . . . . .	Byte	 00000DD4 _DATA	
-instruc9 . . . . . . . . . . . .	Byte	 00000E1D _DATA	
-instrucChoose  . . . . . . . . .	Byte	 00000E66 _DATA	
-level1Text . . . . . . . . . . .	Byte	 0000101E _DATA	
-level1opt0 . . . . . . . . . . .	Byte	 00000906 _DATA	
-level1opt1 . . . . . . . . . . .	Byte	 00000935 _DATA	
-level1opt2 . . . . . . . . . . .	Byte	 00000964 _DATA	
-level1opt3 . . . . . . . . . . .	Byte	 00000993 _DATA	
-level1opt4 . . . . . . . . . . .	Byte	 000009C2 _DATA	
-level2opt0 . . . . . . . . . . .	Byte	 000009F1 _DATA	
-level2opt1 . . . . . . . . . . .	Byte	 00000A20 _DATA	
-level2opt2 . . . . . . . . . . .	Byte	 00000A4F _DATA	
-level2opt3 . . . . . . . . . . .	Byte	 00000A7E _DATA	
-level2opt4 . . . . . . . . . . .	Byte	 00000AAD _DATA	
-level3opt0 . . . . . . . . . . .	Byte	 00000ADC _DATA	
-level3opt1 . . . . . . . . . . .	Byte	 00000B0B _DATA	
-level3opt2 . . . . . . . . . . .	Byte	 00000B3A _DATA	
-level3opt3 . . . . . . . . . . .	Byte	 00000B69 _DATA	
-level3opt4 . . . . . . . . . . .	Byte	 00000B98 _DATA	
-levelComplete  . . . . . . . . .	Byte	 0000005F _DATA	
-leveloptchoose1  . . . . . . . .	Byte	 00000BC7 _DATA	
-leveloptchoose2  . . . . . . . .	Byte	 00000C00 _DATA	
+grid . . . . . . . . . . . . . .	Byte	 000000E9 _DATA	
+hsTitle0 . . . . . . . . . . . .	Byte	 00000F20 _DATA	
+hsTitle1 . . . . . . . . . . . .	Byte	 00000F5E _DATA	
+hsTitle2 . . . . . . . . . . . .	Byte	 00000F9C _DATA	
+hsTitle3 . . . . . . . . . . . .	Byte	 00000FDA _DATA	
+hsTitle4 . . . . . . . . . . . .	Byte	 00001018 _DATA	
+inputName  . . . . . . . . . . .	Byte	 00000092 _DATA	
+instruc1 . . . . . . . . . . . .	Byte	 00000CBD _DATA	
+instruc2 . . . . . . . . . . . .	Byte	 00000D01 _DATA	
+instruc3 . . . . . . . . . . . .	Byte	 00000D49 _DATA	
+instruc4 . . . . . . . . . . . .	Byte	 00000D91 _DATA	
+instruc5 . . . . . . . . . . . .	Byte	 00000DB5 _DATA	
+instruc6 . . . . . . . . . . . .	Byte	 00000DD9 _DATA	
+instruc7 . . . . . . . . . . . .	Byte	 00000E1D _DATA	
+instruc8 . . . . . . . . . . . .	Byte	 00000E5C _DATA	
+instruc9 . . . . . . . . . . . .	Byte	 00000EA5 _DATA	
+instrucChoose  . . . . . . . . .	Byte	 00000EEE _DATA	
+level1Text . . . . . . . . . . .	Byte	 000010A6 _DATA	
+level1opt0 . . . . . . . . . . .	Byte	 0000098E _DATA	
+level1opt1 . . . . . . . . . . .	Byte	 000009BD _DATA	
+level1opt2 . . . . . . . . . . .	Byte	 000009EC _DATA	
+level1opt3 . . . . . . . . . . .	Byte	 00000A1B _DATA	
+level1opt4 . . . . . . . . . . .	Byte	 00000A4A _DATA	
+level2opt0 . . . . . . . . . . .	Byte	 00000A79 _DATA	
+level2opt1 . . . . . . . . . . .	Byte	 00000AA8 _DATA	
+level2opt2 . . . . . . . . . . .	Byte	 00000AD7 _DATA	
+level2opt3 . . . . . . . . . . .	Byte	 00000B06 _DATA	
+level2opt4 . . . . . . . . . . .	Byte	 00000B35 _DATA	
+level3opt0 . . . . . . . . . . .	Byte	 00000B64 _DATA	
+level3opt1 . . . . . . . . . . .	Byte	 00000B93 _DATA	
+level3opt2 . . . . . . . . . . .	Byte	 00000BC2 _DATA	
+level3opt3 . . . . . . . . . . .	Byte	 00000BF1 _DATA	
+level3opt4 . . . . . . . . . . .	Byte	 00000C20 _DATA	
+levelComplete  . . . . . . . . .	Byte	 000000E7 _DATA	
+leveloptchoose1  . . . . . . . .	Byte	 00000C4F _DATA	
+leveloptchoose2  . . . . . . . .	Byte	 00000C88 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
 lightGreen . . . . . . . . . . .	Number	 0000000Ah   
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
-livesText  . . . . . . . . . . .	Byte	 0000102E _DATA	
-lives  . . . . . . . . . . . . .	Byte	 0000005D _DATA	
+livesText  . . . . . . . . . . .	Byte	 000010B6 _DATA	
+lives  . . . . . . . . . . . . .	Byte	 000000E5 _DATA	
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-menuopt0 . . . . . . . . . . . .	Byte	 00000825 _DATA	
-menuopt1 . . . . . . . . . . . .	Byte	 00000847 _DATA	
-menuopt2 . . . . . . . . . . . .	Byte	 00000869 _DATA	
-menuopt3 . . . . . . . . . . . .	Byte	 0000088B _DATA	
-menuopt4 . . . . . . . . . . . .	Byte	 000008AD _DATA	
-menuopt5 . . . . . . . . . . . .	Byte	 000008CF _DATA	
-menuoptchoose  . . . . . . . . .	Byte	 000008F1 _DATA	
-menutitle0 . . . . . . . . . . .	Byte	 0000070D _DATA	
-menutitle1 . . . . . . . . . . .	Byte	 0000073C _DATA	
-menutitle2 . . . . . . . . . . .	Byte	 0000076B _DATA	
-menutitle3 . . . . . . . . . . .	Byte	 00000799 _DATA	
-menutitle4 . . . . . . . . . . .	Byte	 000007C8 _DATA	
-menutitle5 . . . . . . . . . . .	Byte	 000007F6 _DATA	
-pacmanChar . . . . . . . . . . .	Byte	 00000051 _DATA	
-pacmanX  . . . . . . . . . . . .	Byte	 00000385 _DATA	
-pacmanY  . . . . . . . . . . . .	Byte	 00000386 _DATA	
-playAgainText  . . . . . . . . .	Byte	 00001040 _DATA	
-pmtitle10  . . . . . . . . . . .	Byte	 00000669 _DATA	
-pmtitle11  . . . . . . . . . . .	Byte	 000006BB _DATA	
-pmtitle1 . . . . . . . . . . . .	Byte	 00000387 _DATA	
-pmtitle2 . . . . . . . . . . . .	Byte	 000003D9 _DATA	
-pmtitle3 . . . . . . . . . . . .	Byte	 0000042B _DATA	
-pmtitle4 . . . . . . . . . . . .	Byte	 0000047D _DATA	
-pmtitle5 . . . . . . . . . . . .	Byte	 000004CF _DATA	
-pmtitle6 . . . . . . . . . . . .	Byte	 00000521 _DATA	
-pmtitle7 . . . . . . . . . . . .	Byte	 00000573 _DATA	
-pmtitle8 . . . . . . . . . . . .	Byte	 000005C5 _DATA	
-pmtitle9 . . . . . . . . . . . .	Byte	 00000617 _DATA	
+menuopt0 . . . . . . . . . . . .	Byte	 000008AD _DATA	
+menuopt1 . . . . . . . . . . . .	Byte	 000008CF _DATA	
+menuopt2 . . . . . . . . . . . .	Byte	 000008F1 _DATA	
+menuopt3 . . . . . . . . . . . .	Byte	 00000913 _DATA	
+menuopt4 . . . . . . . . . . . .	Byte	 00000935 _DATA	
+menuopt5 . . . . . . . . . . . .	Byte	 00000957 _DATA	
+menuoptchoose  . . . . . . . . .	Byte	 00000979 _DATA	
+menutitle0 . . . . . . . . . . .	Byte	 00000795 _DATA	
+menutitle1 . . . . . . . . . . .	Byte	 000007C4 _DATA	
+menutitle2 . . . . . . . . . . .	Byte	 000007F3 _DATA	
+menutitle3 . . . . . . . . . . .	Byte	 00000821 _DATA	
+menutitle4 . . . . . . . . . . .	Byte	 00000850 _DATA	
+menutitle5 . . . . . . . . . . .	Byte	 0000087E _DATA	
+midSound . . . . . . . . . . . .	Byte	 00000000 _DATA	
+pacmanChar . . . . . . . . . . .	Byte	 000000D9 _DATA	
+pacmanX  . . . . . . . . . . . .	Byte	 0000040D _DATA	
+pacmanY  . . . . . . . . . . . .	Byte	 0000040E _DATA	
+playAgainText  . . . . . . . . .	Byte	 000010C8 _DATA	
+pmtitle10  . . . . . . . . . . .	Byte	 000006F1 _DATA	
+pmtitle11  . . . . . . . . . . .	Byte	 00000743 _DATA	
+pmtitle1 . . . . . . . . . . . .	Byte	 0000040F _DATA	
+pmtitle2 . . . . . . . . . . . .	Byte	 00000461 _DATA	
+pmtitle3 . . . . . . . . . . . .	Byte	 000004B3 _DATA	
+pmtitle4 . . . . . . . . . . . .	Byte	 00000505 _DATA	
+pmtitle5 . . . . . . . . . . . .	Byte	 00000557 _DATA	
+pmtitle6 . . . . . . . . . . . .	Byte	 000005A9 _DATA	
+pmtitle7 . . . . . . . . . . . .	Byte	 000005FB _DATA	
+pmtitle8 . . . . . . . . . . . .	Byte	 0000064D _DATA	
+pmtitle9 . . . . . . . . . . . .	Byte	 0000069F _DATA	
 redTxt . . . . . . . . . . . . .	Number	 00000004h   
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-scoreText  . . . . . . . . . . .	Byte	 00001026 _DATA	
-score  . . . . . . . . . . . . .	DWord	 00000059 _DATA	
-temp . . . . . . . . . . . . . .	Byte	 0000101D _DATA	
-userChoice . . . . . . . . . . .	Byte	 0000101C _DATA	
-username . . . . . . . . . . . .	Byte	 0000001F _DATA	
-wallChar . . . . . . . . . . . .	Byte	 00000057 _DATA	
+scoreText  . . . . . . . . . . .	Byte	 000010AE _DATA	
+score  . . . . . . . . . . . . .	DWord	 000000E1 _DATA	
+temp . . . . . . . . . . . . . .	Byte	 000010A5 _DATA	
+userChoice . . . . . . . . . . .	Byte	 000010A4 _DATA	
+username . . . . . . . . . . . .	Byte	 000000A7 _DATA	
+wallChar . . . . . . . . . . . .	Byte	 000000DF _DATA	
 whiteTxt . . . . . . . . . . . .	Number	 0000000Fh   
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
