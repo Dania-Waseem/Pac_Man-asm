@@ -2,9 +2,6 @@
 ; DS A
 ; COAL SEMESTER PROJECT 
 
-GRID_WIDTH = 40
-GRID_HEIGHT = 20
-
 
 
 include irvine32.inc
@@ -24,6 +21,9 @@ PlaySound PROTO STDCALL,
     fdwSound:DWORD
 
 
+GAME_WIDTH = 80 
+INFO_START = 90
+
 .data
 
     midSound db "C:\Users\DELL\OneDrive\Desktop\game.wav",0
@@ -34,26 +34,7 @@ PlaySound PROTO STDCALL,
     fileName  db "Scores.txt" 
 	inputName db "Enter your name ... ",0
     username  db 50 dup(0)
-    pacmanChar db 'X',0
-    ghostChar db 'G',0
-    dotChar db '.',0
-    wallChar db '#',0
 
-    score dd 0
-    lives db 3
-    gameOver db 0
-    levelComplete db 0
-    currentLevel db 1 
-
-    grid db (40*20) dup(' ')
-
-    ghost1X db 10
-    ghost1Y db 5
-    ghost2X db 30
-    ghost2Y db 5
-    
-    pacmanX db 0
-    pacmanY db 0
 
 
     pmtitle1 db "#################################################################################",0
@@ -139,19 +120,22 @@ PlaySound PROTO STDCALL,
 
     userChoice db ?
     temp db ?
+    currentLevel db ?
+;-----------------------------------------
+;level 1 vars
+    score dd 0
+    highScore dd 0
+    lives db 3
+    playerName db 20 dup(' ')   ; From your welcome screen
+    
+    levelText db "LEVEL 1",0
+    scoreText db "SCORE: ",0
+    highScoreText db "HIGHSCORE: ",0
+    livesText db "LIVES: ",0
+    playerText db "PLAYER: ",0
+    
+    wallChar db '#'
 
-
-    level1Text db "LEVEL 1",0
-    scoreText db "Score: ",0
-    livesText db "Lives: ",0
-    gameOverText db "GAME OVER",0
-    playAgainText db "1. Return to Menu",0
-    exitText db "2. Exit Game",0
-    chooseOptionText db "Choose option: ",0
-
-    dotsRemaining db ?
-    ghost1Dir db ?
-    ghost2Dir db ?
 
 .code
 main proc
@@ -166,11 +150,9 @@ main endp
 introSound PROC
     push eax
     push edx
-    
-    ; Note: Changed to STDCALL convention to match our prototype
+
     INVOKE PlaySound, OFFSET PacmanIntro, NULL, SND_FILENAME OR SND_ASYNC
     
-    ; Simple error check
     test eax, eax
     jnz no_error1
     mov edx, OFFSET SoundError
@@ -185,12 +167,7 @@ introSound ENDP
 levelSound PROC
     push eax
     push edx
-    
-    ; Fixed: Changed from midSound to GhostSound (assuming this was intended)
-    ; Make sure you have GhostSound defined in .data if you want to use it
-    INVOKE PlaySound, OFFSET midSound, NULL, SND_FILENAME OR SND_SYNC
-    
-    ; Simple error check
+    INVOKE PlaySound, OFFSET midSound, NULL, SND_FILENAME OR SND_ASYNC
     test eax, eax
     jnz no_error2
     mov edx, OFFSET SoundError
@@ -200,6 +177,7 @@ no_error2:
     pop eax
     ret
 levelSound ENDP
+
 ;-----------------------------------------------------
 WelcomeScreen proc
 
@@ -454,31 +432,31 @@ LevelSelectScreen proc
     call SetTextColor
     
     ; Level 1
-    mov dh, 5
+    mov dh, 3
     mov dl, 30
     call Gotoxy
     mov edx, offset level1opt0
     call WriteString
     
-    mov dh, 6
+    mov dh, 4
     mov dl, 30
     call Gotoxy
     mov edx, offset level1opt1
     call WriteString
     
-    mov dh, 7
+    mov dh, 5
     mov dl, 30
     call Gotoxy
     mov edx, offset level1opt2
     call WriteString
     
-    mov dh, 8
+    mov dh, 6
     mov dl, 30
     call Gotoxy
     mov edx, offset level1opt3
     call WriteString
     
-    mov dh, 9
+    mov dh, 7
     mov dl, 30
     call Gotoxy
     mov edx, offset level1opt4
@@ -516,31 +494,31 @@ LevelSelectScreen proc
     call WriteString
     
     ; Level 3
-    mov dh, 15
+    mov dh, 17
     mov dl, 30
     call Gotoxy
     mov edx, offset level3opt0
     call WriteString
     
-    mov dh, 16
+    mov dh, 18
     mov dl, 30
     call Gotoxy
     mov edx, offset level3opt1
     call WriteString
     
-    mov dh, 17
+    mov dh, 19
     mov dl, 30
     call Gotoxy
     mov edx, offset level3opt2
     call WriteString
     
-    mov dh, 18
+    mov dh, 20
     mov dl, 30
     call Gotoxy
     mov edx, offset level3opt3
     call WriteString
     
-    mov dh, 19
+    mov dh, 21
     mov dl, 30
     call Gotoxy
     mov edx, offset level3opt4
@@ -550,19 +528,19 @@ LevelSelectScreen proc
     mov eax, whiteTxt
     call SetTextColor
     
-    mov dh, 22
+    mov dh, 23
     mov dl, 20
     call Gotoxy
     mov edx, offset leveloptchoose1
     call WriteString
     
-    mov dh, 23
+    mov dh, 24
     mov dl, 20
     call Gotoxy
     mov edx, offset leveloptchoose2
     call WriteString
     
-    mov dh, 24
+    mov dh, 25
     mov dl, 20
     call Gotoxy
     call ReadInt
@@ -585,17 +563,15 @@ LevelSelectScreen proc
 StartLevel1:
     mov currentLevel, 1
     call Level1Screen
-    jmp ReturnToMenu
+    ;jmp ReturnToMenu
 
 StartLevel2:
     mov currentLevel, 2
     call Level2Screen  
-    jmp ReturnToMenu
 
 StartLevel3:
     mov currentLevel, 3
     call Level3Screen  
-    jmp ReturnToMenu
     
 ReturnToMenu:
     ret
@@ -747,25 +723,116 @@ HighscoresScreen proc
     ret
 HighscoresScreen endp
 
-;-----------------------------------------------------
+;***********************************************************
+
 Level1Screen proc
-    call levelSound
-    ; ... game implementation ...
+
+    call Clrscr
+   ; call levelSound
+
+    mov eax, blueTxt
+    call SetTextColor
+
+
+   ; Top border 
+    mov dh, 0
+    mov dl, 0
+    mov ecx, GAME_WIDTH
+    mov al, '#'
+    draw_top:
+        call Gotoxy
+        call WriteChar
+        inc dl
+        loop draw_top
+    
+    ; Bottom border
+    mov dh, 25
+    mov dl, 0
+    mov ecx, GAME_WIDTH
+    draw_bottom:
+        call Gotoxy
+        call WriteChar
+        inc dl
+        loop draw_bottom
+    
+    ; Left border (rows 1-25)
+    mov dh, 1
+    mov dl, 0
+    mov ecx, 25
+    draw_left:
+        call Gotoxy
+        call WriteChar
+        inc dh
+        loop draw_left
+    
+    ; Right border ( rows 1-25)
+    mov dh, 1
+    mov dl, GAME_WIDTH-1
+    mov ecx, 25
+    draw_right:
+        call Gotoxy
+        call WriteChar
+        inc dh
+        loop draw_right
+    
+    ; 2.  info panel
+    mov eax, yellowTxt
+    call SetTextColor
+    
+    ; Level text
+    mov dh, 5
+    mov dl, INFO_START
+    call Gotoxy
+    mov edx, offset levelText
+    call WriteString
+    
+    ; Score
+    mov dh, 7
+    mov dl, INFO_START
+    call Gotoxy
+    mov edx, offset scoreText
+    call WriteString
+    mov eax, score
+    call WriteDec
+    
+    ; High score
+    mov dh, 9
+    mov dl, INFO_START
+    call Gotoxy
+    mov edx, offset highScoreText
+    call WriteString
+    mov eax, highScore
+    call WriteDec
+    
+    ; Lives
+    mov dh, 11
+    mov dl, INFO_START
+    call Gotoxy
+    mov edx, offset livesText
+    call WriteString
+    movzx eax, lives
+    call WriteDec
+    
+    ; Player name
+    mov dh, 13
+    mov dl, INFO_START
+    call Gotoxy
+    mov edx, offset playerText
+    call WriteString
+    mov edx, offset userName
+    call WriteString
+    
+  
+    
     ret
 Level1Screen endp
 
+;-----------------------------------------------------
+
 Level2Screen proc
-    ; Play level 2 sound
-    call levelSound
-    ; ... game implementation ...
-    ret
 Level2Screen endp
 
 Level3Screen proc
-    ; Play level 3 sound
-    call levelSound
-    ; ... game implementation ...
-    ret
 Level3Screen endp
 
 end main
