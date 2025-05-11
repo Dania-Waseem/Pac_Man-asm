@@ -2,6 +2,9 @@
 ; DS A
 ; COAL SEMESTER PROJECT 
 
+GRID_WIDTH = 40
+GRID_HEIGHT = 20
+
 include irvine32.inc
 
 .data
@@ -9,6 +12,27 @@ include irvine32.inc
     fileName  db "Scores.txt" 
 	inputName db "Enter your name ... ",0
     username  db 50 dup(0)
+    pacmanChar db 'X',0
+    ghostChar db 'G',0
+    dotChar db '.',0
+    wallChar db '#',0
+
+    score dd 0
+    lives db 3
+    gameOver db 0
+    levelComplete db 0
+    currentLevel db 1 
+
+    grid db (40*20) dup(' ')
+
+    ghost1X db 10
+    ghost1Y db 5
+    ghost2X db 30
+    ghost2Y db 5
+    
+    pacmanX db 0
+    pacmanY db 0
+
 
     pmtitle1 db "#################################################################################",0
     pmtitle2 db "#                                                                               #",0
@@ -93,6 +117,19 @@ include irvine32.inc
 
     userChoice db ?
     temp db ?
+
+
+    level1Text db "LEVEL 1",0
+    scoreText db "Score: ",0
+    livesText db "Lives: ",0
+    gameOverText db "GAME OVER",0
+    playAgainText db "1. Return to Menu",0
+    exitText db "2. Exit Game",0
+    chooseOptionText db "Choose option: ",0
+
+    dotsRemaining db ?
+    ghost1Dir db ?
+    ghost2Dir db ?
 
 .code
 main proc
@@ -465,13 +502,35 @@ LevelSelectScreen proc
     call ReadInt
     
     ; Processing choice made
+    cmp al, 1
+    je StartLevel1
+    cmp al, 2
+    je StartLevel2
+    cmp al, 3
+    je StartLevel3
     cmp al, 4
     je ReturnToMenu
     cmp al, 5
     je ExitGame
     
-    ; Here you would normally start the selected level
-    ; For now, just return to menu
+    ; Invalid choice - show menu again
+    jmp LevelSelectScreen
+
+StartLevel1:
+    mov currentLevel, 1
+    call Level1Screen
+    jmp ReturnToMenu
+
+StartLevel2:
+    mov currentLevel, 2
+    ; call Level2Screen  ; You'll implement this later
+    jmp ReturnToMenu
+
+StartLevel3:
+    mov currentLevel, 3
+    ; call Level3Screen  ; You'll implement this later
+    jmp ReturnToMenu
+    
 ReturnToMenu:
     ret
     
@@ -615,5 +674,609 @@ HighscoresScreen proc
     ; Any key returns to menu
     ret
 HighscoresScreen endp
+
+;-----------------------------------------------------
+
+Level1Screen proc
+    call InitializeLevel1
+    call DrawLevel1Screen
+    
+GameLoop:
+    ; Handle input
+    call ReadKey
+    jz NoKeyPress
+    
+    ; Check for WASD keys
+    cmp al, 'w'
+    je MoveUp
+    cmp al, 'a'
+    je MoveLeft
+    cmp al, 's'
+    je MoveDown
+    cmp al, 'd'
+    je MoveRight
+    jmp NoKeyPress
+    
+MoveUp:
+    mov al, pacmanY
+    dec al
+    cmp al, 0
+    jle NoKeyPress
+    call CheckCollision
+    jc NoKeyPress
+    mov pacmanY, al
+    jmp UpdateGame
+    
+MoveLeft:
+    mov al, pacmanX
+    dec al
+    cmp al, 0
+    jle NoKeyPress
+    call CheckCollision
+    jc NoKeyPress
+    mov pacmanX, al
+    jmp UpdateGame
+    
+MoveDown:
+    mov al, pacmanY
+    inc al
+    cmp al, 19
+    jge NoKeyPress
+    call CheckCollision
+    jc NoKeyPress
+    mov pacmanY, al
+    jmp UpdateGame
+    
+MoveRight:
+    mov al, pacmanX
+    inc al
+    cmp al, 39
+    jge NoKeyPress
+    call CheckCollision
+    jc NoKeyPress
+    mov pacmanX, al
+    
+UpdateGame:
+    ; Move ghosts
+    call MoveGhosts
+    
+    ; Check ghost collisions
+    call CheckGhostCollision
+    
+    ; Check if game over
+    cmp gameOver, 1
+    je GameEnd
+    
+    ; Check if level complete
+    call CheckLevelComplete
+    cmp levelComplete, 1
+    je LevelCompleted
+    
+NoKeyPress:
+    call DrawLevel1Screen
+    mov eax, 100 ; Delay to control game speed
+    call Delay
+    jmp GameLoop
+    
+GameEnd:
+    call GameOverScreen
+    ret
+    
+LevelCompleted:
+    ; Handle level completion
+    ret
+Level1Screen endp
+
+;-----------------------------------------------------
+InitializeLevel1 proc
+    ; Clear the entire grid with spaces
+    mov edi, offset grid
+    mov ecx, GRID_WIDTH * GRID_HEIGHT
+    mov al, ' '
+    rep stosb
+
+    ; Draw border walls
+    ; Top border
+    mov ecx, GRID_WIDTH
+    mov esi, offset grid ; Top row
+DrawTopBorder:
+    mov byte ptr [esi], '#' ; Wall character
+    inc esi
+    loop DrawTopBorder
+
+    ; Bottom border
+    mov ecx, GRID_WIDTH
+    mov edi, offset grid + (GRID_HEIGHT-1)*GRID_WIDTH ; Bottom row
+DrawBottomBorder:
+    mov byte ptr [edi], '#'
+    inc edi
+    loop DrawBottomBorder
+
+    ; Left and right borders
+    mov ecx, GRID_HEIGHT-2 ; Skip top and bottom rows
+    mov esi, offset grid + GRID_WIDTH ; Start at first column of second row
+    mov edi, offset grid + GRID_WIDTH + (GRID_WIDTH-1) ; Last column of second row
+DrawSideWalls:
+    mov byte ptr [esi], '#'
+    mov byte ptr [edi], '#'
+    add esi, GRID_WIDTH
+    add edi, GRID_WIDTH
+    loop DrawSideWalls
+
+    ; Add internal walls with proper patterns
+    ; Horizontal wall 1
+    mov edi, offset grid + 5*GRID_WIDTH + 5
+    mov ecx, 10
+HorizontalWall1:
+    mov byte ptr [edi], '#'
+    inc edi
+    loop HorizontalWall1
+
+    ; Vertical wall 1
+    mov edi, offset grid + 2*GRID_WIDTH + 15
+    mov ecx, 8
+VerticalWall1:
+    mov byte ptr [edi], '#'
+    add edi, GRID_WIDTH
+    loop VerticalWall1
+
+    ; L-shaped wall
+    mov edi, offset grid + 8*GRID_WIDTH + 25
+    mov ecx, 7
+LShapeHorizontal:
+    mov byte ptr [edi], '#'
+    inc edi
+    loop LShapeHorizontal
+    
+    mov ecx, 5
+LShapeVertical:
+    mov byte ptr [edi], '#'
+    add edi, GRID_WIDTH
+    loop LShapeVertical
+
+    ; T-shaped wall
+    mov edi, offset grid + 12*GRID_WIDTH + 10
+    mov ecx, 7
+TShapeHorizontal:
+    mov byte ptr [edi], '#'
+    inc edi
+    loop TShapeHorizontal
+    
+    mov edi, offset grid + 12*GRID_WIDTH + 13
+    mov ecx, 6
+TShapeVertical:
+    mov byte ptr [edi], '#'
+    add edi, GRID_WIDTH
+    loop TShapeVertical
+
+    ; Place dots only in empty spaces
+    mov ecx, GRID_WIDTH * GRID_HEIGHT
+    mov esi, offset grid
+PlaceDots:
+    cmp byte ptr [esi], ' '
+    jne SkipDotPlacement
+    mov byte ptr [esi], '.' ; Dot character
+SkipDotPlacement:
+    inc esi
+    loop PlaceDots
+
+    ; Initialize player and ghost positions
+    ; Pacman starting position (center)
+    mov pacmanX, 20
+    mov pacmanY, 10
+    
+    ; Ghost 1 (top-left area)
+    mov ghost1X, 10
+    mov ghost1Y, 5
+    mov ghost1Dir, 1 ; Right
+    
+    ; Ghost 2 (top-right area)
+    mov ghost2X, 30
+    mov ghost2Y, 5
+    mov ghost2Dir, 3 ; Left
+    
+
+    ; Initialize game state
+    mov score, 0
+    mov lives, 3
+    mov gameOver, 0
+    mov levelComplete, 0
+    mov dotsRemaining, 0 ; Will be calculated
+    
+    ; Count initial dots
+    mov ecx, GRID_WIDTH * GRID_HEIGHT
+    mov esi, offset grid
+CountDots:
+    cmp byte ptr [esi], '.'
+    jne NotADot
+    inc dotsRemaining
+NotADot:
+    inc esi
+    loop CountDots
+    
+    ret
+InitializeLevel1 endp
+;-----------------------------------------------------
+GenerateWalls proc
+    ; First line (2 walls)
+    mov ecx, 2
+    call GenerateWallLine
+    
+    ; Second line (5 walls)
+    mov ecx, 5
+    call GenerateWallLine
+    
+    ; Third line (2 walls)
+    mov ecx, 2
+    call GenerateWallLine
+    
+    ; Fourth line (2 walls)
+    mov ecx, 2
+    call GenerateWallLine
+    ret
+GenerateWalls endp
+
+;-----------------------------------------------------
+GenerateWallLine proc
+    ; ECX = number of walls to generate
+    push ecx
+    
+    ; Get random Y position (1-18)
+    mov eax, 18
+    call RandomRange
+    inc eax
+    
+    ; Calculate row offset
+    mov edx, 40
+    mul edx
+    mov edi, offset grid
+    add edi, eax
+    
+    ; Generate walls
+    mov ecx, [esp] ; Get count from stack
+GenerateWall:
+    push ecx
+    
+    ; Get random X position (1-38)
+    mov eax, 38
+    call RandomRange
+    inc eax
+    
+    ; Place wall (FIXED: added byte ptr)
+    mov byte ptr [edi + eax], '#'
+    
+    ; Randomly extend wall (create L-shapes, etc.)
+    mov eax, 4
+    call RandomRange
+    cmp eax, 1
+    jl NoExtend
+    je ExtendRight
+    cmp eax, 2
+    je ExtendDown
+    cmp eax, 3
+    je ExtendLeft
+    
+ExtendRight:
+    inc eax
+    cmp eax, 39
+    jge NoExtend
+    mov byte ptr [edi + eax], '#'  ; FIXED: added byte ptr
+    jmp NoExtend
+    
+ExtendDown:
+    mov edx, 40
+    add edx, edi
+    add edx, eax
+    cmp edx, offset grid + 40*20
+    jge NoExtend
+    mov byte ptr [edx], '#'        ; FIXED: added byte ptr
+    jmp NoExtend
+    
+ExtendLeft:
+    dec eax
+    cmp eax, 0
+    jle NoExtend
+    mov byte ptr [edi + eax], '#'  ; FIXED: added byte ptr
+    
+NoExtend:
+    pop ecx
+    loop GenerateWall
+    
+    pop ecx
+    ret
+GenerateWallLine endp
+
+;-----------------------------------------------------
+DrawLevel1Screen proc
+    call Clrscr
+    
+    ; Draw game stats on left side
+    mov dl, 5
+    mov dh, 2
+    call Gotoxy
+    mov edx, offset level1Text
+    call WriteString
+    
+    mov dl, 5
+    mov dh, 4
+    call Gotoxy
+    mov edx, offset scoreText
+    call WriteString
+    mov eax, score
+    call WriteDec
+    
+    mov dl, 5
+    mov dh, 6
+    call Gotoxy
+    mov edx, offset livesText
+    call WriteString
+    movzx eax, lives
+    call WriteDec
+    
+    ; Draw game grid on right side
+    mov ecx, 20
+    mov dh, 0
+    mov dl, 30  ; Start grid at column 30
+DrawRow:
+    push ecx
+    push edx
+    
+    ; Calculate row offset
+    mov eax, 40
+    mul dh
+    mov esi, offset grid
+    add esi, eax
+    
+    ; Draw row
+    mov ecx, 40
+DrawColumn:
+    mov al, [esi]
+    call WriteChar
+    inc esi
+    inc dl
+    loop DrawColumn
+    
+    pop edx
+    pop ecx
+    inc dh
+    loop DrawRow
+    
+    ; Draw pacman and ghosts...
+    ret
+DrawLevel1Screen endp
+
+;-----------------------------------------------------
+CheckCollision proc
+    ; Check if position (al=X, ah=Y) is valid
+    ; Returns CF=1 if collision with wall
+    
+    ; Calculate grid offset
+    movzx edx, ah
+    imul edx, 40
+    movzx ecx, al
+    add edx, ecx
+    
+    ; Check grid position (FIXED: added byte ptr)
+    cmp byte ptr grid[edx], '#'
+    je WallCollision
+    
+    ; Check if dot was collected (FIXED: added byte ptr)
+    cmp byte ptr grid[edx], '.'
+    jne NoCollision
+    
+    ; Collect dot (FIXED: added byte ptr)
+    mov byte ptr grid[edx], ' '
+    inc score
+    
+NoCollision:
+    clc
+    ret
+    
+WallCollision:
+    stc
+    ret
+CheckCollision endp
+
+;-----------------------------------------------------
+MoveGhosts proc
+    ; Move ghost 1
+    mov al, ghost1X
+    mov ah, ghost1Y
+    call MoveGhost
+    mov ghost1X, al
+    mov ghost1Y, ah
+    
+    ; Move ghost 2
+    mov al, ghost2X
+    mov ah, ghost2Y
+    call MoveGhost
+    mov ghost2X, al
+    mov ghost2Y, ah
+    
+    ret
+MoveGhosts endp
+
+;-----------------------------------------------------
+MoveGhost proc
+    ; Simple random ghost movement
+    ; Input: al=X, ah=Y
+    ; Output: Updated X,Y in al,ah
+    
+    push eax
+    
+    ; Get random direction (0-3)
+    mov eax, 4
+    call RandomRange
+    
+    pop ebx ; Restore original position
+    
+    cmp al, 0
+    je MoveRight
+    cmp al, 1
+    je MoveLeft
+    cmp al, 2
+    je MoveUp
+    jmp MoveDown
+    
+MoveRight:
+    inc bl
+    cmp bl, 39
+    jge GhostNoMove
+    jmp CheckGhostMove
+    
+MoveLeft:
+    dec bl
+    cmp bl, 0
+    jle GhostNoMove
+    jmp CheckGhostMove
+    
+MoveUp:
+    dec bh
+    cmp bh, 0
+    jle GhostNoMove
+    jmp CheckGhostMove
+    
+MoveDown:
+    inc bh
+    cmp bh, 19
+    jge GhostNoMove
+    
+CheckGhostMove:
+    ; Check if new position is walkable
+    movzx edx, bh
+    imul edx, 40
+    movzx ecx, bl
+    add edx, ecx
+    cmp grid[edx], '#'
+    je GhostNoMove
+    
+    ; Move is valid
+    mov al, bl
+    mov ah, bh
+    ret
+    
+GhostNoMove:
+    mov al, bl
+    mov ah, bh
+    ret
+MoveGhost endp
+
+;-----------------------------------------------------
+CheckGhostCollision proc
+    ; Check if pacman collided with any ghost
+    mov al, pacmanX
+    mov ah, pacmanY
+    
+    ; Check ghost 1
+    cmp al, ghost1X
+    jne CheckGhost2
+    cmp ah, ghost1Y
+    jne CheckGhost2
+    jmp GhostCollision
+    
+CheckGhost2:
+    cmp al, ghost2X
+    jne NoGhostCollision
+    cmp ah, ghost2Y
+    jne NoGhostCollision
+    
+GhostCollision:
+    ; Lose a life
+    dec lives
+    cmp lives, 0
+    jg ResetPositions
+    
+    ; Game over
+    mov gameOver, 1
+    ret
+    
+ResetPositions:
+    ; Reset positions after collision
+    mov pacmanX, 20
+    mov pacmanY, 10
+    ret
+    
+NoGhostCollision:
+    ret
+CheckGhostCollision endp
+
+;-----------------------------------------------------
+CheckLevelComplete proc
+    ; Check if all dots are collected
+    mov ecx, 40*20
+    mov esi, offset grid
+CheckDots:
+    cmp byte ptr [esi], '.'
+    je DotFound
+    inc esi
+    loop CheckDots
+    
+    ; No dots found - level complete
+    mov levelComplete, 1
+    ret
+    
+DotFound:
+    ret
+CheckLevelComplete endp
+
+;-----------------------------------------------------
+GameOverScreen proc
+    call Clrscr
+    
+    ; Display game over message
+    mov eax, redTxt
+    call SetTextColor
+    
+    mov dh, 10
+    mov dl, 35
+    call Gotoxy
+    mov edx, offset gameOverText
+    call WriteString
+    
+    ; Display score
+    mov eax, whiteTxt
+    call SetTextColor
+    
+    mov dh, 12
+    mov dl, 35
+    call Gotoxy
+    mov edx, offset scoreText
+    call WriteString
+    mov eax, score
+    call WriteDec
+    
+    ; Display options
+    mov dh, 14
+    mov dl, 35
+    call Gotoxy
+    mov edx, offset playAgainText
+    call WriteString
+    
+    mov dh, 15
+    mov dl, 35
+    call Gotoxy
+    mov edx, offset exitText
+    call WriteString
+    
+    mov dh, 17
+    mov dl, 35
+    call Gotoxy
+    mov edx, offset chooseOptionText
+    call WriteString
+    
+    ; Get user choice
+    call ReadInt
+    cmp al, 1
+    je ReturnToMenu
+    cmp al, 2
+    je ExitGame
+    
+ReturnToMenu:
+    ret
+    
+ExitGame:
+    call Clrscr
+    exit
+GameOverScreen endp
 
 end main
