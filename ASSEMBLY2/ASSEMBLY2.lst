@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/11/25 20:11:26
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/11/25 21:43:41
 CODE.asm						     Page 1 - 1
 
 
@@ -791,7 +791,7 @@ CODE.asm						     Page 1 - 1
  00000D6F 00			    temp db ?
  00000D70 00			    currentLevel db ?
 				;-----------------------------------------
-				;level 1 vars
+				;level 1 vars for drawing
  00000D71 00000000		    score dd 0
  00000D75 00000000		    highScore dd 0
  00000D79 03			    lives db 3
@@ -812,6 +812,45 @@ CODE.asm						     Page 1 - 1
 	   52 3A 20 00
 				    
  00000DBB 23			    wallChar db '#'
+
+				;------------------------------------------
+				;level 1 logic vars
+				    ; Player position
+ 00000DBC 28			    pacmanX db 40
+ 00000DBD 0C			    pacmanY db 12
+				    
+				    ; Ghosts positions
+ 00000DBE 14			    ghost1X db 20
+ 00000DBF 0A			    ghost1Y db 10
+
+				    
+				    ; Ghost directions (1=right, 2=left, 3=up, 4=down)
+ 00000DC0 01			    ghost1Dir db 1
+ 00000DC1 02			    ghost2Dir db 2
+				    
+				    ; Pellets array (0 = eaten, 1 = exists)
+ 00000DC2  000007D0 [		    pellets db GAME_WIDTH * 25 dup(0)
+	    00
+	   ]
+				    
+				    ; Wall positions (x,y,width,height)
+ 00001592 0A 05 0F 01 1E	    walls db 10,5,15,1,   ; Horizontal wall
+	   08 01 0A 32 0F
+	   0A 01 14 14 05
+	   01 28 0A 01 05
+				          30,8,1,10,     ; Vertical wall
+				          50,15,10,1,    ; Horizontal wall
+				          20,20,5,1,     ; Horizontal wall
+				          40,10,1,5      ; Vertical wall
+ 000015A6 05			    wallCount db 5
+				    
+				    ; Movement keys
+ 000015A7 57			    moveUp db 'W'
+ 000015A8 41			    moveLeft db 'A'
+ 000015A9 53			    moveDown db 'S'
+ 000015AA 44			    moveRight db 'D'
+ 000015AB 51			    exitKey db 'Q'        ; ESC key
+				    
 
 
  00000000			.code
@@ -1262,12 +1301,12 @@ CODE.asm						     Page 1 - 1
  000004B1			StartLevel2:
  000004B1  C6 05 00000D70 R	    mov currentLevel, 2
 	   02
- 000004B8  E8 0000028A		    call Level2Screen  
+ 000004B8  E8 000007C5		    call Level2Screen  
 
  000004BD			StartLevel3:
  000004BD  C6 05 00000D70 R	    mov currentLevel, 3
 	   03
- 000004C4  E8 0000027E		    call Level3Screen  
+ 000004C4  E8 000007B9		    call Level3Screen  
 				    
  000004C9			ReturnToMenu:
  000004C9  C3			    ret
@@ -1425,119 +1464,680 @@ CODE.asm						     Page 1 - 1
 
 				;***********************************************************
 
- 00000646			Level1Screen proc
 
+ 00000646			Level1Screen PROC
  00000646  E8 00000000 E	    call Clrscr
-				   ; call levelSound
+ 0000064B  E8 FFFFF9EA		    call levelSound
+				    
+				    ; Draw borders
+ 00000650  E8 000000F9		    call DrawBorders
+				    
+				    ; Draw walls
+ 00000655  E8 000001F0		    call DrawWallsLevel1
+				    
+				    ; Initialize pellets
+ 0000065A  E8 00000452		    call InitializePellets
+				    
+				    
+				    ; Initialize ghost position
+ 0000065F  C6 05 00000DBE R	    mov ghost1X, 20
+	   14
+ 00000666  C6 05 00000DBF R	    mov ghost1Y, 10
+	   0A
+				    
+				    ; Draw initial positions
+				    call DrawPlayer
+CODE.asm(782) : error A2006:undefined symbol : DrawPlayer
+				    call DrawGhost1
+CODE.asm(783) : error A2006:undefined symbol : DrawGhost1
+				    
+				    ; Main game loop
+ 00000683			gameLoop:
+				    ; Handle input
+ 00000683  E8 00000000 E	    call ReadKey
+ 00000688  74 7B		    jz no_input
+				    mov inputChar, al
+CODE.asm(790) : error A2006:undefined symbol : inputChar
+				    
+				    ; Check for exit
+				    cmp inputChar, 'Q'
+CODE.asm(793) : error A2006:undefined symbol : inputChar
+ 0000068A  0F 84 000000BD	    je exitLevel
+				    
+				    ; Movement handling
+				    cmp inputChar, 'W'
+CODE.asm(797) : error A2006:undefined symbol : inputChar
+				    je moveUp
+CODE.asm(798) : error A2024:invalid operand size for instruction
+				    cmp inputChar, 'A'
+CODE.asm(799) : error A2006:undefined symbol : inputChar
+				    je moveLeft
+CODE.asm(800) : error A2024:invalid operand size for instruction
+				    cmp inputChar, 'S'
+CODE.asm(801) : error A2006:undefined symbol : inputChar
+				    je moveDown
+CODE.asm(802) : error A2024:invalid operand size for instruction
+				    cmp inputChar, 'D'
+CODE.asm(803) : error A2006:undefined symbol : inputChar
+				    je moveRight
+CODE.asm(804) : error A2024:invalid operand size for instruction
+				    
+ 00000705			no_input:
+				    ; Update ghost
+ 00000705  E8 00000262		    call UpdateGhost1
+				    
+				    ; Check collisions
+ 0000070A  E8 0000041E		    call CheckPelletCollision
+ 0000070F  E8 000004A1		    call CheckGhostCollision
+				    
+				    ; Check win condition (all pellets collected)
+				    cmp num_coins, 0
+CODE.asm(815) : error A2006:undefined symbol : num_coins
+ 00000714  74 31		    je levelComplete
+				    
+				    ; Delay for game speed
+ 00000716  B8 00000064		    mov eax, 100
+ 0000071B  E8 00000000 E	    call Delay
+				    
+ 00000720  E9 FFFFFF5E		    jmp gameLoop
+				    
+				moveUp:
+CODE.asm(824) : error A2005:symbol redefinition : moveUp
+				    ; Handle up movement
+				    ; (Include wall collision checks)
+ 00000725  E9 FFFFFF59		    jmp gameLoop
+				    
+				moveLeft:
+CODE.asm(829) : error A2005:symbol redefinition : moveLeft
+				    ; Handle left movement
+ 0000072A  E9 FFFFFF54		    jmp gameLoop
+				    
+				moveDown:
+CODE.asm(833) : error A2005:symbol redefinition : moveDown
+				    ; Handle down movement
+ 0000072F  E9 FFFFFF4F		    jmp gameLoop
+				    
+				moveRight:
+CODE.asm(837) : error A2005:symbol redefinition : moveRight
+				    ; Handle right movement
+ 00000734  E9 FFFFFF4A		    jmp gameLoop
+				    
+ 00000747			levelComplete:
+				    ; Handle level completion
+ 00000747  FE 05 00000D70 R	    inc currentLevel
+				    ; Proceed to next level or game complete
+				    
+ 0000074D			exitLevel:
+ 0000074D  C3			    ret
+ 0000074E			Level1Screen ENDP
 
- 0000064B  B8 00000001		    mov eax, blueTxt
- 00000650  E8 00000000 E	    call SetTextColor
+ 0000074E			DrawBorders proc
+
+ 0000074E  B8 00000001		    mov eax, blueTxt
+ 00000753  E8 00000000 E	    call SetTextColor
 
 
 				   ; Top border 
- 00000655  B6 00		    mov dh, 0
- 00000657  B2 00		    mov dl, 0
- 00000659  B9 00000050		    mov ecx, GAME_WIDTH
- 0000065E  B0 23		    mov al, '#'
- 00000660			    draw_top:
- 00000660  E8 00000000 E	        call Gotoxy
- 00000665  E8 00000000 E	        call WriteChar
- 0000066A  FE C2		        inc dl
- 0000066C  E2 F2		        loop draw_top
+ 00000758  B6 00		    mov dh, 0
+ 0000075A  B2 00		    mov dl, 0
+ 0000075C  B9 00000050		    mov ecx, GAME_WIDTH
+ 00000761  B0 23		    mov al, '#'
+ 00000763			    draw_top:
+ 00000763  E8 00000000 E	        call Gotoxy
+ 00000768  E8 00000000 E	        call WriteChar
+ 0000076D  FE C2		        inc dl
+ 0000076F  E2 F2		        loop draw_top
 				    
 				    ; Bottom border
- 0000066E  B6 19		    mov dh, 25
- 00000670  B2 00		    mov dl, 0
- 00000672  B9 00000050		    mov ecx, GAME_WIDTH
- 00000677			    draw_bottom:
- 00000677  E8 00000000 E	        call Gotoxy
- 0000067C  E8 00000000 E	        call WriteChar
- 00000681  FE C2		        inc dl
- 00000683  E2 F2		        loop draw_bottom
+ 00000771  B6 19		    mov dh, 25
+ 00000773  B2 00		    mov dl, 0
+ 00000775  B9 00000050		    mov ecx, GAME_WIDTH
+ 0000077A			    draw_bottom:
+ 0000077A  E8 00000000 E	        call Gotoxy
+ 0000077F  E8 00000000 E	        call WriteChar
+ 00000784  FE C2		        inc dl
+ 00000786  E2 F2		        loop draw_bottom
 				    
 				    ; Left border (rows 1-25)
- 00000685  B6 01		    mov dh, 1
- 00000687  B2 00		    mov dl, 0
- 00000689  B9 00000019		    mov ecx, 25
- 0000068E			    draw_left:
- 0000068E  E8 00000000 E	        call Gotoxy
- 00000693  E8 00000000 E	        call WriteChar
- 00000698  FE C6		        inc dh
- 0000069A  E2 F2		        loop draw_left
+ 00000788  B6 01		    mov dh, 1
+ 0000078A  B2 00		    mov dl, 0
+ 0000078C  B9 00000019		    mov ecx, 25
+ 00000791			    draw_left:
+ 00000791  E8 00000000 E	        call Gotoxy
+ 00000796  E8 00000000 E	        call WriteChar
+ 0000079B  FE C6		        inc dh
+ 0000079D  E2 F2		        loop draw_left
 				    
 				    ; Right border ( rows 1-25)
- 0000069C  B6 01		    mov dh, 1
- 0000069E  B2 4F		    mov dl, GAME_WIDTH-1
- 000006A0  B9 00000019		    mov ecx, 25
- 000006A5			    draw_right:
- 000006A5  E8 00000000 E	        call Gotoxy
- 000006AA  E8 00000000 E	        call WriteChar
- 000006AF  FE C6		        inc dh
- 000006B1  E2 F2		        loop draw_right
+ 0000079F  B6 01		    mov dh, 1
+ 000007A1  B2 4F		    mov dl, GAME_WIDTH-1
+ 000007A3  B9 00000019		    mov ecx, 25
+ 000007A8			    draw_right:
+ 000007A8  E8 00000000 E	        call Gotoxy
+ 000007AD  E8 00000000 E	        call WriteChar
+ 000007B2  FE C6		        inc dh
+ 000007B4  E2 F2		        loop draw_right
 				    
 				    ; 2.  info panel
- 000006B3  B8 0000000E		    mov eax, yellowTxt
- 000006B8  E8 00000000 E	    call SetTextColor
+ 000007B6  B8 0000000E		    mov eax, yellowTxt
+ 000007BB  E8 00000000 E	    call SetTextColor
 				    
 				    ; Level text
- 000006BD  B6 05		    mov dh, 5
- 000006BF  B2 5A		    mov dl, INFO_START
- 000006C1  E8 00000000 E	    call Gotoxy
- 000006C6  BA 00000D8E R	    mov edx, offset levelText
- 000006CB  E8 00000000 E	    call WriteString
+ 000007C0  B6 05		    mov dh, 5
+ 000007C2  B2 5A		    mov dl, INFO_START
+ 000007C4  E8 00000000 E	    call Gotoxy
+ 000007C9  BA 00000D8E R	    mov edx, offset levelText
+ 000007CE  E8 00000000 E	    call WriteString
 				    
 				    ; Score
- 000006D0  B6 07		    mov dh, 7
- 000006D2  B2 5A		    mov dl, INFO_START
- 000006D4  E8 00000000 E	    call Gotoxy
- 000006D9  BA 00000D96 R	    mov edx, offset scoreText
- 000006DE  E8 00000000 E	    call WriteString
- 000006E3  A1 00000D71 R	    mov eax, score
- 000006E8  E8 00000000 E	    call WriteDec
+ 000007D3  B6 07		    mov dh, 7
+ 000007D5  B2 5A		    mov dl, INFO_START
+ 000007D7  E8 00000000 E	    call Gotoxy
+ 000007DC  BA 00000D96 R	    mov edx, offset scoreText
+ 000007E1  E8 00000000 E	    call WriteString
+ 000007E6  A1 00000D71 R	    mov eax, score
+ 000007EB  E8 00000000 E	    call WriteDec
 				    
 				    ; High score
- 000006ED  B6 09		    mov dh, 9
- 000006EF  B2 5A		    mov dl, INFO_START
- 000006F1  E8 00000000 E	    call Gotoxy
- 000006F6  BA 00000D9E R	    mov edx, offset highScoreText
- 000006FB  E8 00000000 E	    call WriteString
- 00000700  A1 00000D75 R	    mov eax, highScore
- 00000705  E8 00000000 E	    call WriteDec
+ 000007F0  B6 09		    mov dh, 9
+ 000007F2  B2 5A		    mov dl, INFO_START
+ 000007F4  E8 00000000 E	    call Gotoxy
+ 000007F9  BA 00000D9E R	    mov edx, offset highScoreText
+ 000007FE  E8 00000000 E	    call WriteString
+ 00000803  A1 00000D75 R	    mov eax, highScore
+ 00000808  E8 00000000 E	    call WriteDec
 				    
 				    ; Lives
- 0000070A  B6 0B		    mov dh, 11
- 0000070C  B2 5A		    mov dl, INFO_START
- 0000070E  E8 00000000 E	    call Gotoxy
- 00000713  BA 00000DAA R	    mov edx, offset livesText
- 00000718  E8 00000000 E	    call WriteString
- 0000071D  0F B6 05		    movzx eax, lives
+ 0000080D  B6 0B		    mov dh, 11
+ 0000080F  B2 5A		    mov dl, INFO_START
+ 00000811  E8 00000000 E	    call Gotoxy
+ 00000816  BA 00000DAA R	    mov edx, offset livesText
+ 0000081B  E8 00000000 E	    call WriteString
+ 00000820  0F B6 05		    movzx eax, lives
 	   00000D79 R
- 00000724  E8 00000000 E	    call WriteDec
+ 00000827  E8 00000000 E	    call WriteDec
 				    
 				    ; Player name
- 00000729  B6 0D		    mov dh, 13
- 0000072B  B2 5A		    mov dl, INFO_START
- 0000072D  E8 00000000 E	    call Gotoxy
- 00000732  BA 00000DB2 R	    mov edx, offset playerText
- 00000737  E8 00000000 E	    call WriteString
- 0000073C  BA 000000A7 R	    mov edx, offset userName
- 00000741  E8 00000000 E	    call WriteString
+ 0000082C  B6 0D		    mov dh, 13
+ 0000082E  B2 5A		    mov dl, INFO_START
+ 00000830  E8 00000000 E	    call Gotoxy
+ 00000835  BA 00000DB2 R	    mov edx, offset playerText
+ 0000083A  E8 00000000 E	    call WriteString
+ 0000083F  BA 000000A7 R	    mov edx, offset userName
+ 00000844  E8 00000000 E	    call WriteString
+				      
+ 00000849  C3			    ret
+ 0000084A			DrawBorders endp
+
+ 0000084A			DrawWallsLevel1 PROC
+				    ; Set wall color
+ 0000084A  B8 00000009		    mov eax, lightblue
+ 0000084F  E8 00000000 E	    call SetTextColor
 				    
-				  
+				    ; First set of 2 horizontal walls
+ 00000854  B8 0000000A		    mov eax, 10      ; X position
+ 00000859  BB 00000005		    mov ebx, 5       ; Y position
+ 0000085E  B9 0000000F		    mov ecx, 15      ; Length
+ 00000863  E8 000000C9		    call DrawHorizontalWall
 				    
- 00000746  C3			    ret
- 00000747			Level1Screen endp
+ 00000868  B8 0000000A		    mov eax, 10      ; X position
+ 0000086D  BB 00000006		    mov ebx, 6       ; Y position (right below first wall)
+ 00000872  B9 0000000F		    mov ecx, 15      ; Length
+ 00000877  E8 000000B5		    call DrawHorizontalWall
+				    
+				    ; Gap of 2 rows
+				    
+				    ; Next set of 5 horizontal walls
+ 0000087C  B8 00000014		    mov eax, 20      ; X position
+ 00000881  BB 00000009		    mov ebx, 9       ; Y position
+ 00000886  B9 0000000A		    mov ecx, 10      ; Length
+ 0000088B  E8 000000A1		    call DrawHorizontalWall
+				    
+ 00000890  B8 00000014		    mov eax, 20
+ 00000895  BB 0000000A		    mov ebx, 10
+ 0000089A  B9 0000000A		    mov ecx, 10
+ 0000089F  E8 0000008D		    call DrawHorizontalWall
+				    
+ 000008A4  B8 00000014		    mov eax, 20
+ 000008A9  BB 0000000B		    mov ebx, 11
+ 000008AE  B9 0000000A		    mov ecx, 10
+ 000008B3  E8 00000079		    call DrawHorizontalWall
+				    
+ 000008B8  B8 00000014		    mov eax, 20
+ 000008BD  BB 0000000C		    mov ebx, 12
+ 000008C2  B9 0000000A		    mov ecx, 10
+ 000008C7  E8 00000065		    call DrawHorizontalWall
+				    
+ 000008CC  B8 00000014		    mov eax, 20
+ 000008D1  BB 0000000D		    mov ebx, 13
+ 000008D6  B9 0000000A		    mov ecx, 10
+ 000008DB  E8 00000051		    call DrawHorizontalWall
+				    
+				    ; Gap of 2 rows
+				    
+				    ; Next set of 2 horizontal walls
+ 000008E0  B8 0000001E		    mov eax, 30
+ 000008E5  BB 00000010		    mov ebx, 16
+ 000008EA  B9 0000000C		    mov ecx, 12
+ 000008EF  E8 0000003D		    call DrawHorizontalWall
+				    
+ 000008F4  B8 0000001E		    mov eax, 30
+ 000008F9  BB 00000011		    mov ebx, 17
+ 000008FE  B9 0000000C		    mov ecx, 12
+ 00000903  E8 00000029		    call DrawHorizontalWall
+				    
+				    ; Final 2 vertical walls
+ 00000908  B8 00000028		    mov eax, 40
+ 0000090D  BB 00000005		    mov ebx, 5
+ 00000912  B9 0000000A		    mov ecx, 10      ; Height
+ 00000917  E8 00000030		    call DrawVerticalWall
+				    
+ 0000091C  B8 00000032		    mov eax, 50
+ 00000921  BB 00000005		    mov ebx, 5
+ 00000926  B9 0000000A		    mov ecx, 10
+ 0000092B  E8 0000001C		    call DrawVerticalWall
+				    
+ 00000930  C3			    ret
+ 00000931			DrawWallsLevel1 ENDP
+
+ 00000931			DrawHorizontalWall PROC
+				    ; Draws a horizontal wall
+				    ; Input: eax = x, ebx = y, ecx = length
+ 00000931  50			    push eax
+ 00000932  53			    push ebx
+ 00000933  51			    push ecx
+				    
+ 00000934  8A D0		    mov dl, al      ; X position
+ 00000936  8A F3		    mov dh, bl      ; Y position
+ 00000938  E8 00000000 E	    call Gotoxy
+				    
+ 0000093D  B0 23		    mov al, '#'     ; Wall character
+ 0000093F			    draw_hor_loop:
+ 0000093F  E8 00000000 E	        call WriteChar
+ 00000944  FE C2		        inc dl
+ 00000946  E2 F7		        loop draw_hor_loop
+				    
+ 00000948  59			    pop ecx
+ 00000949  5B			    pop ebx
+ 0000094A  58			    pop eax
+ 0000094B  C3			    ret
+ 0000094C			DrawHorizontalWall ENDP
+
+ 0000094C			DrawVerticalWall PROC
+				    ; Draws a vertical wall
+				    ; Input: eax = x, ebx = y, ecx = height
+ 0000094C  50			    push eax
+ 0000094D  53			    push ebx
+ 0000094E  51			    push ecx
+				    
+ 0000094F  8A D0		    mov dl, al      ; X position
+ 00000951  8A F3		    mov dh, bl      ; Y position
+ 00000953  E8 00000000 E	    call Gotoxy
+				    
+ 00000958  B0 23		    mov al, '#'     ; Wall character
+ 0000095A			    draw_vert_loop:
+ 0000095A  E8 00000000 E	        call WriteChar
+ 0000095F  FE C6		        inc dh
+ 00000961  E8 00000000 E	        call Gotoxy
+ 00000966  E2 F2		        loop draw_vert_loop
+				    
+ 00000968  59			    pop ecx
+ 00000969  5B			    pop ebx
+ 0000096A  58			    pop eax
+ 0000096B  C3			    ret
+ 0000096C			DrawVerticalWall ENDP
+
+ 0000096C			UpdateGhost1 PROC
+				    ; Ghost movement logic - tries to come closer to Pacman
+				    ; Compare ghost position with pacman position
+				    
+				    ; First check X direction
+ 0000096C  A0 00000DBE R	    mov al, ghost1X
+ 00000971  3A 05 00000DBC R	    cmp al, pacmanX
+ 00000977  7C 16		    jl move_ghost_right   ; If ghost is left of pacman, move right
+ 00000979  7F 3D		    jg move_ghost_left    ; If ghost is right of pacman, move left
+				    
+				    ; If X positions are equal, check Y direction
+ 0000097B  A0 00000DBF R	    mov al, ghost1Y
+ 00000980  3A 05 00000DBD R	    cmp al, pacmanY
+ 00000986  7C 69		    jl move_ghost_down    ; If ghost is above pacman, move down
+ 00000988  0F 8F 0000008B	    jg move_ghost_up      ; If ghost is below pacman, move up
+				    
+				    ; If positions are equal, don't move
+ 0000098E  C3			    ret
+				    
+ 0000098F			move_ghost_right:
+ 0000098F  E8 000000AD		    call CanMoveRight
+ 00000994  80 FA 01		    cmp dl, 1
+ 00000997  74 02		    je move_right
+ 00000999  EB 46		    jmp check_y_direction
+				    
+ 0000099B			move_right:
+				    call UpdateGhost
+CODE.asm(1091) : error A2006:undefined symbol : UpdateGhost
+ 0000099B  FE 05 00000DBE R	    inc ghost1X
+				    call DrawGhost1
+CODE.asm(1093) : error A2006:undefined symbol : DrawGhost1
+ 000009A1  C3			    ret
+				    
+ 000009B8			move_ghost_left:
+ 000009B8  E8 00000099		    call CanMoveLeft
+ 000009BD  80 FA 01		    cmp dl, 1
+ 000009C0  74 02		    je move_left
+ 000009C2  EB 1D		    jmp check_y_direction
+				    
+ 000009C4			move_left:
+				    call UpdateGhost
+CODE.asm(1103) : error A2006:undefined symbol : UpdateGhost
+ 000009C4  FE 0D 00000DBE R	    dec ghost1X
+				    call DrawGhost1
+CODE.asm(1105) : error A2006:undefined symbol : DrawGhost1
+ 000009CA  C3			    ret
+				    
+ 000009E1			check_y_direction:
+ 000009E1  A0 00000DBF R	    mov al, ghost1Y
+ 000009E6  3A 05 00000DBD R	    cmp al, pacmanY
+ 000009EC  7C 03		    jl move_ghost_down
+ 000009EE  7F 29		    jg move_ghost_up
+ 000009F0  C3			    ret
+				    
+ 000009F1			move_ghost_down:
+ 000009F1  E8 0000008A		    call CanMoveDown
+ 000009F6  80 FA 01		    cmp dl, 1
+ 000009F9  74 01		    je move_down
+ 000009FB  C3			    ret
+				    
+ 000009FC			move_down:
+				    call UpdateGhost
+CODE.asm(1122) : error A2006:undefined symbol : UpdateGhost
+ 000009FC  FE 05 00000DBF R	    inc ghost1Y
+				    call DrawGhost1
+CODE.asm(1124) : error A2006:undefined symbol : DrawGhost1
+ 00000A02  C3			    ret
+				    
+ 00000A19			move_ghost_up:
+ 00000A19  E8 0000004D		    call CanMoveUp
+ 00000A1E  80 FA 01		    cmp dl, 1
+ 00000A21  74 01		    je move_up
+ 00000A23  C3			    ret
+				    
+ 00000A24			move_up:
+				    call UpdateGhost
+CODE.asm(1134) : error A2006:undefined symbol : UpdateGhost
+ 00000A24  FE 0D 00000DBF R	    dec ghost1Y
+				    call DrawGhost1
+CODE.asm(1136) : error A2006:undefined symbol : DrawGhost1
+ 00000A2A  C3			    ret
+ 00000A2B			UpdateGhost1 ENDP
+
+ 00000A2B			CanMoveRight PROC
+				    ; Check if ghost can move right
+ 00000A2B  0F B6 0D		    movzx ecx, ghost1X
+	   00000DBE R
+ 00000A32  41			    inc ecx             ; Check position to the right
+ 00000A33  0F B6 15		    movzx edx, ghost1Y
+	   00000DBF R
+ 00000A3A  E8 00000056		    call CheckWallCollision
+ 00000A3F  C3			    ret
+ 00000A40			CanMoveRight ENDP
+
+ 00000A40			CanMoveLeft PROC
+				    ; Check if ghost can move left
+ 00000A40  0F B6 0D		    movzx ecx, ghost1X
+	   00000DBE R
+ 00000A47  49			    dec ecx             ; Check position to the left
+ 00000A48  0F B6 15		    movzx edx, ghost1Y
+	   00000DBF R
+ 00000A4F  E8 00000041		    call CheckWallCollision
+ 00000A54  C3			    ret
+ 00000A55			CanMoveLeft ENDP
+
+ 00000A55			CanMoveUp PROC
+				    ; Check if ghost can move up
+ 00000A55  0F B6 0D		    movzx ecx, ghost1X
+	   00000DBE R
+ 00000A5C  0F B6 15		    movzx edx, ghost1Y
+	   00000DBF R
+ 00000A63  4A			    dec edx             ; Check position above
+ 00000A64  E8 0000002C		    call CheckWallCollision
+ 00000A69  C3			    ret
+ 00000A6A			CanMoveUp ENDP
+
+ 00000A6A			CanMoveDown PROC
+				    ; Check if ghost can move down
+ 00000A6A  0F B6 0D		    movzx ecx, ghost1X
+	   00000DBE R
+ 00000A71  0F B6 15		    movzx edx, ghost1Y
+	   00000DBF R
+ 00000A78  42			    inc edx             ; Check position below
+ 00000A79  E8 00000017		    call CheckWallCollision
+ 00000A7E  C3			    ret
+ 00000A7F			CanMoveDown ENDP
+
+ 00000A7F			CheckWallCollision PROC
+				    ; Checks if position (ecx, edx) is a wall
+				    ; Returns dl = 1 if can move (no wall), dl = 0 if wall
+ 00000A7F  8B D9		    mov ebx, ecx
+ 00000A81  6B DB 1E		    imul ebx, 30        ; Assuming grid is 70x30
+ 00000A84  03 DA		    add ebx, edx
+				    mov al, BYTE PTR [grid + ebx]
+CODE.asm(1182) : error A2006:undefined symbol : grid
+ 00000A86  3C 01		    cmp al, 1           ; 1 represents wall
+ 00000A88  74 24		    je is_wall
+ 00000A8A  B2 01		    mov dl, 1           ; Can move
+ 00000A8C  C3			    ret
+ 00000AAE			is_wall:
+ 00000AAE  B2 00		    mov dl, 0           ; Cannot move
+ 00000AB0  C3			    ret
+ 00000AB1			CheckWallCollision ENDP
+
+ 00000AB1			InitializePellets PROC
+				    ; Initialize pellets for Level 1
+ 00000AB1  B9 00000032		    mov ecx, 50         ; Number of pellets for Level 1
+				    mov num_coins, cl
+CODE.asm(1195) : error A2006:undefined symbol : num_coins
+				    
+				    ; Clear pellet array
+ 00000AB6  BF 00000DC2 R	    mov edi, OFFSET pellets
+ 00000ABB  B9 000007D0		    mov ecx, GAME_WIDTH * 25
+ 00000AC0  B0 00		    mov al, 0
+ 00000AC2  F3/ AA		    rep stosb
+				    
+				    ; Place pellets in valid positions
+ 00000AC4  B9 00000032		    mov ecx, 50
+ 00000AD4			place_pellets:
+ 00000AD4  E8 0000003A		    call GetRandomPosition
+				    ; Check if position is valid (not wall and not already pellet)
+ 00000AD9  8B D8		    mov ebx, eax
+ 00000ADB  6B DB 1E		    imul ebx, 30
+ 00000ADE  03 DA		    add ebx, edx
+				    cmp BYTE PTR [grid + ebx], 1   ; Wall
+CODE.asm(1211) : error A2006:undefined symbol : grid
+ 00000AE0  74 F2		    je place_pellets
+ 00000AE2  80 BB 00000DC2 R	    cmp BYTE PTR [pellets + ebx], 1 ; Already pellet
+	   01
+ 00000AE9  74 E9		    je place_pellets
+				    
+				    ; Place pellet
+ 00000AEB  C6 83 00000DC2 R	    mov BYTE PTR [pellets + ebx], 1
+	   01
+				    
+				    ; Draw pellet
+ 00000AF2  8A D0		    mov dl, al
+ 00000AF4  8A F2		    mov dh, dl
+ 00000AF6  E8 00000000 E	    call Gotoxy
+ 00000AFB  B0 2E		    mov al, '.'
+ 00000AFD  E8 00000000 E	    call WriteChar
+				    
+ 00000B02  E2 D0		    loop place_pellets
+				    
+ 00000B04  C3			    ret
+ 00000B05			InitializePellets ENDP
+
+ 00000B05			GetRandomPosition PROC
+				    ; Returns random position in eax (x), edx (y)
+ 00000B05  B8 0000004E		    mov eax, GAME_WIDTH - 2
+ 00000B0A  E8 00000000 E	    call RandomRange
+ 00000B0F  40			    inc eax             ; Avoid left border
+ 00000B10  8B D0		    mov edx, eax        ; Save x in edx
+				    
+ 00000B12  B8 00000018		    mov eax, 24         ; 25 rows (0-24)
+ 00000B17  E8 00000000 E	    call RandomRange
+ 00000B1C  40			    inc eax             ; Avoid top border
+				    
+ 00000B1D  92			    xchg eax, edx       ; Now eax has x, edx has y
+ 00000B1E  C3			    ret
+ 00000B1F			GetRandomPosition ENDP
+
+ 00000B1F			CheckPelletCollision PROC
+				    ; Check if pacman is on a pellet
+ 00000B1F  0F B6 05		    movzx eax, pacmanX
+	   00000DBC R
+ 00000B26  0F B6 15		    movzx edx, pacmanY
+	   00000DBD R
+ 00000B2D  8B D8		    mov ebx, eax
+ 00000B2F  6B DB 1E		    imul ebx, 30
+ 00000B32  03 DA		    add ebx, edx
+ 00000B34  80 BB 00000DC2 R	    cmp BYTE PTR [pellets + ebx], 1
+	   01
+ 00000B3B  75 4D		    jne no_pellet
+				    
+				    ; Pellet collected
+ 00000B3D  C6 83 00000DC2 R	    mov BYTE PTR [pellets + ebx], 0  ; Remove pellet
+	   00
+ 00000B44  FF 05 00000D71 R	    inc score
+				    
+				    ; Update score display
+ 00000B4A  B8 0000000E		    mov eax, yellow
+ 00000B4F  E8 00000000 E	    call SetTextColor
+ 00000B54  B2 4B		    mov dl, 75
+ 00000B56  B6 05		    mov dh, 5
+ 00000B58  E8 00000000 E	    call Gotoxy
+ 00000B5D  BA 00000D96 R	    mov edx, OFFSET scoreText
+ 00000B62  E8 00000000 E	    call WriteString
+ 00000B67  A1 00000D71 R	    mov eax, score
+ 00000B6C  E8 00000000 E	    call WriteDec
+				    
+				    dec num_coins       ; Decrement remaining pellets
+CODE.asm(1271) : error A2006:undefined symbol : num_coins
+				    
+ 00000B8A			no_pellet:
+ 00000B8A  C3			    ret
+ 00000B8B			CheckPelletCollision ENDP
+
+ 00000B8B			UpdateLivesDisplay PROC
+				    ; Update lives display
+ 00000B8B  B8 00000009		    mov eax, lightblue
+ 00000B90  E8 00000000 E	    call SetTextColor
+ 00000B95  B2 4B		    mov dl, 75
+ 00000B97  B6 09		    mov dh, 9
+ 00000B99  E8 00000000 E	    call Gotoxy
+ 00000B9E  BA 00000DAA R	    mov edx, OFFSET livesText
+ 00000BA3  E8 00000000 E	    call WriteString
+ 00000BA8  0F B6 05		    movzx eax, lives
+	   00000D79 R
+ 00000BAF  E8 00000000 E	    call WriteDec
+ 00000BB4  C3			    ret
+ 00000BB5			UpdateLivesDisplay ENDP
+
+ 00000BB5			CheckGhostCollision PROC
+				    ; Check collision with ghost
+ 00000BB5  A0 00000DBE R	    mov al, ghost1X
+ 00000BBA  3A 05 00000DBC R	    cmp al, pacmanX
+ 00000BC0  75 34		    jne no_collision
+ 00000BC2  A0 00000DBF R	    mov al, ghost1Y
+ 00000BC7  3A 05 00000DBD R	    cmp al, pacmanY
+ 00000BCD  75 27		    jne no_collision
+				    
+				    ; Collision occurred
+ 00000BCF  FE 0D 00000D79 R	    dec lives
+ 00000BD5  E8 FFFFFFB1		    call UpdateLivesDisplay
+				    
+				    ; Reset positions
+ 00000BDA  C6 05 00000DBC R	    mov pacmanX, 40
+	   28
+ 00000BE1  C6 05 00000DBD R	    mov pacmanY, 12
+	   0C
+				    
+				    ; Check if game over
+ 00000BE8  80 3D 00000D79 R	    cmp lives, 0
+	   00
+ 00000BEF  7F 05		    jg no_collision
+ 00000BF1  E8 00000001		    call GameOver
+				    
+ 00000BF6			no_collision:
+ 00000BF6  C3			    ret
+ 00000BF7			CheckGhostCollision ENDP
+
+ 00000BF7			GameOver PROC
+				    ; Handle game over
+ 00000BF7  E8 00000001		    call SaveHighScore
+				    ; Display game over message
+				    ; Return to menu
+ 00000BFC  C3			    ret
+ 00000BFD			GameOver ENDP
+
+ 00000BFD			SaveHighScore PROC
+				    ; Save highscore to file if current score is higher
+ 00000BFD  A1 00000D71 R	    mov eax, score
+ 00000C02  3B 05 00000D75 R	    cmp eax, highScore
+ 00000C08  7E 77		    jle no_new_high
+				    
+				    ; New high score
+ 00000C0A  A3 00000D75 R	    mov highScore, eax
+				    
+				    ; Open file for writing
+ 00000C0F  BA 00000088 R	    mov edx, OFFSET fileName
+ 00000C14  E8 00000000 E	    call CreateOutputFile
+				    mov fileHandle, eax
+CODE.asm(1337) : error A2006:undefined symbol : fileHandle
+				    
+				    ; Write player name and score
+ 00000C19  BA 000000A7 R	    mov edx, OFFSET userName
+ 00000C1E  B9 00000032		    mov ecx, LENGTHOF userName
+ 00000C23  E8 00000000 E	    call WriteToFile
+				    
+				    ; Write space separator
+				    mov edx, OFFSET space
+CODE.asm(1345) : error A2006:undefined symbol : space
+ 00000C28  B9 00000001		    mov ecx, 1
+ 00000C2D  E8 00000000 E	    call WriteToFile
+				    
+				    ; Write score
+ 00000C32  A1 00000D71 R	    mov eax, score
+ 00000C37  E8 00000000 E	    call WriteInt
+				    
+				    ; Write space separator
+				    mov edx, OFFSET space
+CODE.asm(1354) : error A2006:undefined symbol : space
+ 00000C3C  B9 00000001		    mov ecx, 1
+ 00000C41  E8 00000000 E	    call WriteToFile
+				    
+				    ; Write level
+ 00000C46  A0 00000D70 R	    mov al, currentLevel
+ 00000C4B  E8 00000000 E	    call WriteInt
+				    
+				    ; Close file
+				    mov eax, fileHandle
+CODE.asm(1363) : error A2006:undefined symbol : fileHandle
+ 00000C50  E8 00000000 E	    call CloseFile
+				    
+ 00000C81			no_new_high:
+ 00000C81  C3			    ret
+ 00000C82			SaveHighScore ENDP
+
 
 				;-----------------------------------------------------
 
- 00000747			Level2Screen proc
- 00000747			Level2Screen endp
+ 00000C82			Level2Screen proc
+ 00000C82			Level2Screen endp
 
- 00000747			Level3Screen proc
- 00000747			Level3Screen endp
+ 00000C82			Level3Screen proc
+ 00000C82			Level3Screen endp
 
 				end main
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/11/25 20:11:26
+
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/11/25 21:43:41
 CODE.asm						     Symbols 2 - 1
 
 
@@ -1631,14 +2231,24 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000DBC Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000747 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000015AC Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000C82 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
+CanMoveDown  . . . . . . . . . .	P Near	 00000A80 _TEXT	Length= 00000015 Public STDCALL
+CanMoveLeft  . . . . . . . . . .	P Near	 00000A56 _TEXT	Length= 00000015 Public STDCALL
+CanMoveRight . . . . . . . . . .	P Near	 00000A41 _TEXT	Length= 00000015 Public STDCALL
+CanMoveUp  . . . . . . . . . . .	P Near	 00000A6B _TEXT	Length= 00000015 Public STDCALL
+CheckGhostCollision  . . . . . .	P Near	 00000BB5 _TEXT	Length= 00000042 Public STDCALL
+  no_collision . . . . . . . . .	L Near	 00000BF6 _TEXT	
+CheckPelletCollision . . . . . .	P Near	 00000B2D _TEXT	Length= 0000005E Public STDCALL
+  no_pellet  . . . . . . . . . .	L Near	 00000B8A _TEXT	
+CheckWallCollision . . . . . . .	P Near	 00000A95 _TEXT	Length= 0000001C Public STDCALL
+  is_wall  . . . . . . . . . . .	L Near	 00000AAE _TEXT	
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1646,6 +2256,16 @@ CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+DrawBorders  . . . . . . . . . .	P Near	 0000074E _TEXT	Length= 000000FC Public STDCALL
+  draw_top . . . . . . . . . . .	L Near	 00000763 _TEXT	
+  draw_bottom  . . . . . . . . .	L Near	 0000077A _TEXT	
+  draw_left  . . . . . . . . . .	L Near	 00000791 _TEXT	
+  draw_right . . . . . . . . . .	L Near	 000007A8 _TEXT	
+DrawHorizontalWall . . . . . . .	P Near	 00000931 _TEXT	Length= 0000001B Public STDCALL
+  draw_hor_loop  . . . . . . . .	L Near	 0000093F _TEXT	
+DrawVerticalWall . . . . . . . .	P Near	 0000094C _TEXT	Length= 00000020 Public STDCALL
+  draw_vert_loop . . . . . . . .	L Near	 0000095A _TEXT	
+DrawWallsLevel1  . . . . . . . .	P Near	 0000084A _TEXT	Length= 000000E7 Public STDCALL
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1653,6 +2273,7 @@ FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FlushConsoleInputBuffer  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FormatMessageA . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GameOver . . . . . . . . . . . .	P Near	 00000BF7 _TEXT	Length= 00000006 Public STDCALL
 GetCommandLineA  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetCommandTail . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetConsoleCP . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1668,6 +2289,7 @@ GetMaxXY . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 GetMseconds  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetNumberOfConsoleInputEvents  .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetProcessHeap . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetRandomPosition  . . . . . . .	P Near	 00000B13 _TEXT	Length= 0000001A Public STDCALL
 GetStdHandle . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetSystemTime  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1679,17 +2301,19 @@ HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HighscoresScreen . . . . . . . .	P Near	 000005B0 _TEXT	Length= 00000096 Public STDCALL
+InitializePellets  . . . . . . .	P Near	 00000AB1 _TEXT	Length= 00000062 Public STDCALL
+  place_pellets  . . . . . . . .	L Near	 00000AD4 _TEXT	
 InstructionsScreen . . . . . . .	P Near	 000004D6 _TEXT	Length= 000000DA Public STDCALL
   ReturnToMenu . . . . . . . . .	L Near	 000005A3 _TEXT	
   ExitGame . . . . . . . . . . .	L Near	 000005A4 _TEXT	
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-Level1Screen . . . . . . . . . .	P Near	 00000646 _TEXT	Length= 00000101 Public STDCALL
-  draw_top . . . . . . . . . . .	L Near	 00000660 _TEXT	
-  draw_bottom  . . . . . . . . .	L Near	 00000677 _TEXT	
-  draw_left  . . . . . . . . . .	L Near	 0000068E _TEXT	
-  draw_right . . . . . . . . . .	L Near	 000006A5 _TEXT	
-Level2Screen . . . . . . . . . .	P Near	 00000747 _TEXT	Length= 00000000 Public STDCALL
-Level3Screen . . . . . . . . . .	P Near	 00000747 _TEXT	Length= 00000000 Public STDCALL
+Level1Screen . . . . . . . . . .	P Near	 00000646 _TEXT	Length= 00000108 Public STDCALL
+  gameLoop . . . . . . . . . . .	L Near	 00000683 _TEXT	
+  no_input . . . . . . . . . . .	L Near	 00000705 _TEXT	
+  levelComplete  . . . . . . . .	L Near	 00000747 _TEXT	
+  exitLevel  . . . . . . . . . .	L Near	 0000074D _TEXT	
+Level2Screen . . . . . . . . . .	P Near	 00000C82 _TEXT	Length= 00000000 Public STDCALL
+Level3Screen . . . . . . . . . .	P Near	 00000C82 _TEXT	Length= 00000000 Public STDCALL
 LevelSelectScreen  . . . . . . .	P Near	 00000313 _TEXT	Length= 000001C3 Public STDCALL
   StartLevel1  . . . . . . . . .	L Near	 000004A5 _TEXT	
   StartLevel2  . . . . . . . . .	L Near	 000004B1 _TEXT	
@@ -1725,6 +2349,8 @@ ReadInt  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 ReadKeyFlush . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ReadKey  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ReadString . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SaveHighScore  . . . . . . . . .	P Near	 00000BFD _TEXT	Length= 00000085 Public STDCALL
+  no_new_high  . . . . . . . . .	L Near	 00000C81 _TEXT	
 SetConsoleCursorInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetConsoleCursorPosition . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetConsoleMode . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1744,6 +2370,17 @@ Str_length . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 Str_trim . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Str_ucase  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SystemTimeToFileTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+UpdateGhost1 . . . . . . . . . .	P Near	 0000096C _TEXT	Length= 000000D5 Public STDCALL
+  move_ghost_right . . . . . . .	L Near	 0000098F _TEXT	
+  move_right . . . . . . . . . .	L Near	 0000099B _TEXT	
+  move_ghost_left  . . . . . . .	L Near	 000009B8 _TEXT	
+  move_left  . . . . . . . . . .	L Near	 000009C4 _TEXT	
+  check_y_direction  . . . . . .	L Near	 000009E1 _TEXT	
+  move_ghost_down  . . . . . . .	L Near	 000009F1 _TEXT	
+  move_down  . . . . . . . . . .	L Near	 000009FC _TEXT	
+  move_ghost_up  . . . . . . . .	L Near	 00000A19 _TEXT	
+  move_up  . . . . . . . . . . .	L Near	 00000A24 _TEXT	
+UpdateLivesDisplay . . . . . . .	P Near	 00000B8B _TEXT	Length= 0000002A Public STDCALL
 WaitMsg  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WelcomeScreen  . . . . . . . . .	P Near	 0000005E _TEXT	Length= 00000139 Public STDCALL
 WriteBinB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1999,12 +2636,17 @@ blue . . . . . . . . . . . . . .	Number	 00000001h
 brown  . . . . . . . . . . . . .	Number	 00000006h   
 currentLevel . . . . . . . . . .	Byte	 00000D70 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
+exitKey  . . . . . . . . . . . .	Byte	 000015AB _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 fileName . . . . . . . . . . . .	Byte	 00000088 _DATA	
 gamePause1 . . . . . . . . . . .	Byte	 00000D20 _DATA	
 gamePause2 . . . . . . . . . . .	Byte	 00000D32 _DATA	
 gamePause3 . . . . . . . . . . .	Byte	 00000D47 _DATA	
 gamePause4 . . . . . . . . . . .	Byte	 00000D5B _DATA	
+ghost1Dir  . . . . . . . . . . .	Byte	 00000DC0 _DATA	
+ghost1X  . . . . . . . . . . . .	Byte	 00000DBE _DATA	
+ghost1Y  . . . . . . . . . . . .	Byte	 00000DBF _DATA	
+ghost2Dir  . . . . . . . . . . .	Byte	 00000DC1 _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 greenTxt . . . . . . . . . . . .	Number	 00000002h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
@@ -2067,6 +2709,13 @@ menutitle3 . . . . . . . . . . .	Byte	 000004EB _DATA
 menutitle4 . . . . . . . . . . .	Byte	 0000051A _DATA	
 menutitle5 . . . . . . . . . . .	Byte	 00000548 _DATA	
 midSound . . . . . . . . . . . .	Byte	 00000000 _DATA	
+moveDown . . . . . . . . . . . .	Byte	 000015A9 _DATA	
+moveLeft . . . . . . . . . . . .	Byte	 000015A8 _DATA	
+moveRight  . . . . . . . . . . .	Byte	 000015AA _DATA	
+moveUp . . . . . . . . . . . . .	Byte	 000015A7 _DATA	
+pacmanX  . . . . . . . . . . . .	Byte	 00000DBC _DATA	
+pacmanY  . . . . . . . . . . . .	Byte	 00000DBD _DATA	
+pellets  . . . . . . . . . . . .	Byte	 00000DC2 _DATA	
 playerName . . . . . . . . . . .	Byte	 00000D7A _DATA	
 playerText . . . . . . . . . . .	Byte	 00000DB2 _DATA	
 pmtitle10  . . . . . . . . . . .	Byte	 000003BB _DATA	
@@ -2088,6 +2737,8 @@ temp . . . . . . . . . . . . . .	Byte	 00000D6F _DATA
 userChoice . . . . . . . . . . .	Byte	 00000D6E _DATA	
 username . . . . . . . . . . . .	Byte	 000000A7 _DATA	
 wallChar . . . . . . . . . . . .	Byte	 00000DBB _DATA	
+wallCount  . . . . . . . . . . .	Byte	 000015A6 _DATA	
+walls  . . . . . . . . . . . . .	Byte	 00001592 _DATA	
 whiteTxt . . . . . . . . . . . .	Number	 0000000Fh   
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
@@ -2095,4 +2746,4 @@ yellowTxt  . . . . . . . . . . .	Number	 0000000Eh
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
 
 	   0 Warnings
-	   0 Errors
+	   33 Errors

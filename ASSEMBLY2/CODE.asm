@@ -122,7 +122,7 @@ INFO_START = 90
     temp db ?
     currentLevel db ?
 ;-----------------------------------------
-;level 1 vars
+;level 1 vars for drawing
     score dd 0
     highScore dd 0
     lives db 3
@@ -135,6 +135,40 @@ INFO_START = 90
     playerText db "PLAYER: ",0
     
     wallChar db '#'
+
+;------------------------------------------
+;level 1 logic vars
+    ; Player position
+    pacmanX db 40
+    pacmanY db 12
+    
+    ; Ghosts positions
+    ghost1X db 20
+    ghost1Y db 10
+
+    
+    ; Ghost directions (1=right, 2=left, 3=up, 4=down)
+    ghost1Dir db 1
+    ghost2Dir db 2
+    
+    ; Pellets array (0 = eaten, 1 = exists)
+    pellets db GAME_WIDTH * 25 dup(0)
+    
+    ; Wall positions (x,y,width,height)
+    walls db 10,5,15,1,   ; Horizontal wall
+          30,8,1,10,     ; Vertical wall
+          50,15,10,1,    ; Horizontal wall
+          20,20,5,1,     ; Horizontal wall
+          40,10,1,5      ; Vertical wall
+    wallCount db 5
+    
+    ; Movement keys
+    moveUp db 'W'
+    moveLeft db 'A'
+    moveDown db 'S'
+    moveRight db 'D'
+    exitKey db 'Q'        ; ESC key
+    
 
 
 .code
@@ -725,10 +759,95 @@ HighscoresScreen endp
 
 ;***********************************************************
 
-Level1Screen proc
 
+Level1Screen PROC
     call Clrscr
-   ; call levelSound
+    call levelSound
+    
+    ; Draw borders
+    call DrawBorders
+    
+    ; Draw walls
+    call DrawWallsLevel1
+    
+    ; Initialize pellets
+    call InitializePellets
+    
+    
+    ; Initialize ghost position
+    mov ghost1X, 20
+    mov ghost1Y, 10
+    
+    ; Draw initial positions
+    call DrawPlayer
+    call DrawGhost1
+    
+    ; Main game loop
+gameLoop:
+    ; Handle input
+    call ReadKey
+    jz no_input
+    mov inputChar, al
+    
+    ; Check for exit
+    cmp inputChar, 'Q'
+    je exitLevel
+    
+    ; Movement handling
+    cmp inputChar, 'W'
+    je moveUp
+    cmp inputChar, 'A'
+    je moveLeft
+    cmp inputChar, 'S'
+    je moveDown
+    cmp inputChar, 'D'
+    je moveRight
+    
+no_input:
+    ; Update ghost
+    call UpdateGhost1
+    
+    ; Check collisions
+    call CheckPelletCollision
+    call CheckGhostCollision
+    
+    ; Check win condition (all pellets collected)
+    cmp num_coins, 0
+    je levelComplete
+    
+    ; Delay for game speed
+    mov eax, 100
+    call Delay
+    
+    jmp gameLoop
+    
+moveUp:
+    ; Handle up movement
+    ; (Include wall collision checks)
+    jmp gameLoop
+    
+moveLeft:
+    ; Handle left movement
+    jmp gameLoop
+    
+moveDown:
+    ; Handle down movement
+    jmp gameLoop
+    
+moveRight:
+    ; Handle right movement
+    jmp gameLoop
+    
+levelComplete:
+    ; Handle level completion
+    inc currentLevel
+    ; Proceed to next level or game complete
+    
+exitLevel:
+    ret
+Level1Screen ENDP
+
+DrawBorders proc
 
     mov eax, blueTxt
     call SetTextColor
@@ -821,11 +940,433 @@ Level1Screen proc
     call WriteString
     mov edx, offset userName
     call WriteString
+      
+    ret
+DrawBorders endp
+
+DrawWallsLevel1 PROC
+    ; Set wall color
+    mov eax, lightblue
+    call SetTextColor
     
-  
+    ; First set of 2 horizontal walls
+    mov eax, 10      ; X position
+    mov ebx, 5       ; Y position
+    mov ecx, 15      ; Length
+    call DrawHorizontalWall
+    
+    mov eax, 10      ; X position
+    mov ebx, 6       ; Y position (right below first wall)
+    mov ecx, 15      ; Length
+    call DrawHorizontalWall
+    
+    ; Gap of 2 rows
+    
+    ; Next set of 5 horizontal walls
+    mov eax, 20      ; X position
+    mov ebx, 9       ; Y position
+    mov ecx, 10      ; Length
+    call DrawHorizontalWall
+    
+    mov eax, 20
+    mov ebx, 10
+    mov ecx, 10
+    call DrawHorizontalWall
+    
+    mov eax, 20
+    mov ebx, 11
+    mov ecx, 10
+    call DrawHorizontalWall
+    
+    mov eax, 20
+    mov ebx, 12
+    mov ecx, 10
+    call DrawHorizontalWall
+    
+    mov eax, 20
+    mov ebx, 13
+    mov ecx, 10
+    call DrawHorizontalWall
+    
+    ; Gap of 2 rows
+    
+    ; Next set of 2 horizontal walls
+    mov eax, 30
+    mov ebx, 16
+    mov ecx, 12
+    call DrawHorizontalWall
+    
+    mov eax, 30
+    mov ebx, 17
+    mov ecx, 12
+    call DrawHorizontalWall
+    
+    ; Final 2 vertical walls
+    mov eax, 40
+    mov ebx, 5
+    mov ecx, 10      ; Height
+    call DrawVerticalWall
+    
+    mov eax, 50
+    mov ebx, 5
+    mov ecx, 10
+    call DrawVerticalWall
     
     ret
-Level1Screen endp
+DrawWallsLevel1 ENDP
+
+DrawHorizontalWall PROC
+    ; Draws a horizontal wall
+    ; Input: eax = x, ebx = y, ecx = length
+    push eax
+    push ebx
+    push ecx
+    
+    mov dl, al      ; X position
+    mov dh, bl      ; Y position
+    call Gotoxy
+    
+    mov al, '#'     ; Wall character
+    draw_hor_loop:
+        call WriteChar
+        inc dl
+        loop draw_hor_loop
+    
+    pop ecx
+    pop ebx
+    pop eax
+    ret
+DrawHorizontalWall ENDP
+
+DrawVerticalWall PROC
+    ; Draws a vertical wall
+    ; Input: eax = x, ebx = y, ecx = height
+    push eax
+    push ebx
+    push ecx
+    
+    mov dl, al      ; X position
+    mov dh, bl      ; Y position
+    call Gotoxy
+    
+    mov al, '#'     ; Wall character
+    draw_vert_loop:
+        call WriteChar
+        inc dh
+        call Gotoxy
+        loop draw_vert_loop
+    
+    pop ecx
+    pop ebx
+    pop eax
+    ret
+DrawVerticalWall ENDP
+
+UpdateGhost1 PROC
+    ; Ghost movement logic - tries to come closer to Pacman
+    ; Compare ghost position with pacman position
+    
+    ; First check X direction
+    mov al, ghost1X
+    cmp al, pacmanX
+    jl move_ghost_right   ; If ghost is left of pacman, move right
+    jg move_ghost_left    ; If ghost is right of pacman, move left
+    
+    ; If X positions are equal, check Y direction
+    mov al, ghost1Y
+    cmp al, pacmanY
+    jl move_ghost_down    ; If ghost is above pacman, move down
+    jg move_ghost_up      ; If ghost is below pacman, move up
+    
+    ; If positions are equal, don't move
+    ret
+    
+move_ghost_right:
+    call CanMoveRight
+    cmp dl, 1
+    je move_right
+    jmp check_y_direction
+    
+move_right:
+    call UpdateGhost
+    inc ghost1X
+    call DrawGhost1
+    ret
+    
+move_ghost_left:
+    call CanMoveLeft
+    cmp dl, 1
+    je move_left
+    jmp check_y_direction
+    
+move_left:
+    call UpdateGhost
+    dec ghost1X
+    call DrawGhost1
+    ret
+    
+check_y_direction:
+    mov al, ghost1Y
+    cmp al, pacmanY
+    jl move_ghost_down
+    jg move_ghost_up
+    ret
+    
+move_ghost_down:
+    call CanMoveDown
+    cmp dl, 1
+    je move_down
+    ret
+    
+move_down:
+    call UpdateGhost
+    inc ghost1Y
+    call DrawGhost1
+    ret
+    
+move_ghost_up:
+    call CanMoveUp
+    cmp dl, 1
+    je move_up
+    ret
+    
+move_up:
+    call UpdateGhost
+    dec ghost1Y
+    call DrawGhost1
+    ret
+UpdateGhost1 ENDP
+
+CanMoveRight PROC
+    ; Check if ghost can move right
+    movzx ecx, ghost1X
+    inc ecx             ; Check position to the right
+    movzx edx, ghost1Y
+    call CheckWallCollision
+    ret
+CanMoveRight ENDP
+
+CanMoveLeft PROC
+    ; Check if ghost can move left
+    movzx ecx, ghost1X
+    dec ecx             ; Check position to the left
+    movzx edx, ghost1Y
+    call CheckWallCollision
+    ret
+CanMoveLeft ENDP
+
+CanMoveUp PROC
+    ; Check if ghost can move up
+    movzx ecx, ghost1X
+    movzx edx, ghost1Y
+    dec edx             ; Check position above
+    call CheckWallCollision
+    ret
+CanMoveUp ENDP
+
+CanMoveDown PROC
+    ; Check if ghost can move down
+    movzx ecx, ghost1X
+    movzx edx, ghost1Y
+    inc edx             ; Check position below
+    call CheckWallCollision
+    ret
+CanMoveDown ENDP
+
+CheckWallCollision PROC
+    ; Checks if position (ecx, edx) is a wall
+    ; Returns dl = 1 if can move (no wall), dl = 0 if wall
+    mov ebx, ecx
+    imul ebx, 30        ; Assuming grid is 70x30
+    add ebx, edx
+    mov al, BYTE PTR [grid + ebx]
+    cmp al, 1           ; 1 represents wall
+    je is_wall
+    mov dl, 1           ; Can move
+    ret
+is_wall:
+    mov dl, 0           ; Cannot move
+    ret
+CheckWallCollision ENDP
+
+InitializePellets PROC
+    ; Initialize pellets for Level 1
+    mov ecx, 50         ; Number of pellets for Level 1
+    mov num_coins, cl
+    
+    ; Clear pellet array
+    mov edi, OFFSET pellets
+    mov ecx, GAME_WIDTH * 25
+    mov al, 0
+    rep stosb
+    
+    ; Place pellets in valid positions
+    mov ecx, 50
+place_pellets:
+    call GetRandomPosition
+    ; Check if position is valid (not wall and not already pellet)
+    mov ebx, eax
+    imul ebx, 30
+    add ebx, edx
+    cmp BYTE PTR [grid + ebx], 1   ; Wall
+    je place_pellets
+    cmp BYTE PTR [pellets + ebx], 1 ; Already pellet
+    je place_pellets
+    
+    ; Place pellet
+    mov BYTE PTR [pellets + ebx], 1
+    
+    ; Draw pellet
+    mov dl, al
+    mov dh, dl
+    call Gotoxy
+    mov al, '.'
+    call WriteChar
+    
+    loop place_pellets
+    
+    ret
+InitializePellets ENDP
+
+GetRandomPosition PROC
+    ; Returns random position in eax (x), edx (y)
+    mov eax, GAME_WIDTH - 2
+    call RandomRange
+    inc eax             ; Avoid left border
+    mov edx, eax        ; Save x in edx
+    
+    mov eax, 24         ; 25 rows (0-24)
+    call RandomRange
+    inc eax             ; Avoid top border
+    
+    xchg eax, edx       ; Now eax has x, edx has y
+    ret
+GetRandomPosition ENDP
+
+CheckPelletCollision PROC
+    ; Check if pacman is on a pellet
+    movzx eax, pacmanX
+    movzx edx, pacmanY
+    mov ebx, eax
+    imul ebx, 30
+    add ebx, edx
+    cmp BYTE PTR [pellets + ebx], 1
+    jne no_pellet
+    
+    ; Pellet collected
+    mov BYTE PTR [pellets + ebx], 0  ; Remove pellet
+    inc score
+    
+    ; Update score display
+    mov eax, yellow
+    call SetTextColor
+    mov dl, 75
+    mov dh, 5
+    call Gotoxy
+    mov edx, OFFSET scoreText
+    call WriteString
+    mov eax, score
+    call WriteDec
+    
+    dec num_coins       ; Decrement remaining pellets
+    
+no_pellet:
+    ret
+CheckPelletCollision ENDP
+
+UpdateLivesDisplay PROC
+    ; Update lives display
+    mov eax, lightblue
+    call SetTextColor
+    mov dl, 75
+    mov dh, 9
+    call Gotoxy
+    mov edx, OFFSET livesText
+    call WriteString
+    movzx eax, lives
+    call WriteDec
+    ret
+UpdateLivesDisplay ENDP
+
+CheckGhostCollision PROC
+    ; Check collision with ghost
+    mov al, ghost1X
+    cmp al, pacmanX
+    jne no_collision
+    mov al, ghost1Y
+    cmp al, pacmanY
+    jne no_collision
+    
+    ; Collision occurred
+    dec lives
+    call UpdateLivesDisplay
+    
+    ; Reset positions
+    mov pacmanX, 40
+    mov pacmanY, 12
+    
+    ; Check if game over
+    cmp lives, 0
+    jg no_collision
+    call GameOver
+    
+no_collision:
+    ret
+CheckGhostCollision ENDP
+
+GameOver PROC
+    ; Handle game over
+    call SaveHighScore
+    ; Display game over message
+    ; Return to menu
+    ret
+GameOver ENDP
+
+SaveHighScore PROC
+    ; Save highscore to file if current score is higher
+    mov eax, score
+    cmp eax, highScore
+    jle no_new_high
+    
+    ; New high score
+    mov highScore, eax
+    
+    ; Open file for writing
+    mov edx, OFFSET fileName
+    call CreateOutputFile
+    mov fileHandle, eax
+    
+    ; Write player name and score
+    mov edx, OFFSET userName
+    mov ecx, LENGTHOF userName
+    call WriteToFile
+    
+    ; Write space separator
+    mov edx, OFFSET space
+    mov ecx, 1
+    call WriteToFile
+    
+    ; Write score
+    mov eax, score
+    call WriteInt
+    
+    ; Write space separator
+    mov edx, OFFSET space
+    mov ecx, 1
+    call WriteToFile
+    
+    ; Write level
+    mov al, currentLevel
+    call WriteInt
+    
+    ; Close file
+    mov eax, fileHandle
+    call CloseFile
+    
+no_new_high:
+    ret
+SaveHighScore ENDP
+
 
 ;-----------------------------------------------------
 
@@ -836,3 +1377,4 @@ Level3Screen proc
 Level3Screen endp
 
 end main
+
