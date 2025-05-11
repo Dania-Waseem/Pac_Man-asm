@@ -1558,57 +1558,64 @@ CheckGhostWallCollision PROC
 CheckGhostWallCollision ENDP
 ;............................................
 CheckGhostCollision PROC
-    ; Check if Pac-Man hit ghost
+    ; Check X proximity (pacmanX - ghostX <= 1)
     mov al, pacmanX
-    cmp al, ghostX
-    jne NoCollision
+    sub al, ghostX
+    cmp al, -1
+    jl NoCollisionX
+    cmp al, 1
+    jg NoCollisionX
+
+    ; Check Y proximity
     mov al, pacmanY
-    cmp al, ghostY
-    jne NoCollision
-    
-    ; Collision occurred - decrease lives
+    sub al, ghostY
+    cmp al, -1
+    jl NoCollision
+    cmp al, 1
+    jg NoCollision
+
+    ; Close enough in both X and Y — COLLISION
     dec lives
-    
-    ; Update lives display immediately
+
+    ; Update lives display
     mov eax, whiteTxt
     call SetTextColor
     mov dh, 0
-    mov dl, 7  ; Position after "Lives: "
+    mov dl, 7
     call Gotoxy
-    
-    ; CORRECTED: Proper way to load byte into EAX
-    mov eax, lives     ; Load byte into AL
-    movzx eax, al     ; Zero-extend to EAX
+    mov eax, lives
+    movzx eax, al
     call WriteDec
-    
-    ; Clear old ghost position before resetting
+
+    ; Clear ghost from screen
     mov dl, ghostX
     mov dh, ghostY
     call Gotoxy
     mov al, emptyChar
     call WriteChar
-    
+
     ; Reset positions
     mov pacmanX, 10
     mov pacmanY, 15
     mov ghostX, 50
     mov ghostY, 15
-    
-    ; Check if game over (lives == 0)
+
     cmp lives, 0
     jle GameOver
-    
-    mov eax, 0  ; Return 0 = collision but game continues
+
+    mov eax, 0
     ret
-    
-GameOver:
-    mov eax, 1  ; Return 1 = game over
-    ret
-    
+
+NoCollisionX:
 NoCollision:
-    mov eax, 0  ; Return 0 = no collision
+    mov eax, 0
+    ret
+
+GameOver:
+    mov eax, 1
     ret
 CheckGhostCollision ENDP
+
 ;......................................
 
 

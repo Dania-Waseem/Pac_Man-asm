@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/12/25 02:55:36
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/12/25 03:02:25
 CODE.asm						     Page 1 - 1
 
 
@@ -1418,12 +1418,12 @@ CODE.asm						     Page 1 - 1
  000004B7			StartLevel2:
  000004B7  C6 05 00000F76 R	    mov currentLevel, 2
 	   02
- 000004BE  E8 00000A0B		    call Level2Screen  
+ 000004BE  E8 00000A1B		    call Level2Screen  
 
  000004C3			StartLevel3:
  000004C3  C6 05 00000F76 R	    mov currentLevel, 3
 	   03
- 000004CA  E8 000009FF		    call Level3Screen  
+ 000004CA  E8 00000A0F		    call Level3Screen  
 				    
  000004CF			ReturnToMenu:
  000004CF  C3			    ret
@@ -2374,77 +2374,84 @@ CODE.asm						     Page 1 - 1
  00000E3C			CheckGhostWallCollision ENDP
 				;............................................
  00000E3C			CheckGhostCollision PROC
-				    ; Check if Pac-Man hit ghost
+				    ; Check X proximity (pacmanX - ghostX <= 1)
  00000E3C  A0 00000FC9 R	    mov al, pacmanX
- 00000E41  3A 05 00000FCB R	    cmp al, ghostX
- 00000E47  75 7F		    jne NoCollision
- 00000E49  A0 00000FCA R	    mov al, pacmanY
- 00000E4E  3A 05 00000FCC R	    cmp al, ghostY
- 00000E54  75 72		    jne NoCollision
-				    
-				    ; Collision occurred - decrease lives
- 00000E56  FF 0D 00000FD1 R	    dec lives
-				    
-				    ; Update lives display immediately
- 00000E5C  B8 0000000F		    mov eax, whiteTxt
- 00000E61  E8 00000000 E	    call SetTextColor
- 00000E66  B6 00		    mov dh, 0
- 00000E68  B2 07		    mov dl, 7  ; Position after "Lives: "
- 00000E6A  E8 00000000 E	    call Gotoxy
-				    
-				    ; CORRECTED: Proper way to load byte into EAX
- 00000E6F  A1 00000FD1 R	    mov eax, lives     ; Load byte into AL
- 00000E74  0F B6 C0		    movzx eax, al     ; Zero-extend to EAX
- 00000E77  E8 00000000 E	    call WriteDec
-				    
-				    ; Clear old ghost position before resetting
- 00000E7C  8A 15 00000FCB R	    mov dl, ghostX
- 00000E82  8A 35 00000FCC R	    mov dh, ghostY
- 00000E88  E8 00000000 E	    call Gotoxy
- 00000E8D  A0 00000F99 R	    mov al, emptyChar
- 00000E92  E8 00000000 E	    call WriteChar
-				    
+ 00000E41  2A 05 00000FCB R	    sub al, ghostX
+ 00000E47  3C FF		    cmp al, -1
+ 00000E49  0F 8C 00000083	    jl NoCollisionX
+ 00000E4F  3C 01		    cmp al, 1
+ 00000E51  7F 7F		    jg NoCollisionX
+
+				    ; Check Y proximity
+ 00000E53  A0 00000FCA R	    mov al, pacmanY
+ 00000E58  2A 05 00000FCC R	    sub al, ghostY
+ 00000E5E  3C FF		    cmp al, -1
+ 00000E60  7C 70		    jl NoCollision
+ 00000E62  3C 01		    cmp al, 1
+ 00000E64  7F 6C		    jg NoCollision
+
+				    ; Close enough in both X and Y — COLLISION
+ 00000E66  FF 0D 00000FD1 R	    dec lives
+
+				    ; Update lives display
+ 00000E6C  B8 0000000F		    mov eax, whiteTxt
+ 00000E71  E8 00000000 E	    call SetTextColor
+ 00000E76  B6 00		    mov dh, 0
+ 00000E78  B2 07		    mov dl, 7
+ 00000E7A  E8 00000000 E	    call Gotoxy
+ 00000E7F  A1 00000FD1 R	    mov eax, lives
+ 00000E84  0F B6 C0		    movzx eax, al
+ 00000E87  E8 00000000 E	    call WriteDec
+
+				    ; Clear ghost from screen
+ 00000E8C  8A 15 00000FCB R	    mov dl, ghostX
+ 00000E92  8A 35 00000FCC R	    mov dh, ghostY
+ 00000E98  E8 00000000 E	    call Gotoxy
+ 00000E9D  A0 00000F99 R	    mov al, emptyChar
+ 00000EA2  E8 00000000 E	    call WriteChar
+
 				    ; Reset positions
- 00000E97  C6 05 00000FC9 R	    mov pacmanX, 10
+ 00000EA7  C6 05 00000FC9 R	    mov pacmanX, 10
 	   0A
- 00000E9E  C6 05 00000FCA R	    mov pacmanY, 15
+ 00000EAE  C6 05 00000FCA R	    mov pacmanY, 15
 	   0F
- 00000EA5  C6 05 00000FCB R	    mov ghostX, 50
+ 00000EB5  C6 05 00000FCB R	    mov ghostX, 50
 	   32
- 00000EAC  C6 05 00000FCC R	    mov ghostY, 15
+ 00000EBC  C6 05 00000FCC R	    mov ghostY, 15
 	   0F
-				    
-				    ; Check if game over (lives == 0)
- 00000EB3  83 3D 00000FD1 R	    cmp lives, 0
+
+ 00000EC3  83 3D 00000FD1 R	    cmp lives, 0
 	   00
- 00000EBA  7E 06		    jle GameOver
-				    
- 00000EBC  B8 00000000		    mov eax, 0  ; Return 0 = collision but game continues
- 00000EC1  C3			    ret
-				    
- 00000EC2			GameOver:
- 00000EC2  B8 00000001		    mov eax, 1  ; Return 1 = game over
- 00000EC7  C3			    ret
-				    
- 00000EC8			NoCollision:
- 00000EC8  B8 00000000		    mov eax, 0  ; Return 0 = no collision
- 00000ECD  C3			    ret
- 00000ECE			CheckGhostCollision ENDP
+ 00000ECA  7E 0C		    jle GameOver
+
+ 00000ECC  B8 00000000		    mov eax, 0
+ 00000ED1  C3			    ret
+
+ 00000ED2			NoCollisionX:
+ 00000ED2			NoCollision:
+ 00000ED2  B8 00000000		    mov eax, 0
+ 00000ED7  C3			    ret
+
+ 00000ED8			GameOver:
+ 00000ED8  B8 00000001		    mov eax, 1
+ 00000EDD  C3			    ret
+ 00000EDE			CheckGhostCollision ENDP
+
 				;......................................
 
 
- 00000ECE			Level2Screen proc
- 00000ECE			Level2Screen endp
+ 00000EDE			Level2Screen proc
+ 00000EDE			Level2Screen endp
 
- 00000ECE			Level3Screen proc
- 00000ECE			Level3Screen endp
+ 00000EDE			Level3Screen proc
+ 00000EDE			Level3Screen endp
 
 				end main
 
 
 
 
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/12/25 02:55:36
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/12/25 03:02:25
 CODE.asm						     Symbols 2 - 1
 
 
@@ -2539,16 +2546,17 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 00001017 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000ECE Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000EDE Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-CheckGhostCollision  . . . . . .	P Near	 00000E3C _TEXT	Length= 00000092 Public STDCALL
-  GameOver . . . . . . . . . . .	L Near	 00000EC2 _TEXT	
-  NoCollision  . . . . . . . . .	L Near	 00000EC8 _TEXT	
+CheckGhostCollision  . . . . . .	P Near	 00000E3C _TEXT	Length= 000000A2 Public STDCALL
+  NoCollisionX . . . . . . . . .	L Near	 00000ED2 _TEXT	
+  NoCollision  . . . . . . . . .	L Near	 00000ED2 _TEXT	
+  GameOver . . . . . . . . . . .	L Near	 00000ED8 _TEXT	
 CheckGhostWallCollision  . . . .	P Near	 00000E2A _TEXT	Length= 00000012 Public STDCALL
 CheckPelletCollision . . . . . .	P Near	 00000C10 _TEXT	Length= 00000062 Public STDCALL
   CheckPellets . . . . . . . . .	L Near	 00000C1B _TEXT	
@@ -2656,8 +2664,8 @@ Level1Screen . . . . . . . . . .	P Near	 0000064C _TEXT	Length= 00000359 Public 
   WaitForInput . . . . . . . . .	L Near	 000008E0 _TEXT	
   LevelCompleteScreen  . . . . .	L Near	 000008EA _TEXT	
   WaitForInput2  . . . . . . . .	L Near	 0000099B _TEXT	
-Level2Screen . . . . . . . . . .	P Near	 00000ECE _TEXT	Length= 00000000 Public STDCALL
-Level3Screen . . . . . . . . . .	P Near	 00000ECE _TEXT	Length= 00000000 Public STDCALL
+Level2Screen . . . . . . . . . .	P Near	 00000EDE _TEXT	Length= 00000000 Public STDCALL
+Level3Screen . . . . . . . . . .	P Near	 00000EDE _TEXT	Length= 00000000 Public STDCALL
 LevelSelectScreen  . . . . . . .	P Near	 00000318 _TEXT	Length= 000001C4 Public STDCALL
   StartLevel1  . . . . . . . . .	L Near	 000004AA _TEXT	
   StartLevel2  . . . . . . . . .	L Near	 000004B7 _TEXT	
