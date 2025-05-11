@@ -183,6 +183,13 @@ oldPacmanY db ?
     ghostDir db 1  ; 1=right, 2=left, 3=up, 4=down
     oldGhostX db ?
     oldGhostY db ?
+
+;...................
+;pause variables
+    pauseMsg db "PRESS Q TO PAUSE GAME",0
+    pausedMsg db "GAME PAUSED - PRESS Q TO RESUME ",0
+    gamePaused db 0
+    prevPauseState db 0  ; To track state changes
 .code
 main proc
     call Clrscr
@@ -771,7 +778,8 @@ HighscoresScreen proc
 HighscoresScreen endp
 
 ;***********************************************************
-
+;***********************************************************
+;***********************************************************
 Level1Screen PROC
     call Clrscr
     call levelSound
@@ -787,20 +795,22 @@ Level1Screen PROC
     mov oldGhostY, 15
     mov score, 0
     mov pelletCount, 20
+    mov gamePaused, 0     ; Initialize pause state
 
     call InitializePellets
     call DrawStaticElements
 
 GameLoop:
-
-    call ClearOldPositions
-    call GhostMovement
-    call DrawGameElements
-
-    ; Handle input
     call ReadKey
-    jz NoInput
+    jz NoPlayerInput     ; No key pressed
 
+    ; Check for pause input
+    cmp al, 'q'
+    je TogglePause
+    cmp al, 'Q'
+    je TogglePause
+
+    ; Handle movement and menu keys
     cmp al, 'w'
     je MoveUp
     cmp al, 'a'
@@ -811,15 +821,13 @@ GameLoop:
     je MoveRight
     cmp al, '1'    ; Return to menu
     je ExitLevel
-    jmp NoInput
+    jmp NoPlayerInput
 
 MoveUp:
-    ; Save current position as old position
     mov al, pacmanX
     mov oldPacmanX, al
     mov al, pacmanY
     mov oldPacmanY, al
-    
     dec pacmanY
     call CheckWallCollision
     jc CancelMoveUp
@@ -829,12 +837,10 @@ CancelMoveUp:
     jmp AfterMove
 
 MoveLeft:
-    ; Save current position as old position
     mov al, pacmanX
     mov oldPacmanX, al
     mov al, pacmanY
     mov oldPacmanY, al
-    
     dec pacmanX
     call CheckWallCollision
     jc CancelMoveLeft
@@ -844,12 +850,10 @@ CancelMoveLeft:
     jmp AfterMove
 
 MoveDown:
-    ; Save current position as old position
     mov al, pacmanX
     mov oldPacmanX, al
     mov al, pacmanY
     mov oldPacmanY, al
-    
     inc pacmanY
     call CheckWallCollision
     jc CancelMoveDown
@@ -859,12 +863,10 @@ CancelMoveDown:
     jmp AfterMove
 
 MoveRight:
-    ; Save current position as old position
     mov al, pacmanX
     mov oldPacmanX, al
     mov al, pacmanY
     mov oldPacmanY, al
-    
     inc pacmanX
     call CheckWallCollision
     jc CancelMoveRight
@@ -874,19 +876,65 @@ CancelMoveRight:
     jmp AfterMove
 
 AfterMove:
-    ; Check pellet collisions
     call CheckPelletCollision
     call CheckGhostCollision
     cmp eax, 1
     je GameOverScreen
-NoInput:
+
+NoPlayerInput:
+    ; Skip ghost and game logic if paused
+    cmp gamePaused, 1
+    je PausedLoop
+
+    call ClearOldPositions
+    call GhostMovement
+    call DrawGameElements
+
     ; Small delay
     mov eax, 100
     call Delay
 
-    ; Check if all pellets collected
+    ; Check win condition
     cmp pelletCount, 0
     jne GameLoop
+    je LevelCompleteScreen
+
+PausedLoop:
+    ; Show pause message once
+    mov eax, yellowTxt
+    call SetTextColor
+    mov dh, 12
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET pausedMsg
+    call WriteString
+
+WaitWhilePaused:
+    call ReadKey
+    jz WaitWhilePaused
+
+    cmp al, 'q'
+    je TogglePause
+    cmp al, 'Q'
+    je TogglePause
+    jmp WaitWhilePaused
+
+TogglePause:
+    xor gamePaused, 1
+
+    ; Clear pause message
+    mov eax, blackTxt
+    call SetTextColor
+    mov dh, 12
+    mov dl, 20
+    call Gotoxy
+    mov ecx, 40
+ClearPauseText:
+    mov al, ' '
+    call WriteChar
+    loop ClearPauseText
+
+    jmp GameLoop
 
 ExitLevel:
     ret
@@ -895,32 +943,32 @@ GameOverScreen:
     call Clrscr
     mov eax, redTxt
     call SetTextColor
-    
+
     ; Draw game over message
     mov dh, 5
     mov dl, 20
     call Gotoxy
     mov edx, OFFSET gameOverMsg1
     call WriteString
-    
+
     mov dh, 6
     mov dl, 20
     call Gotoxy
     mov edx, OFFSET gameOverMsg2
     call WriteString
-    
+
     mov dh, 6
     mov dl, 20
     call Gotoxy
     mov edx, OFFSET gameOverMsg3
     call WriteString
-    
+
     mov dh, 7
     mov dl, 20
     call Gotoxy
     mov edx, OFFSET gameOverMsg4
     call WriteString
-    
+
     mov dh, 8
     mov dl, 20
     call Gotoxy
@@ -935,16 +983,15 @@ GameOverScreen:
     call WriteString
     mov eax, score
     call WriteDec
-    
+
     ; Display return option
     mov dh, 14
     mov dl, 20
     call Gotoxy
     mov edx, OFFSET returnOption
     call WriteString
-    
-    ; Wait for input
-    WaitForInput:
+
+WaitForInput:
     call ReadChar
     cmp al, '1'
     jne WaitForInput
@@ -954,20 +1001,20 @@ LevelCompleteScreen:
     call Clrscr
     mov eax, greenTxt
     call SetTextColor
-    
+
     ; Draw level complete message
     mov dh, 5
     mov dl, 20
     call Gotoxy
     mov edx, OFFSET levelCompleteMsg1
     call WriteString
-    
+
     mov dh, 6
     mov dl, 20
     call Gotoxy
     mov edx, OFFSET levelCompleteMsg2
     call WriteString
-    
+
     mov dh, 7
     mov dl, 20
     call Gotoxy
@@ -992,7 +1039,6 @@ LevelCompleteScreen:
     mov edx, OFFSET levelCompleteMsg6
     call WriteString
 
-
     ; Display score
     mov dh, 12
     mov dl, 20
@@ -1001,22 +1047,26 @@ LevelCompleteScreen:
     call WriteString
     mov eax, score
     call WriteDec
-    
+
     ; Display return option
     mov dh, 14
     mov dl, 20
     call Gotoxy
     mov edx, OFFSET returnOption
     call WriteString
-    
-    ; Wait for input
-    WaitForInput2:
+
+WaitForInput2:
     call ReadChar
     cmp al, '1'
     jne WaitForInput2
     ret
+
 Level1Screen ENDP
-;;...........................................
+;***********************************************************
+
+;***********************************************************
+
+;...........................................
 DrawStaticElements PROC
     ; Draw info bar
     mov eax, whiteTxt
@@ -1043,6 +1093,12 @@ DrawStaticElements PROC
     call WriteString
     mov eax, level
     call WriteDec
+
+    mov dh, 4       
+    mov dl, 1
+    call Gotoxy
+    mov edx, OFFSET pauseMsg
+    call WriteString
 
     ; Draw borders and walls (your existing code)
     ; Top border
@@ -1095,7 +1151,7 @@ sideBorders:
     
     ret
 DrawStaticElements ENDP
-;;...........................................
+;...........................................
 DrawGameElements PROC
     ; Draw pellets
     mov eax, purpleTxt
@@ -1553,7 +1609,9 @@ NoCollision:
     mov eax, 0  ; Return 0 = no collision
     ret
 CheckGhostCollision ENDP
-;..............................................
+;......................................
+
+
 Level2Screen proc
 Level2Screen endp
 
