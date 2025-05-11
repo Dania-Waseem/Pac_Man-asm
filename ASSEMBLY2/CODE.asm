@@ -56,8 +56,8 @@ include irvine32.inc
     level3opt3 db "*     *        * *    *      *             *  ",0
     level3opt4 db "***** *****     *     *****  *****     *****  ",0
 
-    leveloptchoose1 db " Enter you choice (1: Level 1, 2: Level 2 , 3: Level 3)",0
-    leveloptchoose2 db " Return to Main Menu (press 4), Exit Game (press 5)",0
+    leveloptchoose1 db " Enter you choice (1: Level 1, 2: Level 2 , 3: Level 3) ",0
+    leveloptchoose2 db " Return to Main Menu (press 4), Exit Game (press 5) ",0
 
 
     instruc1 db "                          INSTRUCTIONS                             ",0
@@ -70,7 +70,7 @@ include irvine32.inc
     instruc8 db "________________________________________________________________________",0
     instruc9 db "------------------------------------------------------------------------",0
 
-    instrucChoose db "Press 1 to return to menu, Press 2 to Exit Game",0
+    instrucChoose db "Press 1 to return to menu, Press 2 to Exit Game: ",0
 
     hsTitle0 db "        ______        _____  _____ ______ _____ _____ _____  ",0
     hsTitle1 db "|   | | |      |   |  |      |     |    | |   | |     |      ",0
@@ -89,7 +89,7 @@ include irvine32.inc
     yellowTxt =yellow+(black*16);
     greenTxt =green+ (black*16);
     blueTxt =blue+ (black*16);
-    whiteTxt =white+ (black*16);
+    whiteTxt =white+ (black *16);
 
     userChoice db ?
     temp db ?
@@ -199,6 +199,9 @@ WelcomeScreen proc
     mov ecx, lengthof userName
     call ReadString
 
+    mov dh, 22
+    mov dl,11
+    call Gotoxy
     mov edx, offset temp
     call WaitMsg
     call Clrscr
@@ -342,131 +345,126 @@ LevelSelectScreen proc
     mov eax, blueTxt
     call SetTextColor
     
-    mov dh, 5
-    mov dl, 30
-    call Gotoxy
-    mov edx, offset menutitle0
-    call WriteString
     
-    ; Display level options
-    mov eax, greenTxt
+    ; level options
+    mov eax, redTxt
     call SetTextColor
     
     ; Level 1
-    mov dh, 10
+    mov dh, 5
     mov dl, 30
     call Gotoxy
     mov edx, offset level1opt0
     call WriteString
     
-    mov dh, 11
+    mov dh, 6
     mov dl, 30
     call Gotoxy
     mov edx, offset level1opt1
     call WriteString
     
-    mov dh, 12
+    mov dh, 7
     mov dl, 30
     call Gotoxy
     mov edx, offset level1opt2
     call WriteString
     
-    mov dh, 13
+    mov dh, 8
     mov dl, 30
     call Gotoxy
     mov edx, offset level1opt3
     call WriteString
     
-    mov dh, 14
+    mov dh, 9
     mov dl, 30
     call Gotoxy
     mov edx, offset level1opt4
     call WriteString
     
     ; Level 2
-    mov dh, 16
+    mov dh, 10
     mov dl, 30
     call Gotoxy
     mov edx, offset level2opt0
     call WriteString
     
-    mov dh, 17
+    mov dh, 11
     mov dl, 30
     call Gotoxy
     mov edx, offset level2opt1
     call WriteString
     
-    mov dh, 18
+    mov dh, 12
     mov dl, 30
     call Gotoxy
     mov edx, offset level2opt2
     call WriteString
     
-    mov dh, 19
+    mov dh, 13
     mov dl, 30
     call Gotoxy
     mov edx, offset level2opt3
     call WriteString
     
-    mov dh, 20
+    mov dh, 14
     mov dl, 30
     call Gotoxy
     mov edx, offset level2opt4
     call WriteString
     
     ; Level 3
-    mov dh, 22
+    mov dh, 15
     mov dl, 30
     call Gotoxy
     mov edx, offset level3opt0
     call WriteString
     
-    mov dh, 23
+    mov dh, 16
     mov dl, 30
     call Gotoxy
     mov edx, offset level3opt1
     call WriteString
     
-    mov dh, 24
+    mov dh, 17
     mov dl, 30
     call Gotoxy
     mov edx, offset level3opt2
     call WriteString
     
-    mov dh, 25
+    mov dh, 18
     mov dl, 30
     call Gotoxy
     mov edx, offset level3opt3
     call WriteString
     
-    mov dh, 26
+    mov dh, 19
     mov dl, 30
     call Gotoxy
     mov edx, offset level3opt4
     call WriteString
     
-    ; Get user choice
+    ;user choice
     mov eax, whiteTxt
     call SetTextColor
     
-    mov dh, 28
+    mov dh, 22
     mov dl, 20
     call Gotoxy
     mov edx, offset leveloptchoose1
     call WriteString
     
-    mov dh, 29
+    mov dh, 23
     mov dl, 20
     call Gotoxy
     mov edx, offset leveloptchoose2
     call WriteString
     
-    mov dh, 30
+    mov dh, 24
     mov dl, 20
     call Gotoxy
     call ReadInt
     
-    ; Process choice
+    ; Processing choice made
     cmp al, 4
     je ReturnToMenu
     cmp al, 5
@@ -567,7 +565,7 @@ HighscoresScreen proc
 
     call Clrscr
     
-    ; Display highscores title
+
     mov eax, yellowTxt
     call SetTextColor
     
@@ -609,7 +607,7 @@ HighscoresScreen proc
     mov dh, 12
     mov dl, 30
     call Gotoxy
-    mov edx, offset menuoptchoose
+    mov edx, offset instrucChoose
     call WriteString
     
     call ReadInt

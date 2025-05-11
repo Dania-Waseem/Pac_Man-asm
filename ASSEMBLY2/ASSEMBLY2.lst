@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/10/25 23:49:53
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/11/25 13:58:54
 CODE.asm						     Page 1 - 1
 
 
@@ -489,7 +489,7 @@ CODE.asm						     Page 1 - 1
 	   2A 2A 2A 2A 20
 	   20 00
 
- 00000891 20 45 6E 74 65	    leveloptchoose1 db " Enter you choice (1: Level 1, 2: Level 2 , 3: Level 3)",0
+ 00000891 20 45 6E 74 65	    leveloptchoose1 db " Enter you choice (1: Level 1, 2: Level 2 , 3: Level 3) ",0
 	   72 20 79 6F 75
 	   20 63 68 6F 69
 	   63 65 20 28 31
@@ -500,8 +500,8 @@ CODE.asm						     Page 1 - 1
 	   32 20 2C 20 33
 	   3A 20 4C 65 76
 	   65 6C 20 33 29
-	   00
- 000008C9 20 52 65 74 75	    leveloptchoose2 db " Return to Main Menu (press 4), Exit Game (press 5)",0
+	   20 00
+ 000008CA 20 52 65 74 75	    leveloptchoose2 db " Return to Main Menu (press 4), Exit Game (press 5) ",0
 	   72 6E 20 74 6F
 	   20 4D 61 69 6E
 	   20 4D 65 6E 75
@@ -511,10 +511,10 @@ CODE.asm						     Page 1 - 1
 	   74 20 47 61 6D
 	   65 20 28 70 72
 	   65 73 73 20 35
-	   29 00
+	   29 20 00
 
 
- 000008FD 20 20 20 20 20	    instruc1 db "                          INSTRUCTIONS                             ",0
+ 000008FF 20 20 20 20 20	    instruc1 db "                          INSTRUCTIONS                             ",0
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 20 20 20
@@ -528,7 +528,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 20 20
 	   20 20 00
- 00000941 5F 5F 5F 5F 5F	    instruc2 db "_______________________________________________________________________",0
+ 00000943 5F 5F 5F 5F 5F	    instruc2 db "_______________________________________________________________________",0
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
@@ -543,7 +543,7 @@ CODE.asm						     Page 1 - 1
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
 	   5F 00
- 00000989 2D 2D 2D 2D 2D	    instruc3 db "-----------------------------------------------------------------------",0
+ 0000098B 2D 2D 2D 2D 2D	    instruc3 db "-----------------------------------------------------------------------",0
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
@@ -558,7 +558,7 @@ CODE.asm						     Page 1 - 1
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
 	   2D 00
- 000009D1 20 31 2E 20 54	    instruc4 db " 1. To earn points eat the pellets.",0
+ 000009D3 20 31 2E 20 54	    instruc4 db " 1. To earn points eat the pellets.",0
 	   6F 20 65 61 72
 	   6E 20 70 6F 69
 	   6E 74 73 20 65
@@ -566,7 +566,7 @@ CODE.asm						     Page 1 - 1
 	   65 20 70 65 6C
 	   6C 65 74 73 2E
 	   00
- 000009F5 20 32 2E 20 45	    instruc5 db " 2. Each pellet is worth one point.",0
+ 000009F7 20 32 2E 20 45	    instruc5 db " 2. Each pellet is worth one point.",0
 	   61 63 68 20 70
 	   65 6C 6C 65 74
 	   20 69 73 20 77
@@ -574,7 +574,7 @@ CODE.asm						     Page 1 - 1
 	   6F 6E 65 20 70
 	   6F 69 6E 74 2E
 	   00
- 00000A19 20 33 20 20 53	    instruc6 db " 3  Stay away from the ghosts, if one catches you, You lose a life.",0
+ 00000A1B 20 33 20 20 53	    instruc6 db " 3  Stay away from the ghosts, if one catches you, You lose a life.",0
 	   74 61 79 20 61
 	   77 61 79 20 66
 	   72 6F 6D 20 74
@@ -588,7 +588,7 @@ CODE.asm						     Page 1 - 1
 	   6C 6F 73 65 20
 	   61 20 6C 69 66
 	   65 2E 00
- 00000A5D 20 34 2E 20 55	    instruc7 db " 4. Use W,A,S,D keys move up,down,left and right respectively.",0
+ 00000A5F 20 34 2E 20 55	    instruc7 db " 4. Use W,A,S,D keys move up,down,left and right respectively.",0
 	   73 65 20 57 2C
 	   41 2C 53 2C 44
 	   20 6B 65 79 73
@@ -601,7 +601,7 @@ CODE.asm						     Page 1 - 1
 	   65 73 70 65 63
 	   74 69 76 65 6C
 	   79 2E 00
- 00000A9C 5F 5F 5F 5F 5F	    instruc8 db "________________________________________________________________________",0
+ 00000A9E 5F 5F 5F 5F 5F	    instruc8 db "________________________________________________________________________",0
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
@@ -616,7 +616,7 @@ CODE.asm						     Page 1 - 1
 	   5F 5F 5F 5F 5F
 	   5F 5F 5F 5F 5F
 	   5F 5F 00
- 00000AE5 2D 2D 2D 2D 2D	    instruc9 db "------------------------------------------------------------------------",0
+ 00000AE7 2D 2D 2D 2D 2D	    instruc9 db "------------------------------------------------------------------------",0
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
 	   2D 2D 2D 2D 2D
@@ -632,7 +632,7 @@ CODE.asm						     Page 1 - 1
 	   2D 2D 2D 2D 2D
 	   2D 2D 00
 
- 00000B2E 50 72 65 73 73	    instrucChoose db "Press 1 to return to menu, Press 2 to Exit Game",0
+ 00000B30 50 72 65 73 73	    instrucChoose db "Press 1 to return to menu, Press 2 to Exit Game: ",0
 	   20 31 20 74 6F
 	   20 72 65 74 75
 	   72 6E 20 74 6F
@@ -641,9 +641,9 @@ CODE.asm						     Page 1 - 1
 	   73 73 20 32 20
 	   74 6F 20 45 78
 	   69 74 20 47 61
-	   6D 65 00
+	   6D 65 3A 20 00
 
- 00000B5E 20 20 20 20 20	    hsTitle0 db "        ______        _____  _____ ______ _____ _____ _____  ",0
+ 00000B62 20 20 20 20 20	    hsTitle0 db "        ______        _____  _____ ______ _____ _____ _____  ",0
 	   20 20 20 5F 5F
 	   5F 5F 5F 5F 20
 	   20 20 20 20 20
@@ -656,7 +656,7 @@ CODE.asm						     Page 1 - 1
 	   5F 5F 5F 20 5F
 	   5F 5F 5F 5F 20
 	   20 00
- 00000B9C 7C 20 20 20 7C	    hsTitle1 db "|   | | |      |   |  |      |     |    | |   | |     |      ",0
+ 00000BA0 7C 20 20 20 7C	    hsTitle1 db "|   | | |      |   |  |      |     |    | |   | |     |      ",0
 	   20 7C 20 7C 20
 	   20 20 20 20 20
 	   7C 20 20 20 7C
@@ -669,7 +669,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 7C
 	   20 20 20 20 20
 	   20 00
- 00000BDA 7C 5F 5F 5F 7C	    hsTitle2 db "|___| | |  ___ |___|  |____  |     |    | |___| |____ |____  ",0
+ 00000BDE 7C 5F 5F 5F 7C	    hsTitle2 db "|___| | |  ___ |___|  |____  |     |    | |___| |____ |____  ",0
 	   20 7C 20 7C 20
 	   20 5F 5F 5F 20
 	   7C 5F 5F 5F 7C
@@ -682,7 +682,7 @@ CODE.asm						     Page 1 - 1
 	   5F 5F 5F 20 7C
 	   5F 5F 5F 5F 20
 	   20 00
- 00000C18 7C 20 20 20 7C	    hsTitle3 db "|   | | |    | |   |       | |     |    | | \   |          | ",0
+ 00000C1C 7C 20 20 20 7C	    hsTitle3 db "|   | | |    | |   |       | |     |    | | \   |          | ",0
 	   20 7C 20 7C 20
 	   20 20 20 7C 20
 	   7C 20 20 20 7C
@@ -695,7 +695,7 @@ CODE.asm						     Page 1 - 1
 	   20 20 20 20 20
 	   20 20 20 20 7C
 	   20 00
- 00000C56 7C 20 20 20 7C	    hsTitle4 db "|   | | |____| |   |  _____| |____ |____| |  \  |____  ____| ",0
+ 00000C5A 7C 20 20 20 7C	    hsTitle4 db "|   | | |____| |   |  _____| |____ |____| |  \  |____  ____| ",0
 	   20 7C 20 7C 5F
 	   5F 5F 5F 7C 20
 	   7C 20 20 20 7C
@@ -709,20 +709,20 @@ CODE.asm						     Page 1 - 1
 	   5F 5F 5F 5F 7C
 	   20 00
 
- 00000C94 2E 2E 2E 47 41	    gamePause1 db "...GAME PAUSED...",0
+ 00000C98 2E 2E 2E 47 41	    gamePause1 db "...GAME PAUSED...",0
 	   4D 45 20 50 41
 	   55 53 45 44 2E
 	   2E 2E 00
- 00000CA6 50 72 65 73 73	    gamePause2 db "Press 1: Resume Game",0
+ 00000CAA 50 72 65 73 73	    gamePause2 db "Press 1: Resume Game",0
 	   20 31 3A 20 52
 	   65 73 75 6D 65
 	   20 47 61 6D 65
 	   00
- 00000CBB 50 72 65 73 73	    gamePause3 db "Press 2: Go to Menu",0
+ 00000CBF 50 72 65 73 73	    gamePause3 db "Press 2: Go to Menu",0
 	   20 32 3A 20 47
 	   6F 20 74 6F 20
 	   4D 65 6E 75 00
- 00000CCF 50 72 65 73 73	    gamePause4 db "Press 3: Exit Game",0
+ 00000CD3 50 72 65 73 73	    gamePause4 db "Press 3: Exit Game",0
 	   20 33 3A 20 45
 	   78 69 74 20 47
 	   61 6D 65 00
@@ -733,16 +733,16 @@ CODE.asm						     Page 1 - 1
  = 0000000E			    yellowTxt =yellow+(black*16);
  = 00000002			    greenTxt =green+ (black*16);
  = 00000001			    blueTxt =blue+ (black*16);
- = 0000000F			    whiteTxt =white+ (black*16);
+ = 0000000F			    whiteTxt =white+ (black *16);
 
- 00000CE2 00			    userChoice db ?
- 00000CE3 00			    temp db ?
+ 00000CE6 00			    userChoice db ?
+ 00000CE7 00			    temp db ?
 
  00000000			.code
  00000000			main proc
  00000000  E8 00000000 E	    call Clrscr
  00000005  E8 0000000C		    call WelcomeScreen
- 0000000A  E8 00000132		    call MenuScreen
+ 0000000A  E8 0000013B		    call MenuScreen
 				    
 				    exit
  0000000F  6A 00	   *	    push   +000000000h
@@ -845,437 +845,435 @@ CODE.asm						     Page 1 - 1
  00000127  B9 00000032		    mov ecx, lengthof userName
  0000012C  E8 00000000 E	    call ReadString
 
- 00000131  BA 00000CE3 R	    mov edx, offset temp
- 00000136  E8 00000000 E	    call WaitMsg
- 0000013B  E8 00000000 E	    call Clrscr
- 00000140  C3			    ret
- 00000141			WelcomeScreen endp
+ 00000131  B6 16		    mov dh, 22
+ 00000133  B2 0B		    mov dl,11
+ 00000135  E8 00000000 E	    call Gotoxy
+ 0000013A  BA 00000CE7 R	    mov edx, offset temp
+ 0000013F  E8 00000000 E	    call WaitMsg
+ 00000144  E8 00000000 E	    call Clrscr
+ 00000149  C3			    ret
+ 0000014A			WelcomeScreen endp
 
 
 				;-----------------------------------------------------
- 00000141			MenuScreen proc
+ 0000014A			MenuScreen proc
 
- 00000141  E8 00000000 E	    call Clrscr
+ 0000014A  E8 00000000 E	    call Clrscr
 				    
- 00000146  B8 00000001		    mov eax, blueTxt
- 0000014B  E8 00000000 E	    call SetTextColor
+ 0000014F  B8 00000001		    mov eax, blueTxt
+ 00000154  E8 00000000 E	    call SetTextColor
 				    
- 00000150  B6 05		    mov dh, 5
- 00000152  B2 1E		    mov dl, 30
- 00000154  E8 00000000 E	    call Gotoxy
- 00000159  BA 000003D7 R	    mov edx, offset menutitle0
- 0000015E  E8 00000000 E	    call WriteString
+ 00000159  B6 05		    mov dh, 5
+ 0000015B  B2 1E		    mov dl, 30
+ 0000015D  E8 00000000 E	    call Gotoxy
+ 00000162  BA 000003D7 R	    mov edx, offset menutitle0
+ 00000167  E8 00000000 E	    call WriteString
 				    
- 00000163  B6 06		    mov dh, 6
- 00000165  B2 1E		    mov dl, 30
- 00000167  E8 00000000 E	    call Gotoxy
- 0000016C  BA 00000406 R	    mov edx, offset menutitle1
- 00000171  E8 00000000 E	    call WriteString
+ 0000016C  B6 06		    mov dh, 6
+ 0000016E  B2 1E		    mov dl, 30
+ 00000170  E8 00000000 E	    call Gotoxy
+ 00000175  BA 00000406 R	    mov edx, offset menutitle1
+ 0000017A  E8 00000000 E	    call WriteString
 				    
- 00000176  B6 07		    mov dh, 7
- 00000178  B2 1E		    mov dl, 30
- 0000017A  E8 00000000 E	    call Gotoxy
- 0000017F  BA 00000435 R	    mov edx, offset menutitle2
- 00000184  E8 00000000 E	    call WriteString
+ 0000017F  B6 07		    mov dh, 7
+ 00000181  B2 1E		    mov dl, 30
+ 00000183  E8 00000000 E	    call Gotoxy
+ 00000188  BA 00000435 R	    mov edx, offset menutitle2
+ 0000018D  E8 00000000 E	    call WriteString
 				    
- 00000189  B6 08		    mov dh, 8
- 0000018B  B2 1E		    mov dl, 30
- 0000018D  E8 00000000 E	    call Gotoxy
- 00000192  BA 00000463 R	    mov edx, offset menutitle3
- 00000197  E8 00000000 E	    call WriteString
+ 00000192  B6 08		    mov dh, 8
+ 00000194  B2 1E		    mov dl, 30
+ 00000196  E8 00000000 E	    call Gotoxy
+ 0000019B  BA 00000463 R	    mov edx, offset menutitle3
+ 000001A0  E8 00000000 E	    call WriteString
 				    
- 0000019C  B6 09		    mov dh, 9
- 0000019E  B2 1E		    mov dl, 30
- 000001A0  E8 00000000 E	    call Gotoxy
- 000001A5  BA 00000492 R	    mov edx, offset menutitle4
- 000001AA  E8 00000000 E	    call WriteString
+ 000001A5  B6 09		    mov dh, 9
+ 000001A7  B2 1E		    mov dl, 30
+ 000001A9  E8 00000000 E	    call Gotoxy
+ 000001AE  BA 00000492 R	    mov edx, offset menutitle4
+ 000001B3  E8 00000000 E	    call WriteString
 				    
- 000001AF  B6 0A		    mov dh, 10
- 000001B1  B2 1E		    mov dl, 30
- 000001B3  E8 00000000 E	    call Gotoxy
- 000001B8  BA 000004C0 R	    mov edx, offset menutitle5
- 000001BD  E8 00000000 E	    call WriteString
+ 000001B8  B6 0A		    mov dh, 10
+ 000001BA  B2 1E		    mov dl, 30
+ 000001BC  E8 00000000 E	    call Gotoxy
+ 000001C1  BA 000004C0 R	    mov edx, offset menutitle5
+ 000001C6  E8 00000000 E	    call WriteString
 				    
 				    ;menu options in green
- 000001C2  B8 00000002		    mov eax, greenTxt
- 000001C7  E8 00000000 E	    call SetTextColor
+ 000001CB  B8 00000002		    mov eax, greenTxt
+ 000001D0  E8 00000000 E	    call SetTextColor
 				    
- 000001CC  B6 0D		    mov dh, 13
- 000001CE  B2 23		    mov dl, 35
- 000001D0  E8 00000000 E	    call Gotoxy
- 000001D5  BA 000004EF R	    mov edx, offset menuopt0
- 000001DA  E8 00000000 E	    call WriteString
+ 000001D5  B6 0D		    mov dh, 13
+ 000001D7  B2 23		    mov dl, 35
+ 000001D9  E8 00000000 E	    call Gotoxy
+ 000001DE  BA 000004EF R	    mov edx, offset menuopt0
+ 000001E3  E8 00000000 E	    call WriteString
 				    
- 000001DF  B6 0E		    mov dh, 14
- 000001E1  B2 23		    mov dl, 35
- 000001E3  E8 00000000 E	    call Gotoxy
- 000001E8  BA 00000511 R	    mov edx, offset menuopt1
- 000001ED  E8 00000000 E	    call WriteString
+ 000001E8  B6 0E		    mov dh, 14
+ 000001EA  B2 23		    mov dl, 35
+ 000001EC  E8 00000000 E	    call Gotoxy
+ 000001F1  BA 00000511 R	    mov edx, offset menuopt1
+ 000001F6  E8 00000000 E	    call WriteString
 				    
- 000001F2  B6 0F		    mov dh, 15
- 000001F4  B2 23		    mov dl, 35
- 000001F6  E8 00000000 E	    call Gotoxy
- 000001FB  BA 00000533 R	    mov edx, offset menuopt2
- 00000200  E8 00000000 E	    call WriteString
+ 000001FB  B6 0F		    mov dh, 15
+ 000001FD  B2 23		    mov dl, 35
+ 000001FF  E8 00000000 E	    call Gotoxy
+ 00000204  BA 00000533 R	    mov edx, offset menuopt2
+ 00000209  E8 00000000 E	    call WriteString
 				    
- 00000205  B6 10		    mov dh, 16
- 00000207  B2 23		    mov dl, 35
- 00000209  E8 00000000 E	    call Gotoxy
- 0000020E  BA 00000555 R	    mov edx, offset menuopt3
- 00000213  E8 00000000 E	    call WriteString
+ 0000020E  B6 10		    mov dh, 16
+ 00000210  B2 23		    mov dl, 35
+ 00000212  E8 00000000 E	    call Gotoxy
+ 00000217  BA 00000555 R	    mov edx, offset menuopt3
+ 0000021C  E8 00000000 E	    call WriteString
 				    
- 00000218  B6 11		    mov dh, 17
- 0000021A  B2 23		    mov dl, 35
- 0000021C  E8 00000000 E	    call Gotoxy
- 00000221  BA 00000577 R	    mov edx, offset menuopt4
- 00000226  E8 00000000 E	    call WriteString
+ 00000221  B6 11		    mov dh, 17
+ 00000223  B2 23		    mov dl, 35
+ 00000225  E8 00000000 E	    call Gotoxy
+ 0000022A  BA 00000577 R	    mov edx, offset menuopt4
+ 0000022F  E8 00000000 E	    call WriteString
 				    
- 0000022B  B6 12		    mov dh, 18
- 0000022D  B2 23		    mov dl, 35
- 0000022F  E8 00000000 E	    call Gotoxy
- 00000234  BA 00000599 R	    mov edx, offset menuopt5
- 00000239  E8 00000000 E	    call WriteString
+ 00000234  B6 12		    mov dh, 18
+ 00000236  B2 23		    mov dl, 35
+ 00000238  E8 00000000 E	    call Gotoxy
+ 0000023D  BA 00000599 R	    mov edx, offset menuopt5
+ 00000242  E8 00000000 E	    call WriteString
 				    
 				    ; user choice
- 0000023E  B8 0000000F		    mov eax, whiteTxt
- 00000243  E8 00000000 E	    call SetTextColor
+ 00000247  B8 0000000F		    mov eax, whiteTxt
+ 0000024C  E8 00000000 E	    call SetTextColor
 				    
- 00000248  B6 14		    mov dh, 20
- 0000024A  B2 23		    mov dl, 35
- 0000024C  E8 00000000 E	    call Gotoxy
- 00000251  BA 000005BB R	    mov edx, offset menuoptchoose
- 00000256  E8 00000000 E	    call WriteString
+ 00000251  B6 14		    mov dh, 20
+ 00000253  B2 23		    mov dl, 35
+ 00000255  E8 00000000 E	    call Gotoxy
+ 0000025A  BA 000005BB R	    mov edx, offset menuoptchoose
+ 0000025F  E8 00000000 E	    call WriteString
 				    
- 0000025B  E8 00000000 E	    call ReadInt
- 00000260  A2 00000CE2 R	    mov userChoice, al
+ 00000264  E8 00000000 E	    call ReadInt
+ 00000269  A2 00000CE6 R	    mov userChoice, al
 				    
 				  
- 00000265  80 3D 00000CE2 R	    cmp userChoice, 1
+ 0000026E  80 3D 00000CE6 R	    cmp userChoice, 1
 	   01
- 0000026C  74 20		    je LevelSelection
- 0000026E  80 3D 00000CE2 R	    cmp userChoice, 2
+ 00000275  74 20		    je LevelSelection
+ 00000277  80 3D 00000CE6 R	    cmp userChoice, 2
 	   02
- 00000275  74 21		    je ShowInstructions
- 00000277  80 3D 00000CE2 R	    cmp userChoice, 3
+ 0000027E  74 21		    je ShowInstructions
+ 00000280  80 3D 00000CE6 R	    cmp userChoice, 3
 	   03
- 0000027E  74 22		    je ShowHighscores
- 00000280  80 3D 00000CE2 R	    cmp userChoice, 4
+ 00000287  74 22		    je ShowHighscores
+ 00000289  80 3D 00000CE6 R	    cmp userChoice, 4
 	   04
- 00000287  74 23		    je ExitGame
+ 00000290  74 23		    je ExitGame
 				    
 				    ;if user ghalat option then go to menu (already udhr he)
- 00000289  E9 FFFFFEB3		    jmp MenuScreen
+ 00000292  E9 FFFFFEB3		    jmp MenuScreen
 				    
- 0000028E			LevelSelection:
- 0000028E  E8 00000025		    call LevelSelectScreen
- 00000293  E9 FFFFFEA9		    jmp MenuScreen
+ 00000297			LevelSelection:
+ 00000297  E8 00000025		    call LevelSelectScreen
+ 0000029C  E9 FFFFFEA9		    jmp MenuScreen
 				    
- 00000298			ShowInstructions:
- 00000298  E8 000001B7		    call InstructionsScreen
- 0000029D  E9 FFFFFE9F		    jmp MenuScreen
+ 000002A1			ShowInstructions:
+ 000002A1  E8 000001A4		    call InstructionsScreen
+ 000002A6  E9 FFFFFE9F		    jmp MenuScreen
 				    
- 000002A2			ShowHighscores:
- 000002A2  E8 00000282		    call HighscoresScreen
- 000002A7  E9 FFFFFE95		    jmp MenuScreen
+ 000002AB			ShowHighscores:
+ 000002AB  E8 0000026F		    call HighscoresScreen
+ 000002B0  E9 FFFFFE95		    jmp MenuScreen
 				    
- 000002AC			ExitGame:
- 000002AC  E8 00000000 E	    call Clrscr
+ 000002B5			ExitGame:
+ 000002B5  E8 00000000 E	    call Clrscr
 				    exit
- 000002B1  6A 00	   *	    push   +000000000h
- 000002B3  E8 00000000 E   *	    call   ExitProcess
- 000002B8			MenuScreen endp
+ 000002BA  6A 00	   *	    push   +000000000h
+ 000002BC  E8 00000000 E   *	    call   ExitProcess
+ 000002C1			MenuScreen endp
 
 				;-----------------------------------------------------
- 000002B8			LevelSelectScreen proc
+ 000002C1			LevelSelectScreen proc
 
- 000002B8  E8 00000000 E	    call Clrscr
+ 000002C1  E8 00000000 E	    call Clrscr
 				    
 				    ; Display level selection title
- 000002BD  B8 00000001		    mov eax, blueTxt
- 000002C2  E8 00000000 E	    call SetTextColor
+ 000002C6  B8 00000001		    mov eax, blueTxt
+ 000002CB  E8 00000000 E	    call SetTextColor
 				    
- 000002C7  B6 05		    mov dh, 5
- 000002C9  B2 1E		    mov dl, 30
- 000002CB  E8 00000000 E	    call Gotoxy
- 000002D0  BA 000003D7 R	    mov edx, offset menutitle0
- 000002D5  E8 00000000 E	    call WriteString
 				    
-				    ; Display level options
- 000002DA  B8 00000002		    mov eax, greenTxt
- 000002DF  E8 00000000 E	    call SetTextColor
+				    ; level options
+ 000002D0  B8 00000004		    mov eax, redTxt
+ 000002D5  E8 00000000 E	    call SetTextColor
 				    
 				    ; Level 1
- 000002E4  B6 0A		    mov dh, 10
- 000002E6  B2 1E		    mov dl, 30
- 000002E8  E8 00000000 E	    call Gotoxy
- 000002ED  BA 000005D0 R	    mov edx, offset level1opt0
- 000002F2  E8 00000000 E	    call WriteString
+ 000002DA  B6 05		    mov dh, 5
+ 000002DC  B2 1E		    mov dl, 30
+ 000002DE  E8 00000000 E	    call Gotoxy
+ 000002E3  BA 000005D0 R	    mov edx, offset level1opt0
+ 000002E8  E8 00000000 E	    call WriteString
 				    
- 000002F7  B6 0B		    mov dh, 11
- 000002F9  B2 1E		    mov dl, 30
- 000002FB  E8 00000000 E	    call Gotoxy
- 00000300  BA 000005FF R	    mov edx, offset level1opt1
- 00000305  E8 00000000 E	    call WriteString
+ 000002ED  B6 06		    mov dh, 6
+ 000002EF  B2 1E		    mov dl, 30
+ 000002F1  E8 00000000 E	    call Gotoxy
+ 000002F6  BA 000005FF R	    mov edx, offset level1opt1
+ 000002FB  E8 00000000 E	    call WriteString
 				    
- 0000030A  B6 0C		    mov dh, 12
- 0000030C  B2 1E		    mov dl, 30
- 0000030E  E8 00000000 E	    call Gotoxy
- 00000313  BA 0000062E R	    mov edx, offset level1opt2
- 00000318  E8 00000000 E	    call WriteString
+ 00000300  B6 07		    mov dh, 7
+ 00000302  B2 1E		    mov dl, 30
+ 00000304  E8 00000000 E	    call Gotoxy
+ 00000309  BA 0000062E R	    mov edx, offset level1opt2
+ 0000030E  E8 00000000 E	    call WriteString
 				    
- 0000031D  B6 0D		    mov dh, 13
- 0000031F  B2 1E		    mov dl, 30
- 00000321  E8 00000000 E	    call Gotoxy
- 00000326  BA 0000065D R	    mov edx, offset level1opt3
- 0000032B  E8 00000000 E	    call WriteString
+ 00000313  B6 08		    mov dh, 8
+ 00000315  B2 1E		    mov dl, 30
+ 00000317  E8 00000000 E	    call Gotoxy
+ 0000031C  BA 0000065D R	    mov edx, offset level1opt3
+ 00000321  E8 00000000 E	    call WriteString
 				    
- 00000330  B6 0E		    mov dh, 14
- 00000332  B2 1E		    mov dl, 30
- 00000334  E8 00000000 E	    call Gotoxy
- 00000339  BA 0000068C R	    mov edx, offset level1opt4
- 0000033E  E8 00000000 E	    call WriteString
+ 00000326  B6 09		    mov dh, 9
+ 00000328  B2 1E		    mov dl, 30
+ 0000032A  E8 00000000 E	    call Gotoxy
+ 0000032F  BA 0000068C R	    mov edx, offset level1opt4
+ 00000334  E8 00000000 E	    call WriteString
 				    
 				    ; Level 2
- 00000343  B6 10		    mov dh, 16
- 00000345  B2 1E		    mov dl, 30
- 00000347  E8 00000000 E	    call Gotoxy
- 0000034C  BA 000006BB R	    mov edx, offset level2opt0
- 00000351  E8 00000000 E	    call WriteString
+ 00000339  B6 0A		    mov dh, 10
+ 0000033B  B2 1E		    mov dl, 30
+ 0000033D  E8 00000000 E	    call Gotoxy
+ 00000342  BA 000006BB R	    mov edx, offset level2opt0
+ 00000347  E8 00000000 E	    call WriteString
 				    
- 00000356  B6 11		    mov dh, 17
- 00000358  B2 1E		    mov dl, 30
- 0000035A  E8 00000000 E	    call Gotoxy
- 0000035F  BA 000006EA R	    mov edx, offset level2opt1
- 00000364  E8 00000000 E	    call WriteString
+ 0000034C  B6 0B		    mov dh, 11
+ 0000034E  B2 1E		    mov dl, 30
+ 00000350  E8 00000000 E	    call Gotoxy
+ 00000355  BA 000006EA R	    mov edx, offset level2opt1
+ 0000035A  E8 00000000 E	    call WriteString
 				    
- 00000369  B6 12		    mov dh, 18
- 0000036B  B2 1E		    mov dl, 30
- 0000036D  E8 00000000 E	    call Gotoxy
- 00000372  BA 00000719 R	    mov edx, offset level2opt2
- 00000377  E8 00000000 E	    call WriteString
+ 0000035F  B6 0C		    mov dh, 12
+ 00000361  B2 1E		    mov dl, 30
+ 00000363  E8 00000000 E	    call Gotoxy
+ 00000368  BA 00000719 R	    mov edx, offset level2opt2
+ 0000036D  E8 00000000 E	    call WriteString
 				    
- 0000037C  B6 13		    mov dh, 19
- 0000037E  B2 1E		    mov dl, 30
- 00000380  E8 00000000 E	    call Gotoxy
- 00000385  BA 00000748 R	    mov edx, offset level2opt3
- 0000038A  E8 00000000 E	    call WriteString
+ 00000372  B6 0D		    mov dh, 13
+ 00000374  B2 1E		    mov dl, 30
+ 00000376  E8 00000000 E	    call Gotoxy
+ 0000037B  BA 00000748 R	    mov edx, offset level2opt3
+ 00000380  E8 00000000 E	    call WriteString
 				    
- 0000038F  B6 14		    mov dh, 20
- 00000391  B2 1E		    mov dl, 30
- 00000393  E8 00000000 E	    call Gotoxy
- 00000398  BA 00000777 R	    mov edx, offset level2opt4
- 0000039D  E8 00000000 E	    call WriteString
+ 00000385  B6 0E		    mov dh, 14
+ 00000387  B2 1E		    mov dl, 30
+ 00000389  E8 00000000 E	    call Gotoxy
+ 0000038E  BA 00000777 R	    mov edx, offset level2opt4
+ 00000393  E8 00000000 E	    call WriteString
 				    
 				    ; Level 3
- 000003A2  B6 16		    mov dh, 22
- 000003A4  B2 1E		    mov dl, 30
- 000003A6  E8 00000000 E	    call Gotoxy
- 000003AB  BA 000007A6 R	    mov edx, offset level3opt0
- 000003B0  E8 00000000 E	    call WriteString
+ 00000398  B6 0F		    mov dh, 15
+ 0000039A  B2 1E		    mov dl, 30
+ 0000039C  E8 00000000 E	    call Gotoxy
+ 000003A1  BA 000007A6 R	    mov edx, offset level3opt0
+ 000003A6  E8 00000000 E	    call WriteString
 				    
- 000003B5  B6 17		    mov dh, 23
- 000003B7  B2 1E		    mov dl, 30
- 000003B9  E8 00000000 E	    call Gotoxy
- 000003BE  BA 000007D5 R	    mov edx, offset level3opt1
- 000003C3  E8 00000000 E	    call WriteString
+ 000003AB  B6 10		    mov dh, 16
+ 000003AD  B2 1E		    mov dl, 30
+ 000003AF  E8 00000000 E	    call Gotoxy
+ 000003B4  BA 000007D5 R	    mov edx, offset level3opt1
+ 000003B9  E8 00000000 E	    call WriteString
 				    
- 000003C8  B6 18		    mov dh, 24
- 000003CA  B2 1E		    mov dl, 30
- 000003CC  E8 00000000 E	    call Gotoxy
- 000003D1  BA 00000804 R	    mov edx, offset level3opt2
- 000003D6  E8 00000000 E	    call WriteString
+ 000003BE  B6 11		    mov dh, 17
+ 000003C0  B2 1E		    mov dl, 30
+ 000003C2  E8 00000000 E	    call Gotoxy
+ 000003C7  BA 00000804 R	    mov edx, offset level3opt2
+ 000003CC  E8 00000000 E	    call WriteString
 				    
- 000003DB  B6 19		    mov dh, 25
- 000003DD  B2 1E		    mov dl, 30
- 000003DF  E8 00000000 E	    call Gotoxy
- 000003E4  BA 00000833 R	    mov edx, offset level3opt3
- 000003E9  E8 00000000 E	    call WriteString
+ 000003D1  B6 12		    mov dh, 18
+ 000003D3  B2 1E		    mov dl, 30
+ 000003D5  E8 00000000 E	    call Gotoxy
+ 000003DA  BA 00000833 R	    mov edx, offset level3opt3
+ 000003DF  E8 00000000 E	    call WriteString
 				    
- 000003EE  B6 1A		    mov dh, 26
- 000003F0  B2 1E		    mov dl, 30
- 000003F2  E8 00000000 E	    call Gotoxy
- 000003F7  BA 00000862 R	    mov edx, offset level3opt4
- 000003FC  E8 00000000 E	    call WriteString
+ 000003E4  B6 13		    mov dh, 19
+ 000003E6  B2 1E		    mov dl, 30
+ 000003E8  E8 00000000 E	    call Gotoxy
+ 000003ED  BA 00000862 R	    mov edx, offset level3opt4
+ 000003F2  E8 00000000 E	    call WriteString
 				    
-				    ; Get user choice
- 00000401  B8 0000000F		    mov eax, whiteTxt
- 00000406  E8 00000000 E	    call SetTextColor
+				    ;user choice
+ 000003F7  B8 0000000F		    mov eax, whiteTxt
+ 000003FC  E8 00000000 E	    call SetTextColor
 				    
- 0000040B  B6 1C		    mov dh, 28
- 0000040D  B2 14		    mov dl, 20
- 0000040F  E8 00000000 E	    call Gotoxy
- 00000414  BA 00000891 R	    mov edx, offset leveloptchoose1
- 00000419  E8 00000000 E	    call WriteString
+ 00000401  B6 16		    mov dh, 22
+ 00000403  B2 14		    mov dl, 20
+ 00000405  E8 00000000 E	    call Gotoxy
+ 0000040A  BA 00000891 R	    mov edx, offset leveloptchoose1
+ 0000040F  E8 00000000 E	    call WriteString
 				    
- 0000041E  B6 1D		    mov dh, 29
- 00000420  B2 14		    mov dl, 20
- 00000422  E8 00000000 E	    call Gotoxy
- 00000427  BA 000008C9 R	    mov edx, offset leveloptchoose2
- 0000042C  E8 00000000 E	    call WriteString
+ 00000414  B6 17		    mov dh, 23
+ 00000416  B2 14		    mov dl, 20
+ 00000418  E8 00000000 E	    call Gotoxy
+ 0000041D  BA 000008CA R	    mov edx, offset leveloptchoose2
+ 00000422  E8 00000000 E	    call WriteString
 				    
- 00000431  B6 1E		    mov dh, 30
- 00000433  B2 14		    mov dl, 20
- 00000435  E8 00000000 E	    call Gotoxy
- 0000043A  E8 00000000 E	    call ReadInt
+ 00000427  B6 18		    mov dh, 24
+ 00000429  B2 14		    mov dl, 20
+ 0000042B  E8 00000000 E	    call Gotoxy
+ 00000430  E8 00000000 E	    call ReadInt
 				    
-				    ; Process choice
- 0000043F  3C 04		    cmp al, 4
- 00000441  74 04		    je ReturnToMenu
- 00000443  3C 05		    cmp al, 5
- 00000445  74 01		    je ExitGame
+				    ; Processing choice made
+ 00000435  3C 04		    cmp al, 4
+ 00000437  74 04		    je ReturnToMenu
+ 00000439  3C 05		    cmp al, 5
+ 0000043B  74 01		    je ExitGame
 				    
 				    ; Here you would normally start the selected level
 				    ; For now, just return to menu
- 00000447			ReturnToMenu:
- 00000447  C3			    ret
+ 0000043D			ReturnToMenu:
+ 0000043D  C3			    ret
 				    
- 00000448			ExitGame:
- 00000448  E8 00000000 E	    call Clrscr
+ 0000043E			ExitGame:
+ 0000043E  E8 00000000 E	    call Clrscr
 				    exit
- 0000044D  6A 00	   *	    push   +000000000h
- 0000044F  E8 00000000 E   *	    call   ExitProcess
- 00000454			LevelSelectScreen endp
+ 00000443  6A 00	   *	    push   +000000000h
+ 00000445  E8 00000000 E   *	    call   ExitProcess
+ 0000044A			LevelSelectScreen endp
 
 				;-----------------------------------------------------
- 00000454			InstructionsScreen proc
- 00000454  E8 00000000 E	    call Clrscr
+ 0000044A			InstructionsScreen proc
+ 0000044A  E8 00000000 E	    call Clrscr
 				    
 				    ; Display instructions title
- 00000459  B8 00000001		    mov eax, blueTxt
- 0000045E  E8 00000000 E	    call SetTextColor
+ 0000044F  B8 00000001		    mov eax, blueTxt
+ 00000454  E8 00000000 E	    call SetTextColor
 				    
- 00000463  B6 05		    mov dh, 5
- 00000465  B2 0F		    mov dl, 15
- 00000467  E8 00000000 E	    call Gotoxy
- 0000046C  BA 000008FD R	    mov edx, offset instruc1
- 00000471  E8 00000000 E	    call WriteString
+ 00000459  B6 05		    mov dh, 5
+ 0000045B  B2 0F		    mov dl, 15
+ 0000045D  E8 00000000 E	    call Gotoxy
+ 00000462  BA 000008FF R	    mov edx, offset instruc1
+ 00000467  E8 00000000 E	    call WriteString
 				    
- 00000476  B6 06		    mov dh, 6
- 00000478  B2 0F		    mov dl, 15
- 0000047A  E8 00000000 E	    call Gotoxy
- 0000047F  BA 00000941 R	    mov edx, offset instruc2
- 00000484  E8 00000000 E	    call WriteString
+ 0000046C  B6 06		    mov dh, 6
+ 0000046E  B2 0F		    mov dl, 15
+ 00000470  E8 00000000 E	    call Gotoxy
+ 00000475  BA 00000943 R	    mov edx, offset instruc2
+ 0000047A  E8 00000000 E	    call WriteString
 				    
 				    ; Display instructions text
- 00000489  B8 00000002		    mov eax, greenTxt
- 0000048E  E8 00000000 E	    call SetTextColor
+ 0000047F  B8 00000002		    mov eax, greenTxt
+ 00000484  E8 00000000 E	    call SetTextColor
 				    
- 00000493  B6 08		    mov dh, 8
- 00000495  B2 0F		    mov dl, 15
- 00000497  E8 00000000 E	    call Gotoxy
- 0000049C  BA 000009D1 R	    mov edx, offset instruc4
- 000004A1  E8 00000000 E	    call WriteString
+ 00000489  B6 08		    mov dh, 8
+ 0000048B  B2 0F		    mov dl, 15
+ 0000048D  E8 00000000 E	    call Gotoxy
+ 00000492  BA 000009D3 R	    mov edx, offset instruc4
+ 00000497  E8 00000000 E	    call WriteString
 				    
- 000004A6  B6 09		    mov dh, 9
- 000004A8  B2 0F		    mov dl, 15
- 000004AA  E8 00000000 E	    call Gotoxy
- 000004AF  BA 000009F5 R	    mov edx, offset instruc5
- 000004B4  E8 00000000 E	    call WriteString
+ 0000049C  B6 09		    mov dh, 9
+ 0000049E  B2 0F		    mov dl, 15
+ 000004A0  E8 00000000 E	    call Gotoxy
+ 000004A5  BA 000009F7 R	    mov edx, offset instruc5
+ 000004AA  E8 00000000 E	    call WriteString
 				    
- 000004B9  B6 0A		    mov dh, 10
- 000004BB  B2 0F		    mov dl, 15
- 000004BD  E8 00000000 E	    call Gotoxy
- 000004C2  BA 00000A19 R	    mov edx, offset instruc6
- 000004C7  E8 00000000 E	    call WriteString
+ 000004AF  B6 0A		    mov dh, 10
+ 000004B1  B2 0F		    mov dl, 15
+ 000004B3  E8 00000000 E	    call Gotoxy
+ 000004B8  BA 00000A1B R	    mov edx, offset instruc6
+ 000004BD  E8 00000000 E	    call WriteString
 				    
- 000004CC  B6 0B		    mov dh, 11
- 000004CE  B2 0F		    mov dl, 15
- 000004D0  E8 00000000 E	    call Gotoxy
- 000004D5  BA 00000A5D R	    mov edx, offset instruc7
- 000004DA  E8 00000000 E	    call WriteString
+ 000004C2  B6 0B		    mov dh, 11
+ 000004C4  B2 0F		    mov dl, 15
+ 000004C6  E8 00000000 E	    call Gotoxy
+ 000004CB  BA 00000A5F R	    mov edx, offset instruc7
+ 000004D0  E8 00000000 E	    call WriteString
 				    
- 000004DF  B6 0C		    mov dh, 12
- 000004E1  B2 0F		    mov dl, 15
- 000004E3  E8 00000000 E	    call Gotoxy
- 000004E8  BA 00000A9C R	    mov edx, offset instruc8
- 000004ED  E8 00000000 E	    call WriteString
+ 000004D5  B6 0C		    mov dh, 12
+ 000004D7  B2 0F		    mov dl, 15
+ 000004D9  E8 00000000 E	    call Gotoxy
+ 000004DE  BA 00000A9E R	    mov edx, offset instruc8
+ 000004E3  E8 00000000 E	    call WriteString
 				    
 				    ; Get user choice
- 000004F2  B8 0000000F		    mov eax, whiteTxt
- 000004F7  E8 00000000 E	    call SetTextColor
+ 000004E8  B8 0000000F		    mov eax, whiteTxt
+ 000004ED  E8 00000000 E	    call SetTextColor
 				    
- 000004FC  B6 0E		    mov dh, 14
- 000004FE  B2 0F		    mov dl, 15
- 00000500  E8 00000000 E	    call Gotoxy
- 00000505  BA 00000B2E R	    mov edx, offset instrucChoose
- 0000050A  E8 00000000 E	    call WriteString
+ 000004F2  B6 0E		    mov dh, 14
+ 000004F4  B2 0F		    mov dl, 15
+ 000004F6  E8 00000000 E	    call Gotoxy
+ 000004FB  BA 00000B30 R	    mov edx, offset instrucChoose
+ 00000500  E8 00000000 E	    call WriteString
 				    
- 0000050F  E8 00000000 E	    call ReadInt
+ 00000505  E8 00000000 E	    call ReadInt
 				    
 				    ; Process choice
- 00000514  3C 01		    cmp al, 1
- 00000516  74 04		    je ReturnToMenu
- 00000518  3C 02		    cmp al, 2
- 0000051A  74 01		    je ExitGame
+ 0000050A  3C 01		    cmp al, 1
+ 0000050C  74 04		    je ReturnToMenu
+ 0000050E  3C 02		    cmp al, 2
+ 00000510  74 01		    je ExitGame
 				    
- 0000051C			ReturnToMenu:
- 0000051C  C3			    ret
+ 00000512			ReturnToMenu:
+ 00000512  C3			    ret
 				    
- 0000051D			ExitGame:
- 0000051D  E8 00000000 E	    call Clrscr
+ 00000513			ExitGame:
+ 00000513  E8 00000000 E	    call Clrscr
 				    exit
- 00000522  6A 00	   *	    push   +000000000h
- 00000524  E8 00000000 E   *	    call   ExitProcess
- 00000529			InstructionsScreen endp
+ 00000518  6A 00	   *	    push   +000000000h
+ 0000051A  E8 00000000 E   *	    call   ExitProcess
+ 0000051F			InstructionsScreen endp
 
 				;-----------------------------------------------------
- 00000529			HighscoresScreen proc
+ 0000051F			HighscoresScreen proc
 
- 00000529  E8 00000000 E	    call Clrscr
+ 0000051F  E8 00000000 E	    call Clrscr
 				    
-				    ; Display highscores title
- 0000052E  B8 0000000E		    mov eax, yellowTxt
- 00000533  E8 00000000 E	    call SetTextColor
+
+ 00000524  B8 0000000E		    mov eax, yellowTxt
+ 00000529  E8 00000000 E	    call SetTextColor
 				    
- 00000538  B6 05		    mov dh, 5
- 0000053A  B2 14		    mov dl, 20
- 0000053C  E8 00000000 E	    call Gotoxy
- 00000541  BA 00000B5E R	    mov edx, offset hsTitle0
- 00000546  E8 00000000 E	    call WriteString
+ 0000052E  B6 05		    mov dh, 5
+ 00000530  B2 14		    mov dl, 20
+ 00000532  E8 00000000 E	    call Gotoxy
+ 00000537  BA 00000B62 R	    mov edx, offset hsTitle0
+ 0000053C  E8 00000000 E	    call WriteString
 				    
- 0000054B  B6 06		    mov dh, 6
- 0000054D  B2 14		    mov dl, 20
- 0000054F  E8 00000000 E	    call Gotoxy
- 00000554  BA 00000B9C R	    mov edx, offset hsTitle1
- 00000559  E8 00000000 E	    call WriteString
+ 00000541  B6 06		    mov dh, 6
+ 00000543  B2 14		    mov dl, 20
+ 00000545  E8 00000000 E	    call Gotoxy
+ 0000054A  BA 00000BA0 R	    mov edx, offset hsTitle1
+ 0000054F  E8 00000000 E	    call WriteString
 				    
- 0000055E  B6 07		    mov dh, 7
- 00000560  B2 14		    mov dl, 20
- 00000562  E8 00000000 E	    call Gotoxy
- 00000567  BA 00000BDA R	    mov edx, offset hsTitle2
- 0000056C  E8 00000000 E	    call WriteString
+ 00000554  B6 07		    mov dh, 7
+ 00000556  B2 14		    mov dl, 20
+ 00000558  E8 00000000 E	    call Gotoxy
+ 0000055D  BA 00000BDE R	    mov edx, offset hsTitle2
+ 00000562  E8 00000000 E	    call WriteString
 				    
- 00000571  B6 08		    mov dh, 8
- 00000573  B2 14		    mov dl, 20
- 00000575  E8 00000000 E	    call Gotoxy
- 0000057A  BA 00000C18 R	    mov edx, offset hsTitle3
- 0000057F  E8 00000000 E	    call WriteString
+ 00000567  B6 08		    mov dh, 8
+ 00000569  B2 14		    mov dl, 20
+ 0000056B  E8 00000000 E	    call Gotoxy
+ 00000570  BA 00000C1C R	    mov edx, offset hsTitle3
+ 00000575  E8 00000000 E	    call WriteString
 				    
- 00000584  B6 09		    mov dh, 9
- 00000586  B2 14		    mov dl, 20
- 00000588  E8 00000000 E	    call Gotoxy
- 0000058D  BA 00000C56 R	    mov edx, offset hsTitle4
- 00000592  E8 00000000 E	    call WriteString
+ 0000057A  B6 09		    mov dh, 9
+ 0000057C  B2 14		    mov dl, 20
+ 0000057E  E8 00000000 E	    call Gotoxy
+ 00000583  BA 00000C5A R	    mov edx, offset hsTitle4
+ 00000588  E8 00000000 E	    call WriteString
 				    
 				    ; Here you would normally display the actual high scores
 				    ; For now, just display a message
- 00000597  B8 0000000F		    mov eax, whiteTxt
- 0000059C  E8 00000000 E	    call SetTextColor
+ 0000058D  B8 0000000F		    mov eax, whiteTxt
+ 00000592  E8 00000000 E	    call SetTextColor
 				    
- 000005A1  B6 0C		    mov dh, 12
- 000005A3  B2 1E		    mov dl, 30
- 000005A5  E8 00000000 E	    call Gotoxy
- 000005AA  BA 000005BB R	    mov edx, offset menuoptchoose
- 000005AF  E8 00000000 E	    call WriteString
+ 00000597  B6 0C		    mov dh, 12
+ 00000599  B2 1E		    mov dl, 30
+ 0000059B  E8 00000000 E	    call Gotoxy
+ 000005A0  BA 00000B30 R	    mov edx, offset instrucChoose
+ 000005A5  E8 00000000 E	    call WriteString
 				    
- 000005B4  E8 00000000 E	    call ReadInt
+ 000005AA  E8 00000000 E	    call ReadInt
 				    
 				    ; Any key returns to menu
- 000005B9  C3			    ret
- 000005BA			HighscoresScreen endp
+ 000005AF  C3			    ret
+ 000005B0			HighscoresScreen endp
 
 				end main
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/10/25 23:49:53
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/11/25 13:58:54
 CODE.asm						     Symbols 2 - 1
 
 
@@ -1369,8 +1367,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000CE4 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000005BA Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000CE8 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000005B0 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -1416,20 +1414,20 @@ HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-HighscoresScreen . . . . . . . .	P Near	 00000529 _TEXT	Length= 00000091 Public STDCALL
-InstructionsScreen . . . . . . .	P Near	 00000454 _TEXT	Length= 000000D5 Public STDCALL
-  ReturnToMenu . . . . . . . . .	L Near	 0000051C _TEXT	
-  ExitGame . . . . . . . . . . .	L Near	 0000051D _TEXT	
+HighscoresScreen . . . . . . . .	P Near	 0000051F _TEXT	Length= 00000091 Public STDCALL
+InstructionsScreen . . . . . . .	P Near	 0000044A _TEXT	Length= 000000D5 Public STDCALL
+  ReturnToMenu . . . . . . . . .	L Near	 00000512 _TEXT	
+  ExitGame . . . . . . . . . . .	L Near	 00000513 _TEXT	
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-LevelSelectScreen  . . . . . . .	P Near	 000002B8 _TEXT	Length= 0000019C Public STDCALL
-  ReturnToMenu . . . . . . . . .	L Near	 00000447 _TEXT	
-  ExitGame . . . . . . . . . . .	L Near	 00000448 _TEXT	
+LevelSelectScreen  . . . . . . .	P Near	 000002C1 _TEXT	Length= 00000189 Public STDCALL
+  ReturnToMenu . . . . . . . . .	L Near	 0000043D _TEXT	
+  ExitGame . . . . . . . . . . .	L Near	 0000043E _TEXT	
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-MenuScreen . . . . . . . . . . .	P Near	 00000141 _TEXT	Length= 00000177 Public STDCALL
-  LevelSelection . . . . . . . .	L Near	 0000028E _TEXT	
-  ShowInstructions . . . . . . .	L Near	 00000298 _TEXT	
-  ShowHighscores . . . . . . . .	L Near	 000002A2 _TEXT	
-  ExitGame . . . . . . . . . . .	L Near	 000002AC _TEXT	
+MenuScreen . . . . . . . . . . .	P Near	 0000014A _TEXT	Length= 00000177 Public STDCALL
+  LevelSelection . . . . . . . .	L Near	 00000297 _TEXT	
+  ShowInstructions . . . . . . .	L Near	 000002A1 _TEXT	
+  ShowHighscores . . . . . . . .	L Near	 000002AB _TEXT	
+  ExitGame . . . . . . . . . . .	L Near	 000002B5 _TEXT	
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MsgBoxAsk  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MsgBox . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1472,7 +1470,7 @@ Str_trim . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 Str_ucase  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SystemTimeToFileTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WaitMsg  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-WelcomeScreen  . . . . . . . . .	P Near	 00000016 _TEXT	Length= 0000012B Public STDCALL
+WelcomeScreen  . . . . . . . . .	P Near	 00000016 _TEXT	Length= 00000134 Public STDCALL
 WriteBinB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteBin . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteChar  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1716,29 +1714,29 @@ brown  . . . . . . . . . . . . .	Number	 00000006h
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 fileName . . . . . . . . . . . .	Byte	 00000000 _DATA	
-gamePause1 . . . . . . . . . . .	Byte	 00000C94 _DATA	
-gamePause2 . . . . . . . . . . .	Byte	 00000CA6 _DATA	
-gamePause3 . . . . . . . . . . .	Byte	 00000CBB _DATA	
-gamePause4 . . . . . . . . . . .	Byte	 00000CCF _DATA	
+gamePause1 . . . . . . . . . . .	Byte	 00000C98 _DATA	
+gamePause2 . . . . . . . . . . .	Byte	 00000CAA _DATA	
+gamePause3 . . . . . . . . . . .	Byte	 00000CBF _DATA	
+gamePause4 . . . . . . . . . . .	Byte	 00000CD3 _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 greenTxt . . . . . . . . . . . .	Number	 00000002h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
-hsTitle0 . . . . . . . . . . . .	Byte	 00000B5E _DATA	
-hsTitle1 . . . . . . . . . . . .	Byte	 00000B9C _DATA	
-hsTitle2 . . . . . . . . . . . .	Byte	 00000BDA _DATA	
-hsTitle3 . . . . . . . . . . . .	Byte	 00000C18 _DATA	
-hsTitle4 . . . . . . . . . . . .	Byte	 00000C56 _DATA	
+hsTitle0 . . . . . . . . . . . .	Byte	 00000B62 _DATA	
+hsTitle1 . . . . . . . . . . . .	Byte	 00000BA0 _DATA	
+hsTitle2 . . . . . . . . . . . .	Byte	 00000BDE _DATA	
+hsTitle3 . . . . . . . . . . . .	Byte	 00000C1C _DATA	
+hsTitle4 . . . . . . . . . . . .	Byte	 00000C5A _DATA	
 inputName  . . . . . . . . . . .	Byte	 0000000A _DATA	
-instruc1 . . . . . . . . . . . .	Byte	 000008FD _DATA	
-instruc2 . . . . . . . . . . . .	Byte	 00000941 _DATA	
-instruc3 . . . . . . . . . . . .	Byte	 00000989 _DATA	
-instruc4 . . . . . . . . . . . .	Byte	 000009D1 _DATA	
-instruc5 . . . . . . . . . . . .	Byte	 000009F5 _DATA	
-instruc6 . . . . . . . . . . . .	Byte	 00000A19 _DATA	
-instruc7 . . . . . . . . . . . .	Byte	 00000A5D _DATA	
-instruc8 . . . . . . . . . . . .	Byte	 00000A9C _DATA	
-instruc9 . . . . . . . . . . . .	Byte	 00000AE5 _DATA	
-instrucChoose  . . . . . . . . .	Byte	 00000B2E _DATA	
+instruc1 . . . . . . . . . . . .	Byte	 000008FF _DATA	
+instruc2 . . . . . . . . . . . .	Byte	 00000943 _DATA	
+instruc3 . . . . . . . . . . . .	Byte	 0000098B _DATA	
+instruc4 . . . . . . . . . . . .	Byte	 000009D3 _DATA	
+instruc5 . . . . . . . . . . . .	Byte	 000009F7 _DATA	
+instruc6 . . . . . . . . . . . .	Byte	 00000A1B _DATA	
+instruc7 . . . . . . . . . . . .	Byte	 00000A5F _DATA	
+instruc8 . . . . . . . . . . . .	Byte	 00000A9E _DATA	
+instruc9 . . . . . . . . . . . .	Byte	 00000AE7 _DATA	
+instrucChoose  . . . . . . . . .	Byte	 00000B30 _DATA	
 level1opt0 . . . . . . . . . . .	Byte	 000005D0 _DATA	
 level1opt1 . . . . . . . . . . .	Byte	 000005FF _DATA	
 level1opt2 . . . . . . . . . . .	Byte	 0000062E _DATA	
@@ -1755,7 +1753,7 @@ level3opt2 . . . . . . . . . . .	Byte	 00000804 _DATA
 level3opt3 . . . . . . . . . . .	Byte	 00000833 _DATA	
 level3opt4 . . . . . . . . . . .	Byte	 00000862 _DATA	
 leveloptchoose1  . . . . . . . .	Byte	 00000891 _DATA	
-leveloptchoose2  . . . . . . . .	Byte	 000008C9 _DATA	
+leveloptchoose2  . . . . . . . .	Byte	 000008CA _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
@@ -1789,8 +1787,8 @@ pmtitle8 . . . . . . . . . . . .	Byte	 0000028F _DATA
 pmtitle9 . . . . . . . . . . . .	Byte	 000002E1 _DATA	
 redTxt . . . . . . . . . . . . .	Number	 00000004h   
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-temp . . . . . . . . . . . . . .	Byte	 00000CE3 _DATA	
-userChoice . . . . . . . . . . .	Byte	 00000CE2 _DATA	
+temp . . . . . . . . . . . . . .	Byte	 00000CE7 _DATA	
+userChoice . . . . . . . . . . .	Byte	 00000CE6 _DATA	
 username . . . . . . . . . . . .	Byte	 0000001F _DATA	
 whiteTxt . . . . . . . . . . . .	Number	 0000000Fh   
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
