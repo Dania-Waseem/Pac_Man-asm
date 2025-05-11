@@ -113,31 +113,76 @@ INFO_START = 90
     gamePause4 db "Press 3: Exit Game",0
 
 
+    gameOverMsg1 db "  ____                         ___                 ",0
+    gameOverMsg2 db " / ___| __ _ _ __ ___   ___   / _ \__   _____ _ __",0
+    gameOverMsg3 db "| |  _ / _` | '_ ` _ \ / _ \ | | | \ \ / / _ \ '__|",0
+    gameOverMsg4 db "| |_| | (_| | | | | | |  __/ | |_| |\ V /  __/ |   ",0
+    gameOverMsg5 db " \____|\__,_|_| |_| |_|\___|  \___/  \_/ \___|_|   ",0
+    scoreDisplay db "YOUR FINAL SCORE: ",0
+    returnOption db "PRESS 1 TO RETURN TO MENU",0
+
+
+    levelCompleteMsg1 db " *       *   *****   *     * ",0
+    levelCompleteMsg2 db " *       *   *   *   **    * ",0
+    levelCompleteMsg3 db " *   *   *   *   *   * *   * ",0
+    levelCompleteMsg4 db " *  * *  *   *   *   *  *  * ",0
+    levelCompleteMsg5 db " * *   * *   *   *   *   * * ",0
+    levelCompleteMsg6 db " *       *   *****   *    ** ",0
+
+
+
+
     ;yeh colors hain 
     redTxt = red+(black*16);
     yellowTxt =yellow+(black*16);
     greenTxt =green+ (black*16);
     blueTxt =blue+ (black*16);
     whiteTxt =white+ (black *16);
+    purpleTxt = magenta + (black*16)
+    blackTxt= black +(black*16)
+
+
+
+; Add these procedures to your code section
 
     userChoice db ?
     temp db ?
     currentLevel db ?
+
 ;-----------------------------------------
 ;level 1 vars for drawing
-playerName  BYTE "Player 1", 0
-scoreMsg    BYTE "Score: ", 0
-livesMsg    BYTE "Lives: ", 0
-levelMsg    BYTE "Level: ", 0
+    playerName  BYTE "Player 1", 0
+    scoreMsg    BYTE "Score: ", 0
+    livesMsg    BYTE "Lives: ", 0
+    levelMsg    BYTE "Level: ", 0
 
-score       DWORD 0
-lives       DWORD 3
-level       DWORD 1
 
 wallChar    BYTE '#'
 emptyChar   BYTE ' '
 
+;---------------------------------------
+;other level 1 vars 
 
+pelletChar db 'o',0
+pacmanChar db 'X',0
+ghostChar db 'G',0
+pelletCount db 20
+pelletPositions db 20 dup(0,0) ; Array of x,y positions
+pacmanX db 10
+pacmanY db 15
+ghostX db 50
+ghostY db 15
+score dd 0
+lives dd 3
+level dd 1
+oldPacmanX db ?
+oldPacmanY db ?
+
+;.................................................
+;level 1 ghost vars
+    ghostDir db 1  ; 1=right, 2=left, 3=up, 4=down
+    oldGhostX db ?
+    oldGhostY db ?
 .code
 main proc
     call Clrscr
@@ -726,15 +771,138 @@ HighscoresScreen proc
 HighscoresScreen endp
 
 ;***********************************************************
+
 Level1Screen PROC
     call Clrscr
     call levelSound
 
-    mov eax, yellowTxt
-    call SetTextColor
+    ; Initialize game state
+    mov pacmanX, 10
+    mov pacmanY, 15
+    mov oldPacmanX, 10     
+    mov oldPacmanY, 15
+    mov ghostX, 50
+    mov ghostY, 15
+    mov oldGhostX, 50
+    mov oldGhostY, 15
+    mov score, 0
+    mov pelletCount, 20
 
-    ; -------- Display Top Info Bar --------
-    mov dh, 1        ; Row 0
+    call InitializePellets
+    call DrawStaticElements
+
+GameLoop:
+    ; Clear old Pac-Man position
+    mov eax, blackTxt
+    call SetTextColor
+    mov dl, oldPacmanX
+    mov dh, oldPacmanY
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+
+    ; Draw dynamic elements
+    call DrawGameElements
+
+    ; Handle input
+    call ReadKey
+    jz NoInput
+
+    cmp al, 'w'
+    je MoveUp
+    cmp al, 'a'
+    je MoveLeft
+    cmp al, 's'
+    je MoveDown
+    cmp al, 'd'
+    je MoveRight
+    cmp al, '1'    ; Return to menu
+    je ExitLevel
+    jmp NoInput
+
+MoveUp:
+    ; Save current position as old position
+    mov al, pacmanX
+    mov oldPacmanX, al
+    mov al, pacmanY
+    mov oldPacmanY, al
+    
+    dec pacmanY
+    call CheckWallCollision
+    jc CancelMoveUp
+    jmp AfterMove
+CancelMoveUp:
+    inc pacmanY
+    jmp AfterMove
+
+MoveLeft:
+    ; Save current position as old position
+    mov al, pacmanX
+    mov oldPacmanX, al
+    mov al, pacmanY
+    mov oldPacmanY, al
+    
+    dec pacmanX
+    call CheckWallCollision
+    jc CancelMoveLeft
+    jmp AfterMove
+CancelMoveLeft:
+    inc pacmanX
+    jmp AfterMove
+
+MoveDown:
+    ; Save current position as old position
+    mov al, pacmanX
+    mov oldPacmanX, al
+    mov al, pacmanY
+    mov oldPacmanY, al
+    
+    inc pacmanY
+    call CheckWallCollision
+    jc CancelMoveDown
+    jmp AfterMove
+CancelMoveDown:
+    dec pacmanY
+    jmp AfterMove
+
+MoveRight:
+    ; Save current position as old position
+    mov al, pacmanX
+    mov oldPacmanX, al
+    mov al, pacmanY
+    mov oldPacmanY, al
+    
+    inc pacmanX
+    call CheckWallCollision
+    jc CancelMoveRight
+    jmp AfterMove
+CancelMoveRight:
+    dec pacmanX
+    jmp AfterMove
+
+AfterMove:
+    ; Check pellet collisions
+    call CheckPelletCollision
+
+NoInput:
+    ; Small delay
+    mov eax, 100
+    call Delay
+
+    ; Check if all pellets collected
+    cmp pelletCount, 0
+    jne GameLoop
+
+ExitLevel:
+    ret
+Level1Screen ENDP
+;;...........................................
+DrawStaticElements PROC
+    ; Draw info bar
+    mov eax, whiteTxt
+    call SetTextColor
+    
+    mov dh, 0
     mov dl, 0
     call Gotoxy
     mov edx, OFFSET livesMsg
@@ -743,20 +911,12 @@ Level1Screen PROC
     call WriteDec
 
     mov dh, 1
-    mov dl, 20
+    mov dl, 0
     call Gotoxy
     mov edx, OFFSET userName
     call WriteString
 
-    mov dh, 1
-    mov dl, 55
-    call Gotoxy
-    mov edx, OFFSET scoreMsg
-    call WriteString
-    mov eax, score
-    call WriteDec
-
-    mov dh, 1
+    mov dh,2
     mov dl, 75
     call Gotoxy
     mov edx, OFFSET levelMsg
@@ -764,13 +924,12 @@ Level1Screen PROC
     mov eax, level
     call WriteDec
 
-    ; -------- Draw Borders --------
-    ; Top border)
+    ; Draw borders and walls (your existing code)
+    ; Top border
     mov dh, 5
     mov dl, 0
     mov ecx, 115
     mov al, wallChar
-
 topBorder:
     call Gotoxy
     call WriteChar
@@ -781,7 +940,6 @@ topBorder:
     mov dh, 29
     mov dl, 0
     mov ecx, 115
-
 bottomBorder:
     call Gotoxy
     call WriteChar
@@ -791,43 +949,272 @@ bottomBorder:
     ; Left and right borders 
     mov dh, 5
     mov ecx, 27        ; Height
-
 sideBorders:
     ; Left border
     mov dl, 0
     call Gotoxy
     mov al, wallChar
     call WriteChar
-
     ; Right border
     mov dl, 114
     call Gotoxy
     mov al, wallChar
     call WriteChar
-
     inc dh
     loop sideBorders
 
-    ; Inner walls
+    ; Inner walls (your existing code)
     call DrawInnerWalls
 
-    ; Print return message
+    ; Return message
     mov dh, 3
     mov dl, 2
     call Gotoxy
     mov edx, offset returnMsg
     call WriteString
+    
+    ret
+DrawStaticElements ENDP
+;;...........................................
+DrawGameElements PROC
+    ; Draw pellets
+    mov eax, purpleTxt
+    call SetTextColor
+    mov esi, OFFSET pelletPositions
+    mov ecx, 20
 
-waitForReturn:
-    call ReadChar         ; Wait for key
-    cmp al, '1'           ; Is it '1'?
-    jne waitForReturn     ; If not, wait again
+DrawPellets:
+    cmp byte ptr [esi], 0  ; Skip if pellet collected
+    je SkipPellet
+    
+    mov dl, [esi]    ; X
+    mov dh, [esi+1]  ; Y
+    call Gotoxy
+    mov al, pelletChar
+    call WriteChar
+
+SkipPellet:
+    add esi, 2
+    loop DrawPellets
+
+    ; Draw Pac-Man
+    mov eax, whiteTxt
+    call SetTextColor
+    mov dl, pacmanX
+    mov dh, pacmanY
+    call Gotoxy
+    mov al, pacmanChar
+    call WriteChar
+
+    ; Draw Ghost
+    mov dl, ghostX
+    mov dh, ghostY
+    call Gotoxy
+    mov al, ghostChar
+    call WriteChar
 
     ret
+DrawGameElements ENDP
+;...........................................
+InitializePellets PROC
+    pushad
+    mov ecx, 20
+    mov esi, OFFSET pelletPositions
 
-level1Screen endp
+PlacePellet:
+    ; Generate random position within play area
+    mov eax, 113    
+    call RandomRange
+    inc eax          ; X = 1-114
+    mov [esi], al    ; Store X
+    
+    mov eax, 23      ; Max Y (29-6)
+    call RandomRange
+    add eax, 6       ; Y = 6-29
+    mov [esi+1], al  ; Store Y
 
+    ; Check if position is valid (not on wall)
+    mov dl, [esi]
+    mov dh, [esi+1]
+    call CheckWallPosition
+    jc PlacePellet  ; If invalid, try again
 
+    add esi, 2
+    loop PlacePellet
+
+    popad
+    ret
+InitializePellets ENDP
+;..........................................
+CheckWallPosition PROC
+    ; Checks if position (dl=X, dh=Y) is a wall
+    ; Returns CF=1 if wall, CF=0 if empty
+    
+    ; Check borders
+    cmp dl, 0
+    je IsWall
+    cmp dl, 114
+    je IsWall
+    cmp dh, 5
+    je IsWall
+    cmp dh, 29
+    je IsWall
+
+    ; Check inner walls (based on your DrawInnerWalls)
+    
+    ; Horizontal wall at Y=10, X=20-34
+    cmp dh, 10
+    jne NotWall1
+    cmp dl, 20
+    jb NotWall1
+    cmp dl, 34
+    ja NotWall1
+    jmp IsWall
+
+NotWall1:
+    ; Horizontal wall at Y=10, X=70-84
+    cmp dh, 10
+    jne NotWall2
+    cmp dl, 70
+    jb NotWall2
+    cmp dl, 84
+    ja NotWall2
+    jmp IsWall
+
+NotWall2:
+    ; Horizontal walls at Y=14
+    cmp dh, 14
+    jne NotWall3
+    ; X=15-22
+    cmp dl, 15
+    jb NotWall3a
+    cmp dl, 22
+    ja NotWall3a
+    jmp IsWall
+NotWall3a:
+    ; X=35-42
+    cmp dl, 35
+    jb NotWall3b
+    cmp dl, 42
+    ja NotWall3b
+    jmp IsWall
+NotWall3b:
+    ; X=55-62
+    cmp dl, 55
+    jb NotWall3c
+    cmp dl, 62
+    ja NotWall3c
+    jmp IsWall
+NotWall3c:
+    ; X=75-82
+    cmp dl, 75
+    jb NotWall3d
+    cmp dl, 82
+    ja NotWall3d
+    jmp IsWall
+NotWall3d:
+    ; X=95-102
+    cmp dl, 95
+    jb NotWall3
+    cmp dl, 102
+    ja NotWall3
+    jmp IsWall
+
+NotWall3:
+    ; Horizontal walls at Y=17
+    cmp dh, 17
+    jne NotWall4
+    ; X=30-39
+    cmp dl, 30
+    jb NotWall4a
+    cmp dl, 39
+    ja NotWall4a
+    jmp IsWall
+NotWall4a:
+    ; X=80-89
+    cmp dl, 80
+    jb NotWall4
+    cmp dl, 89
+    ja NotWall4
+    jmp IsWall
+
+NotWall4:
+    ; Horizontal walls at Y=22
+    cmp dh, 22
+    jne NotWall
+    ; X=25-44
+    cmp dl, 25
+    jb NotWall5a
+    cmp dl, 44
+    ja NotWall5a
+    jmp IsWall
+NotWall5a:
+    ; X=85-104
+    cmp dl, 85
+    jb NotWall
+    cmp dl, 104
+    ja NotWall
+    jmp IsWall
+
+NotWall:
+    clc
+    ret
+IsWall:
+    stc
+    ret
+CheckWallPosition ENDP
+;...........................................
+CheckWallCollision PROC
+    ; Checks if Pac-Man's current position is a wall
+    ; Returns CF=1 if collision
+    mov dl, pacmanX
+    mov dh, pacmanY
+    call CheckWallPosition
+    ret
+CheckWallCollision ENDP
+;.........................................
+CheckPelletCollision PROC
+    pushad
+    mov esi, OFFSET pelletPositions
+    mov ecx, 20
+
+CheckPellets:
+    cmp byte ptr [esi], 0  ; Skip if pellet already collected
+    je NextPellet
+    
+    mov al, [esi]    ; Pellet X
+    cmp al, pacmanX
+    jne NextPellet
+    
+    mov al, [esi+1]  ; Pellet Y
+    cmp al, pacmanY
+    jne NextPellet
+
+    ; Pac-Man is on this pellet!
+    mov byte ptr [esi], 0  ; Remove pellet
+    inc score
+    dec pelletCount
+
+    ; Update score display
+    mov eax, whiteTxt
+    call SetTextColor
+    mov dh, 1
+    mov dl, 55
+    call Gotoxy
+    mov edx, OFFSET scoreMsg
+    call WriteString
+    mov eax, score
+    call WriteDec
+
+NextPellet:
+    add esi, 2
+    loop CheckPellets
+
+    popad
+    ret
+CheckPelletCollision ENDP
+
+;.....................................
 DrawInnerWalls PROC
     mov dh, 10
     mov dl, 20
@@ -864,9 +1251,8 @@ DrawInnerWalls PROC
     mov dl, 85
     call DrawWall
     ret
-DrawInnerWalls endp
-
-
+DrawInnerWalls ENDP
+;.................................................
 DrawWall PROC
     push ecx
 wallLoop:
@@ -877,12 +1263,8 @@ wallLoop:
     loop wallLoop
     pop ecx
     ret
-DrawWall endp
-
-
-
-
-
+DrawWall ENDP
+;........................................
 
 
 Level2Screen proc
