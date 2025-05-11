@@ -163,12 +163,30 @@ INFO_START = 90
     wallCount db 5
     
     ; Movement keys
-    moveUp db 'W'
-    moveLeft db 'A'
-    moveDown db 'S'
-    moveRight db 'D'
-    exitKey db 'Q'        ; ESC key
+    moveUpKey db 'W'
+    moveLeftKey db 'A'
+    moveDownKey db 'S'
+    moveRightKey db 'D'
+    exitKey db 'Q'     ; ESC key
     
+
+    inputChar db ?
+    num_coins db 50
+    fileHandle dd ?
+    space db ' ',0
+
+    ; Add this to your .data section
+    grid db GAME_WIDTH * 25 dup(0)  ; Game grid (0=empty, 1=wall, 2=pellet)
+
+    ; Correct color definitions
+    lightblue = lightblue + (black*16)
+    lightred = lightred + (black*16)
+
+; Add these constants
+    UP = 0
+    DOWN = 1
+    LEFT = 2
+    RIGHT = 3
 
 
 .code
@@ -597,7 +615,6 @@ LevelSelectScreen proc
 StartLevel1:
     mov currentLevel, 1
     call Level1Screen
-    ;jmp ReturnToMenu
 
 StartLevel2:
     mov currentLevel, 2
@@ -759,94 +776,159 @@ HighscoresScreen endp
 
 ;***********************************************************
 
-
 Level1Screen PROC
     call Clrscr
     call levelSound
     
-    ; Draw borders
+    ; Initialize game state
+    mov score, 0
+    mov lives, 3
+    mov num_coins, 50
+    
+    ; Draw initial game elements
     call DrawBorders
-    
-    ; Draw walls
     call DrawWallsLevel1
-    
-    ; Initialize pellets
     call InitializePellets
     
-    
-    ; Initialize ghost position
+    ; Set initial positions
+    mov pacmanX, 40
+    mov pacmanY, 12
     mov ghost1X, 20
     mov ghost1Y, 10
     
-    ; Draw initial positions
-    call DrawPlayer
-    call DrawGhost1
-    
     ; Main game loop
-gameLoop:
-    ; Handle input
-    call ReadKey
-    jz no_input
-    mov inputChar, al
+    GameLoop:
+        ; Draw everything
+        call DrawBorders
+        call DrawWallsLevel1
+       ; call DrawPellets
+        call DrawPlayer
+        call DrawGhost1
+        
+        ; Handle input
+        call ReadKey
+        jz NoInput
+        
+        cmp al, 'W'
+        je MoveUp
+        cmp al, 'A'
+        je MoveLeft
+        cmp al, 'S'
+        je MoveDown
+        cmp al, 'D'
+        je MoveRight
+        cmp al, 27    ; ESC key
+        je ExitLevel
+        
+    NoInput:
+        ; Move ghost
+        call UpdateGhost1
+        
+        ; Check collisions
+        call CheckPelletCollision
+        call CheckGhostCollision
+        
+        ; Check win/lose conditions
+        cmp lives, 0
+        jle GameOver
+        
+        cmp num_coins, 0
+        je LevelCompleteScreen
+        
+        ; Delay for game speed
+        mov eax, 100
+        call Delay
+        
+        jmp GameLoop
     
-    ; Check for exit
-    cmp inputChar, 'Q'
-    je exitLevel
+    MoveUp:
+        dec pacmanY
+        call CheckWallCollision
+        cmp dl, 0
+        je CancelMoveUp
+        jmp GameLoop
+        CancelMoveUp:
+            inc pacmanY
+            jmp GameLoop
     
-    ; Movement handling
-    cmp inputChar, 'W'
-    je moveUp
-    cmp inputChar, 'A'
-    je moveLeft
-    cmp inputChar, 'S'
-    je moveDown
-    cmp inputChar, 'D'
-    je moveRight
+    MoveDown:
+        inc pacmanY
+        call CheckWallCollision
+        cmp dl, 0
+        je CancelMoveDown
+        jmp GameLoop
+        CancelMoveDown:
+            dec pacmanY
+            jmp GameLoop
     
-no_input:
-    ; Update ghost
-    call UpdateGhost1
+    MoveLeft:
+        dec pacmanX
+        call CheckWallCollision
+        cmp dl, 0
+        je CancelMoveLeft
+        jmp GameLoop
+        CancelMoveLeft:
+            inc pacmanX
+            jmp GameLoop
     
-    ; Check collisions
-    call CheckPelletCollision
-    call CheckGhostCollision
+    MoveRight:
+        inc pacmanX
+        call CheckWallCollision
+        cmp dl, 0
+        je CancelMoveRight
+        jmp GameLoop
+        CancelMoveRight:
+            dec pacmanX
+            jmp GameLoop
     
-    ; Check win condition (all pellets collected)
-    cmp num_coins, 0
-    je levelComplete
+    GameOverS:
+        call GameOver
+        ret
     
-    ; Delay for game speed
-    mov eax, 100
-    call Delay
+   ; LevelComplete:
+    ;    call LevelCompleteScreen
+    ;    ret
     
-    jmp gameLoop
-    
-moveUp:
-    ; Handle up movement
-    ; (Include wall collision checks)
-    jmp gameLoop
-    
-moveLeft:
-    ; Handle left movement
-    jmp gameLoop
-    
-moveDown:
-    ; Handle down movement
-    jmp gameLoop
-    
-moveRight:
-    ; Handle right movement
-    jmp gameLoop
-    
-levelComplete:
-    ; Handle level completion
-    inc currentLevel
-    ; Proceed to next level or game complete
-    
-exitLevel:
-    ret
+    ExitLevel:
+        ret
 Level1Screen ENDP
-
+;'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+DrawPlayer PROC
+    ; Draw pacman character
+    mov eax, yellowTxt
+    call SetTextColor
+    
+    mov dl, pacmanX
+    mov dh, pacmanY
+    call Gotoxy
+    mov al, 'C'     ; Pacman character
+    call WriteChar
+    ret
+DrawPlayer ENDP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+DrawGhost1 PROC
+    ; Draw ghost character
+    mov eax, redTxt
+    call SetTextColor
+    
+    mov dl, ghost1X
+    mov dh, ghost1Y
+    call Gotoxy
+    mov al, 'G'     ; Ghost character
+    call WriteChar
+    ret
+DrawGhost1 ENDP
+;.................................................................
+UpdateGhost PROC
+    ; Clear previous ghost position
+    mov dl, ghost1X
+    mov dh, ghost1Y
+    call Gotoxy
+    mov al, ' '
+    call WriteChar
+    ret
+UpdateGhost ENDP
+;.................................................................
 DrawBorders proc
 
     mov eax, blueTxt
@@ -943,6 +1025,7 @@ DrawBorders proc
       
     ret
 DrawBorders endp
+;.....................................................................
 
 DrawWallsLevel1 PROC
     ; Set wall color
@@ -1014,7 +1097,7 @@ DrawWallsLevel1 PROC
     
     ret
 DrawWallsLevel1 ENDP
-
+;.................................................
 DrawHorizontalWall PROC
     ; Draws a horizontal wall
     ; Input: eax = x, ebx = y, ecx = length
@@ -1037,7 +1120,7 @@ DrawHorizontalWall PROC
     pop eax
     ret
 DrawHorizontalWall ENDP
-
+;.....................................................
 DrawVerticalWall PROC
     ; Draws a vertical wall
     ; Input: eax = x, ebx = y, ecx = height
@@ -1061,7 +1144,7 @@ DrawVerticalWall PROC
     pop eax
     ret
 DrawVerticalWall ENDP
-
+;....................................................
 UpdateGhost1 PROC
     ; Ghost movement logic - tries to come closer to Pacman
     ; Compare ghost position with pacman position
@@ -1172,7 +1255,7 @@ CanMoveDown PROC
     call CheckWallCollision
     ret
 CanMoveDown ENDP
-
+;..........................................
 CheckWallCollision PROC
     ; Checks if position (ecx, edx) is a wall
     ; Returns dl = 1 if can move (no wall), dl = 0 if wall
@@ -1188,6 +1271,7 @@ is_wall:
     mov dl, 0           ; Cannot move
     ret
 CheckWallCollision ENDP
+;...............................................
 
 InitializePellets PROC
     ; Initialize pellets for Level 1
@@ -1227,7 +1311,7 @@ place_pellets:
     
     ret
 InitializePellets ENDP
-
+;..........................................
 GetRandomPosition PROC
     ; Returns random position in eax (x), edx (y)
     mov eax, GAME_WIDTH - 2
@@ -1366,8 +1450,99 @@ SaveHighScore PROC
 no_new_high:
     ret
 SaveHighScore ENDP
+;...........................................
+LevelCompleteScreen PROC
+    call Clrscr
+    
+    ; Play level complete sound
+    INVOKE PlaySound, OFFSET midSound, NULL, SND_FILENAME OR SND_ASYNC
+    
+    ; Draw celebration message
+    mov eax, greenTxt
+    call SetTextColor
+    
+    mov dh, 10
+    mov dl, 30
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg1
+    call WriteString
+    
+    mov dh, 12
+    mov dl, 30
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg2
+    call WriteString
+    
+    ; Display final score
+    mov dh, 14
+    mov dl, 30
+    call Gotoxy
+    mov edx, OFFSET finalScoreMsg
+    call WriteString
+    mov eax, score
+    call WriteDec
+    
+    ; Options
+    mov eax, yellowTxt
+    call SetTextColor
+    
+    mov dh, 16
+    mov dl, 30
+    call Gotoxy
+    mov edx, OFFSET nextLevelMsg
+    call WriteString
+    
+    mov dh, 18
+    mov dl, 30
+    call Gotoxy
+    mov edx, OFFSET mainMenuMsg
+    call WriteString
+    
+    ; Wait for input
+    wait_for_input:
+        call ReadChar
+        cmp al, '1'
+        je next_level
+        cmp al, '2'
+        je return_to_menu
+        jmp wait_for_input
+    
+    next_level:
+        ; Proceed to next level
+        inc currentLevel
+        cmp currentLevel, 1
+        je level2
+        cmp currentLevel, 2
+        je level3
+        ; If all levels completed
+        jmp game_complete
+    
+    level2:
+        call Level2Screen
+        jmp done
+    
+    level3:
+        call Level3Screen
+        jmp done
+    
+    game_complete:
+       ; call GameCompleteScreen
+        jmp done
+    
+    return_to_menu:
+        ; Return to main menu
+        call MenuScreen
+    
+    done:
+        ret
 
-
+    ; Add these to your .data section
+    levelCompleteMsg1 db "LEVEL COMPLETE!",0
+    levelCompleteMsg2 db "CONGRATULATIONS!",0
+    finalScoreMsg db "YOUR SCORE: ",0
+    nextLevelMsg db "1. Next Level",0
+    mainMenuMsg db "2. Main Menu",0
+LevelCompleteScreen ENDP
 ;-----------------------------------------------------
 
 Level2Screen proc
