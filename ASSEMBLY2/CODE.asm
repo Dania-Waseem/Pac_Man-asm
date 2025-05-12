@@ -189,6 +189,7 @@ oldPacmanY db ?
     gamePaused db 0
     prevPauseState db 0  ; To track state changes
 ; ==================== FILE HANDLING DATA ====================
+
 ; File handling constants
 BUFFER_SIZE = 1024
 MAX_SCORES = 10
@@ -220,6 +221,7 @@ score_size  BYTE 0
 name_size   BYTE 0
 score1      DWORD 0
 userCount   DWORD 0
+
 ; ============================================================
 
 ; Display strings
@@ -228,6 +230,25 @@ hsHeader2 db "-------------------------------", 0
 noScoresMsg db "No high scores yet!", 0
 
 
+; ==================== LEVEL 2 VARIABLES ====================
+; Ghost variables for level 2
+ghost2X db 70
+ghost2Y db 15
+oldGhost2X db ?
+oldGhost2Y db ?
+ghost2Dir db 3  ; Different initial direction for variety
+ghost2Color = magenta + (black*16)
+
+; Fruit variables
+fruitChar db 'O',0
+fruit1X db ?
+fruit1Y db ?
+fruit2X db ?
+fruit2Y db ?
+fruitActive db 0, 0  ; Track if fruits are active
+fruitTimer dd 0
+FRUIT_SPAWN_TIME = 6000  ; 6 seconds
+FRUIT_POINTS = 5
 
 ;=============================================================================================
 ;============================================================================================
@@ -663,11 +684,11 @@ StartLevel1:
 StartLevel2:
     mov currentLevel, 2
     call Level2Screen  
-
+    ret
 StartLevel3:
     mov currentLevel, 3
     call Level3Screen  
-    
+    ret
 ReturnToMenu:
     ret
     
@@ -910,7 +931,6 @@ DisplayReturn:
 
 HighscoresScreen endp
 
-;***********************************************************
 ;***********************************************************
 ;***********************************************************
 Level1Screen PROC
@@ -1207,7 +1227,6 @@ WaitForInput2:
     ret
 
 Level1Screen ENDP
-;***********************************************************
 
 ;***********************************************************
 
@@ -2144,15 +2163,1078 @@ WriteStr:
 WriteStringToFile ENDP
 ; ============================================================
 
+Level2Screen PROC
+    call Clrscr
+    call levelSound
 
-Level2Screen proc
-Level2Screen endp
+    ; Initialize game state
+    mov pacmanX, 10
+    mov pacmanY, 15
+    mov oldPacmanX, 10     
+    mov oldPacmanY, 15
+    
+    ; Initialize both ghosts
+    mov ghostX, 50
+    mov ghostY, 15
+    mov oldGhostX, 50
+    mov oldGhostY, 15
+    mov ghost2X, 70
+    mov ghost2Y, 15
+    mov oldGhost2X, 70
+    mov oldGhost2Y, 15
+    
+    mov score, 0
+    mov pelletCount, 20
+    mov gamePaused, 0    
+    mov currentLevel, 2
+    
+    ; Initialize fruits as inactive
+    mov fruitActive[0], 0
+    mov fruitActive[1], 0
+    mov fruitTimer, 0
+    
+    call InitializePellets
+    call DrawStaticElementsLevel2
+
+GameLoop:
+    ; Update fruit timer
+    call UpdateFruitTimer
+    
+    call ReadKey
+    jz NoPlayerInput
+
+    ; Check for pause input
+    cmp al, 'q'
+    je TogglePause
+    cmp al, 'Q'
+    je TogglePause
+
+    ; Handle movement and menu keys
+    cmp al, 'w'
+    je MoveUp
+    cmp al, 'a'
+    je MoveLeft
+    cmp al, 's'
+    je MoveDown
+    cmp al, 'd'
+    je MoveRight
+    cmp al, '1'    ; Return to menu
+    je ExitLevel
+    jmp NoPlayerInput
+
+MoveUp:
+    mov al, pacmanX
+    mov oldPacmanX, al
+    mov al, pacmanY
+    mov oldPacmanY, al
+    dec pacmanY
+    call CheckWallCollision
+    jc CancelMoveUp
+    jmp AfterMove
+CancelMoveUp:
+    inc pacmanY
+    jmp AfterMove
+
+MoveLeft:
+    mov al, pacmanX
+    mov oldPacmanX, al
+    mov al, pacmanY
+    mov oldPacmanY, al
+    dec pacmanX
+    call CheckWallCollision
+    jc CancelMoveLeft
+    jmp AfterMove
+CancelMoveLeft:
+    inc pacmanX
+    jmp AfterMove
+
+MoveDown:
+    mov al, pacmanX
+    mov oldPacmanX, al
+    mov al, pacmanY
+    mov oldPacmanY, al
+    inc pacmanY
+    call CheckWallCollision
+    jc CancelMoveDown
+    jmp AfterMove
+CancelMoveDown:
+    dec pacmanY
+    jmp AfterMove
+
+MoveRight:
+    mov al, pacmanX
+    mov oldPacmanX, al
+    mov al, pacmanY
+    mov oldPacmanY, al
+    inc pacmanX
+    call CheckWallCollision
+    jc CancelMoveRight
+    jmp AfterMove
+CancelMoveRight:
+    dec pacmanX
+    jmp AfterMove
+
+AfterMove:
+    call CheckPelletCollision
+    call CheckFruitCollision
+    call CheckGhostCollisionLevel2
+    cmp eax, 1
+    je GameLost
+
+NoPlayerInput:
+    ; Skip ghost and game logic if paused
+    cmp gamePaused, 1
+    je PausedLoop
+
+    call ClearOldPositionsLevel2
+    call GhostMovementLevel2
+    call DrawGameElementsLevel2
+
+    ; Small delay
+    mov eax, 80  ; Slightly faster than level 1
+    call Delay
+
+    ; Check win condition (25 points to win)
+    cmp score, 25
+    jge LevelWon
+    cmp lives, 0
+    jle GameLost
+    jmp GameLoop
+
+PausedLoop:
+    ; Show pause message once
+    mov eax, yellowTxt
+    call SetTextColor
+    mov dh, 12
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET pausedMsg
+    call WriteString
+
+WaitWhilePaused:
+    call ReadKey
+    jz WaitWhilePaused
+
+    cmp al, 'q'
+    je TogglePause
+    cmp al, 'Q'
+    je TogglePause
+    jmp WaitWhilePaused
+
+TogglePause:
+    xor gamePaused, 1
+
+    ; Clear pause message
+    mov eax, blackTxt
+    call SetTextColor
+    mov dh, 12
+    mov dl, 20
+    call Gotoxy
+    mov ecx, 40
+ClearPauseText:
+    mov al, ' '
+    call WriteChar
+    loop ClearPauseText
+
+    jmp GameLoop
+
+ExitLevel:
+    ret
+
+LevelWon:
+    call SaveScore
+    call LevelCompleteScreen
+    ret
+
+GameLost:
+    call SaveScore
+    call GameOverScreen
+    ret
+
+GameOverScreen:
+    call Clrscr
+    mov eax, redTxt
+    call SetTextColor
+
+    ; Draw game over message
+    mov dh, 5
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg1
+    call WriteString
+
+    mov dh, 6
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg2
+    call WriteString
+
+    mov dh, 6
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg3
+    call WriteString
+
+    mov dh, 7
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg4
+    call WriteString
+
+    mov dh, 8
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg5
+    call WriteString
+
+    ; Display score
+    mov dh, 12
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET scoreDisplay
+    call WriteString
+    mov eax, score
+    call WriteDec
+
+    ; Display return option
+    mov dh, 14
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET returnOption
+    call WriteString
+
+WaitForInput:
+    call ReadChar
+    cmp al, '1'
+    jne WaitForInput
+    ret
+
+
+LevelCompleteScreen:
+    call Clrscr
+    mov eax, greenTxt
+    call SetTextColor
+
+    ; Draw level complete message
+    mov dh, 5
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg1
+    call WriteString
+
+    mov dh, 6
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg2
+    call WriteString
+
+    mov dh, 7
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg3
+    call WriteString
+
+    mov dh, 8
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg4
+    call WriteString
+
+    mov dh, 9
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg5
+    call WriteString
+
+    mov dh, 10
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg6
+    call WriteString
+
+    
+    ; Display score
+    mov dh, 12
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET scoreDisplay
+    call WriteString
+    mov eax, score
+    call WriteDec
+
+    ; Display return option
+    mov dh, 14
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET returnOption
+    call WriteString
+
+WaitForInput2:
+    call ReadChar
+    cmp al, '1'
+    jne WaitForInput2
+    ret
+
+Level2Screen ENDP
+
+
+; ==================== LEVEL 2 SPECIFIC PROCEDURES ====================
+
+DrawStaticElementsLevel2 PROC
+    ; Draw info bar (same as level 1)
+    mov eax, whiteTxt
+    call SetTextColor
+    
+    mov dh, 0
+    mov dl, 0
+    call Gotoxy
+    mov edx, OFFSET livesMsg
+    call WriteString
+    mov eax, lives
+    call WriteDec
+
+    mov dh, 1
+    mov dl, 0
+    call Gotoxy
+    mov edx, OFFSET userName
+    call WriteString
+
+    mov dh,2
+    mov dl, 75
+    call Gotoxy
+    mov edx, OFFSET levelMsg
+    call WriteString
+    mov eax, level
+    call WriteDec
+
+    mov dh, 4       
+    mov dl, 1
+    call Gotoxy
+    mov edx, OFFSET pauseMsg
+    call WriteString
+
+    ; Draw borders and walls (same as level 1)
+    ; Top border
+    mov dh, 5
+    mov dl, 0
+    mov ecx, 115
+    mov al, wallChar
+topBorder:
+    call Gotoxy
+    call WriteChar
+    inc dl
+    loop topBorder
+
+    ; Bottom border
+    mov dh, 29
+    mov dl, 0
+    mov ecx, 115
+bottomBorder:
+    call Gotoxy
+    call WriteChar
+    inc dl
+    loop bottomBorder
+
+    ; Left and right borders 
+    mov dh, 5
+    mov ecx, 27        ; Height
+sideBorders:
+    ; Left border
+    mov dl, 0
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    ; Right border
+    mov dl, 114
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    inc dh
+    loop sideBorders
+
+    ; Inner walls - different pattern for level 2
+    call DrawInnerWallsLevel2
+
+    ; Return message
+    mov dh, 3
+    mov dl, 2
+    call Gotoxy
+    mov edx, offset returnMsg
+    call WriteString
+    
+    ret
+DrawStaticElementsLevel2 ENDP
+
+DrawInnerWallsLevel2 PROC
+    ; Different wall pattern for level 2
+    mov dh, 8
+    mov dl, 15
+    mov ecx, 20
+    call DrawWall
+    mov dl, 60
+    mov ecx, 20
+    call DrawWall
+
+    mov dh, 12
+    mov dl, 30
+    mov ecx, 10
+    call DrawWall
+    mov dl, 70
+    call DrawWall
+
+    mov dh, 16
+    mov dl, 10
+    mov ecx, 15
+    call DrawWall
+    mov dl, 40
+    call DrawWall
+    mov dl, 80
+    call DrawWall
+
+    mov dh, 20
+    mov dl, 20
+    mov ecx, 25
+    call DrawWall
+    mov dl, 70
+    call DrawWall
+
+    mov dh, 24
+    mov dl, 30
+    mov ecx, 10
+    call DrawWall
+    mov dl, 70
+    call DrawWall
+    ret
+DrawInnerWallsLevel2 ENDP
+
+DrawGameElementsLevel2 PROC
+    ; Draw pellets
+    mov eax, purpleTxt
+    call SetTextColor
+    mov esi, OFFSET pelletPositions
+    mov ecx, 20
+
+DrawPellets:
+    cmp byte ptr [esi], 0  ; Skip if pellet collected
+    je SkipPellet
+    
+    mov dl, [esi]    ; X
+    mov dh, [esi+1]  ; Y
+    call Gotoxy
+    mov al, pelletChar
+    call WriteChar
+
+SkipPellet:
+    add esi, 2
+    loop DrawPellets
+
+    ; Draw fruits if active
+    cmp fruitActive[0], 1
+    jne SkipFruit1
+    mov eax, yellowTxt
+    call SetTextColor
+    mov dl, fruit1X
+    mov dh, fruit1Y
+    call Gotoxy
+    mov al, fruitChar
+    call WriteChar
+
+SkipFruit1:
+    cmp fruitActive[1], 1
+    jne SkipFruit2
+    mov eax, yellowTxt
+    call SetTextColor
+    mov dl, fruit2X
+    mov dh, fruit2Y
+    call Gotoxy
+    mov al, fruitChar
+    call WriteChar
+
+SkipFruit2:
+    ; Draw Pac-Man
+    mov eax, whiteTxt
+    call SetTextColor
+    mov dl, pacmanX
+    mov dh, pacmanY
+    call Gotoxy
+    mov al, pacmanChar
+    call WriteChar
+
+    ; Draw Ghost 1 (normal ghost)
+    mov dl, ghostX
+    mov dh, ghostY
+    call Gotoxy
+    mov al, ghostChar
+    call WriteChar
+
+    ; Draw Ghost 2 (Pinky)
+    mov eax, ghost2Color
+    call SetTextColor
+    mov dl, ghost2X
+    mov dh, ghost2Y
+    call Gotoxy
+    mov al, ghostChar
+    call WriteChar
+
+    ret
+DrawGameElementsLevel2 ENDP
+
+ClearOldPositionsLevel2 PROC
+    ; Clear old Pac-Man position
+    mov eax, blackTxt
+    call SetTextColor
+    mov dl, oldPacmanX
+    mov dh, oldPacmanY
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    
+    ; Clear old ghost positions
+    mov dl, oldGhostX
+    mov dh, oldGhostY
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    
+    mov dl, oldGhost2X
+    mov dh, oldGhost2Y
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    ret
+ClearOldPositionsLevel2 ENDP
+
+GhostMovementLevel2 PROC
+    ; Save old positions
+    mov al, ghostX
+    mov oldGhostX, al
+    mov al, ghostY
+    mov oldGhostY, al
+    mov al, ghost2X
+    mov oldGhost2X, al
+    mov al, ghost2Y
+    mov oldGhost2Y, al
+    
+    ; Move first ghost (same as level 1)
+    call Randomize
+    mov eax, 10
+    call RandomRange
+    cmp eax, 7  ; 70% chance to move toward Pac-Man
+    jb RandomMove1
+    
+    ; Move toward Pac-Man
+    mov bl, pacmanX
+    mov bh, pacmanY
+    
+    cmp ghostX, bl
+    jl MoveGhostRight1
+    jg MoveGhostLeft1
+    cmp ghostY, bh
+    jl MoveGhostDown1
+    jg MoveGhostUp1
+    jmp RandomMove1
+
+MoveGhostRight1:
+    inc ghostX
+    call CheckGhostWallCollision
+    jc UndoGhostMove1
+    jmp MoveGhost2
+UndoGhostMove1:
+    mov al, oldGhostX
+    mov ghostX, al
+    jmp MoveGhost2
+
+MoveGhostLeft1:
+    dec ghostX
+    call CheckGhostWallCollision
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+MoveGhostUp1:
+    dec ghostY
+    call CheckGhostWallCollision
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+MoveGhostDown1:
+    inc ghostY
+    call CheckGhostWallCollision
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+RandomMove1:
+    ; Random direction (1-4)
+    mov eax, 4
+    call RandomRange
+    inc eax
+    
+    cmp eax, 1
+    je TryRight1
+    cmp eax, 2
+    je TryLeft1
+    cmp eax, 3
+    je TryUp1
+    cmp eax, 4
+    je TryDown1
+
+TryRight1:
+    inc ghostX
+    call CheckGhostWallCollision
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+TryLeft1:
+    dec ghostX
+    call CheckGhostWallCollision
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+TryUp1:
+    dec ghostY
+    call CheckGhostWallCollision
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+TryDown1:
+    inc ghostY
+    call CheckGhostWallCollision
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+; Move second ghost (Pinky - more unpredictable)
+MoveGhost2:
+    ; Pinky has different movement patterns
+    call Randomize
+    mov eax, 100
+    call RandomRange
+    
+    ; 40% chance to move toward Pac-Man
+    cmp eax, 40
+    jb MoveTowardPacman
+    
+    ; 30% chance to move randomly
+    cmp eax, 70
+    jb MoveRandomly
+    
+    ; 30% chance to cut off Pac-Man's path
+    jmp CutOffPath
+
+MoveTowardPacman:
+    mov bl, pacmanX
+    mov bh, pacmanY
+    
+    cmp ghost2X, bl
+    jl MoveGhostRight2
+    jg MoveGhostLeft2
+    cmp ghost2Y, bh
+    jl MoveGhostDown2
+    jg MoveGhostUp2
+    jmp MoveRandomly
+
+CutOffPath:
+    ; Try to predict Pac-Man's path
+    mov bl, pacmanX
+    mov bh, pacmanY
+    
+    ; Check Pac-Man's direction by comparing with old position
+    mov al, pacmanX
+    cmp al, oldPacmanX
+    jg MovingRight
+    jl MovingLeft
+    
+    mov al, pacmanY
+    cmp al, oldPacmanY
+    jg MovingDown
+    jl MovingUp
+    
+    ; If not moving, default to toward movement
+    jmp MoveTowardPacman
+
+MovingRight:
+    ; Try to get ahead to the right
+    add bl, 5
+    jmp MoveTowardPoint
+
+MovingLeft:
+    ; Try to get ahead to the left
+    sub bl, 5
+    jmp MoveTowardPoint
+
+MovingUp:
+    ; Try to get above
+    sub bh, 5
+    jmp MoveTowardPoint
+
+MovingDown:
+    ; Try to get below
+    add bh, 5
+
+MoveTowardPoint:
+    ; Move toward the predicted point (bl,bh)
+    cmp ghost2X, bl
+    jl MoveGhostRight2
+    jg MoveGhostLeft2
+    cmp ghost2Y, bh
+    jl MoveGhostDown2
+    jg MoveGhostUp2
+    jmp MoveRandomly
+
+MoveRandomly:
+    ; Random direction (1-4)
+    mov eax, 4
+    call RandomRange
+    inc eax
+    
+    cmp eax, 1
+    je TryRight2
+    cmp eax, 2
+    je TryLeft2
+    cmp eax, 3
+    je TryUp2
+    cmp eax, 4
+    je TryDown2
+
+TryRight2:
+    inc ghost2X
+    call CheckGhost2WallCollision
+    jc UndoGhostMove2
+    ret
+
+TryLeft2:
+    dec ghost2X
+    call CheckGhost2WallCollision
+    jc UndoGhostMove2
+    ret
+
+TryUp2:
+    dec ghost2Y
+    call CheckGhost2WallCollision
+    jc UndoGhostMove2
+    ret
+
+TryDown2:
+    inc ghost2Y
+    call CheckGhost2WallCollision
+    jc UndoGhostMove2
+    ret
+
+MoveGhostRight2:
+    inc ghost2X
+    call CheckGhost2WallCollision
+    jc UndoGhostMove2
+    ret
+
+MoveGhostLeft2:
+    dec ghost2X
+    call CheckGhost2WallCollision
+    jc UndoGhostMove2
+    ret
+
+MoveGhostUp2:
+    dec ghost2Y
+    call CheckGhost2WallCollision
+    jc UndoGhostMove2
+    ret
+
+MoveGhostDown2:
+    inc ghost2Y
+    call CheckGhost2WallCollision
+    jc UndoGhostMove2
+    ret
+
+UndoGhostMove2:
+    mov al, oldGhost2X
+    mov ghost2X, al
+    mov al, oldGhost2Y
+    mov ghost2Y, al
+    ret
+GhostMovementLevel2 ENDP
+
+CheckGhost2WallCollision PROC
+    mov dl, ghost2X
+    mov dh, ghost2Y
+    call CheckWallPosition
+    ret
+CheckGhost2WallCollision ENDP
+
+CheckGhostCollisionLevel2 PROC
+    ; Check collision with first ghost
+    mov al, pacmanX
+    sub al, ghostX
+    cmp al, -1
+    jl CheckSecondGhost
+    cmp al, 1
+    jg CheckSecondGhost
+    
+    mov al, pacmanY
+    sub al, ghostY
+    cmp al, -1
+    jl CheckSecondGhost
+    cmp al, 1
+    jg CheckSecondGhost
+    
+    ; Collision with first ghost
+    jmp GhostCollision
+    
+CheckSecondGhost:
+    ; Check collision with second ghost
+    mov al, pacmanX
+    sub al, ghost2X
+    cmp al, -1
+    jl NoCollision
+    cmp al, 1
+    jg NoCollision
+    
+    mov al, pacmanY
+    sub al, ghost2Y
+    cmp al, -1
+    jl NoCollision
+    cmp al, 1
+    jg NoCollision
+    
+    ; Collision with second ghost
+GhostCollision:
+    dec lives
+
+    ; Update lives display
+    mov eax, whiteTxt
+    call SetTextColor
+    mov dh, 0
+    mov dl, 7
+    call Gotoxy
+    mov eax, lives
+    movzx eax, al
+    call WriteDec
+
+    ; Clear ghosts from screen
+    mov dl, ghostX
+    mov dh, ghostY
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    
+    mov dl, ghost2X
+    mov dh, ghost2Y
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+
+    ; Reset positions
+    mov pacmanX, 10
+    mov pacmanY, 15
+    mov ghostX, 50
+    mov ghostY, 15
+    mov ghost2X, 70
+    mov ghost2Y, 15
+
+    cmp lives, 0
+    jle GameOver
+
+    mov eax, 0
+    ret
+
+NoCollision:
+    mov eax, 0
+    ret
+
+GameOver:
+    mov eax, 1
+    ret
+CheckGhostCollisionLevel2 ENDP
+
+UpdateFruitTimer PROC
+    ; Check if we need to spawn fruits
+    cmp fruitActive[0], 1
+    je CheckSecondFruit
+    cmp fruitActive[1], 1
+    je CheckSecondFruit
+    
+    ; No fruits active - check timer
+    mov eax, fruitTimer
+    add eax, 100  ; Assuming this is called every game loop (100ms)
+    mov fruitTimer, eax
+    
+    cmp eax, FRUIT_SPAWN_TIME
+    jb TimerDone
+    
+    ; Time to spawn fruits
+    call SpawnFruits
+    mov fruitTimer, 0
+    ret
+    
+CheckSecondFruit:
+    ; At least one fruit is active - just update timer
+    mov eax, fruitTimer
+    add eax, 100
+    mov fruitTimer, eax
+    cmp eax, FRUIT_SPAWN_TIME
+    jb TimerDone
+    
+    ; Time to respawn fruits
+    call SpawnFruits
+    mov fruitTimer, 0
+    
+TimerDone:
+    ret
+UpdateFruitTimer ENDP
+
+SpawnFruits PROC
+    ; Spawn first fruit if not active
+    cmp fruitActive[0], 1
+    je SpawnSecond
+    
+    call FindEmptyPosition
+    mov fruit1X, dl
+    mov fruit1Y, dh
+    mov fruitActive[0], 1
+    
+SpawnSecond:
+    ; Spawn second fruit if not active
+    cmp fruitActive[1], 1
+    je SpawnDone
+    
+    call FindEmptyPosition
+    mov fruit2X, dl
+    mov fruit2Y, dh
+    mov fruitActive[1], 1
+    
+SpawnDone:
+    ret
+SpawnFruits ENDP
+
+FindEmptyPosition PROC
+    ; Find a random empty position (not wall, not pellet, not pacman/ghosts)
+TryAgain:
+    mov eax, 113    
+    call RandomRange
+    inc eax          ; X = 1-114
+    mov dl, al
+    
+    mov eax, 23      ; Max Y (29-6)
+    call RandomRange
+    add eax, 6       ; Y = 6-29
+    mov dh, al
+    
+    ; Check if position is valid
+    call CheckWallPosition
+    jc TryAgain
+    
+    ; Check if position has pellet
+    mov esi, OFFSET pelletPositions
+    mov ecx, 20
+CheckPellets:
+    cmp byte ptr [esi], 0  ; Skip if pellet collected
+    je NextPelletCheck
+    
+    mov al, [esi]
+    cmp al, dl
+    jne NextPelletCheck
+    mov al, [esi+1]
+    cmp al, dh
+    je TryAgain
+    
+NextPelletCheck:
+    add esi, 2
+    loop CheckPellets
+    
+    ; Check if position is on Pac-Man or ghosts
+    mov al, pacmanX
+    cmp al, dl
+    jne CheckGhost1
+    mov al, pacmanY
+    cmp al, dh
+    je TryAgain
+    
+CheckGhost1:
+    mov al, ghostX
+    cmp al, dl
+    jne CheckGhost2
+    mov al, ghostY
+    cmp al, dh
+    je TryAgain
+    
+CheckGhost2:
+    mov al, ghost2X
+    cmp al, dl
+    jne PositionOK
+    mov al, ghost2Y
+    cmp al, dh
+    je TryAgain
+    
+PositionOK:
+    ret
+FindEmptyPosition ENDP
+
+CheckFruitCollision PROC
+    ; Check collision with first fruit
+    cmp fruitActive[0], 1
+    jne CheckSecondFruit
+    
+    mov al, pacmanX
+    cmp al, fruit1X
+    jne CheckSecondFruit
+    mov al, pacmanY
+    cmp al, fruit1Y
+    jne CheckSecondFruit
+    
+    ; Collision with first fruit
+    mov fruitActive[0], 0
+    add score, FRUIT_POINTS
+    
+    ; Update score display
+    mov eax, whiteTxt
+    call SetTextColor
+    mov dh, 1
+    mov dl, 55
+    call Gotoxy
+    mov edx, OFFSET scoreMsg
+    call WriteString
+    mov eax, score
+    call WriteDec
+    
+    ; Immediately spawn new fruit
+    call SpawnFruits
+    ret
+    
+CheckSecondFruit:
+    ; Check collision with second fruit
+    cmp fruitActive[1], 1
+    jne NoFruitCollision
+    
+    mov al, pacmanX
+    cmp al, fruit2X
+    jne NoFruitCollision
+    mov al, pacmanY
+    cmp al, fruit2Y
+    jne NoFruitCollision
+    
+    ; Collision with second fruit
+    mov fruitActive[1], 0
+    add score, FRUIT_POINTS
+    
+    ; Update score display
+    mov eax, whiteTxt
+    call SetTextColor
+    mov dh, 1
+    mov dl, 55
+    call Gotoxy
+    mov edx, OFFSET scoreMsg
+    call WriteString
+    mov eax, score
+    call WriteDec
+    
+    ; Immediately spawn new fruit
+    call SpawnFruits
+    
+NoFruitCollision:
+    ret
+CheckFruitCollision ENDP
+
+
 
 Level3Screen proc
 Level3Screen endp
 
 end main
-
-
 
 
