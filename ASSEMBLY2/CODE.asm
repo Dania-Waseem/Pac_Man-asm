@@ -20,7 +20,6 @@ PlaySound PROTO STDCALL,
     hmod:DWORD, 
     fdwSound:DWORD
 
-
 GAME_WIDTH = 80 
 INFO_START = 90
 
@@ -31,7 +30,6 @@ INFO_START = 90
 
     SoundError db "Sound file not found or couldn't be played!",0
     
-    fileName  db "Scores.txt" 
 	inputName db "Enter your name ... ",0
     username  db 50 dup(0)
 
@@ -184,12 +182,55 @@ oldPacmanY db ?
     oldGhostX db ?
     oldGhostY db ?
 
-;...................
+;.................................
 ;pause variables
     pauseMsg db "PRESS Q TO PAUSE GAME",0
     pausedMsg db "GAME PAUSED - PRESS Q TO RESUME ",0
     gamePaused db 0
     prevPauseState db 0  ; To track state changes
+; ==================== FILE HANDLING DATA ====================
+; File handling constants
+BUFFER_SIZE = 1024
+MAX_SCORES = 10
+MAX_NAME_LEN = 16
+
+; File operations
+filename    BYTE "scores.txt",0
+fileHandle  DWORD ?
+bytesRead   DWORD ?
+
+; Buffers
+fileBuffer  BYTE BUFFER_SIZE DUP(?)
+tempBuffer  BYTE BUFFER_SIZE DUP(?)
+
+; Formatting
+comma       BYTE ",",0
+newline     BYTE 0Dh,0Ah,0
+
+; Score storage
+scores      DWORD MAX_SCORES DUP(0)
+names       BYTE MAX_SCORES * MAX_NAME_LEN DUP(0)
+levels      BYTE MAX_SCORES DUP(0)
+scoreCount  DWORD 0
+
+; Score processing
+arr_score   BYTE 10 DUP(0)
+arr_name    BYTE MAX_NAME_LEN DUP(0)
+score_size  BYTE 0
+name_size   BYTE 0
+score1      DWORD 0
+userCount   DWORD 0
+; ============================================================
+
+; Display strings
+hsHeader1 db "Rank  Name            Score  Level", 0
+hsHeader2 db "-------------------------------", 0
+noScoresMsg db "No high scores yet!", 0
+
+
+
+;=============================================================================================
+;============================================================================================
 .code
 main proc
     call Clrscr
@@ -725,7 +766,8 @@ HighscoresScreen proc
     call introSound
 
     call Clrscr
-    
+  ;  call LoadScores
+  ;  call SortScores
 
     mov eax, yellowTxt
     call SetTextColor
@@ -772,9 +814,100 @@ HighscoresScreen proc
     call WriteString
     
     call ReadInt
+        cmp userCount, 0
+    je NoScores
     
-    ; Any key returns to menu
+    ; Display headers
+    mov eax, whiteTxt
+    call SetTextColor
+    
+    mov dh, 10
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET hsHeader1
+    call WriteString
+    
+    mov dh, 11
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET hsHeader2
+    call WriteString
+    
+    ; Display each score (top 10)
+    mov ecx, userCount
+    cmp ecx, 10
+    jbe DisplayLoop
+    mov ecx, 10
+    
+DisplayLoop:
+    push ecx
+    mov eax, 10
+    sub eax, ecx    ; Calculate rank (10,9,...1)
+    inc eax
+    
+    ; Position cursor
+    mov dh, al
+    add dh, 11      ; Start at row 12
+    mov dl, 20
+    call Gotoxy
+    
+    ; Display rank
+    call WriteDec
+    add dl, 6
+    call Gotoxy
+    
+    ; Display name
+    mov eax, 10
+    sub eax, ecx
+    imul eax, MAX_NAME_LEN
+    add eax, OFFSET names
+    mov edx, eax
+    call WriteString
+    
+    ; Display score
+    add dl, 16
+    call Gotoxy
+    mov eax, 10
+    sub eax, ecx
+    mov eax, scores[eax*4]
+    call WriteDec
+    
+    ; Display level
+    add dl, 8
+    call Gotoxy
+    mov eax, 10
+    sub eax, ecx
+    movzx eax, levels[eax]
+    call WriteDec
+    
+    pop ecx
+    loop DisplayLoop
+    
+    jmp DisplayReturn
+    
+NoScores:
+    mov eax, redTxt
+    call SetTextColor
+    mov dh, 12
+    mov dl, 30
+    call Gotoxy
+    mov edx, OFFSET noScoresMsg
+    call WriteString
+    
+DisplayReturn:
+    ; Display return message
+    mov eax, whiteTxt
+    call SetTextColor
+    mov dh, 23
+    mov dl, 25
+    call Gotoxy
+    mov edx, OFFSET returnOption
+    call WriteString
+    
+    ; Wait for key press
+    call ReadChar
     ret
+
 HighscoresScreen endp
 
 ;***********************************************************
@@ -795,8 +928,8 @@ Level1Screen PROC
     mov oldGhostY, 15
     mov score, 0
     mov pelletCount, 20
-    mov gamePaused, 0     ; Initialize pause state
-
+    mov gamePaused, 0    
+    mov currentLevel,1
     call InitializePellets
     call DrawStaticElements
 
@@ -879,7 +1012,7 @@ AfterMove:
     call CheckPelletCollision
     call CheckGhostCollision
     cmp eax, 1
-    je GameOverScreen
+    je GameLost
 
 NoPlayerInput:
     ; Skip ghost and game logic if paused
@@ -897,7 +1030,7 @@ NoPlayerInput:
     ; Check win condition
     cmp pelletCount, 0
     jne GameLoop
-    je LevelCompleteScreen
+    je LevelWon
 
 PausedLoop:
     ; Show pause message once
@@ -937,6 +1070,16 @@ ClearPauseText:
     jmp GameLoop
 
 ExitLevel:
+    ret
+
+LevelWon:
+    call SaveScore
+    call LevelCompleteScreen
+    ret
+
+GameLost:
+    call SaveScore
+    call GameOverScreen
     ret
 
 GameOverScreen:
@@ -997,6 +1140,7 @@ WaitForInput:
     jne WaitForInput
     ret
 
+
 LevelCompleteScreen:
     call Clrscr
     mov eax, greenTxt
@@ -1039,6 +1183,7 @@ LevelCompleteScreen:
     mov edx, OFFSET levelCompleteMsg6
     call WriteString
 
+    
     ; Display score
     mov dh, 12
     mov dl, 20
@@ -1066,7 +1211,6 @@ Level1Screen ENDP
 
 ;***********************************************************
 
-;...........................................
 DrawStaticElements PROC
     ; Draw info bar
     mov eax, whiteTxt
@@ -1616,7 +1760,389 @@ GameOver:
     ret
 CheckGhostCollision ENDP
 
-;......................................
+; ==================== FILE HANDLING PROCEDURES ====================
+
+
+; Save current score to file
+saveScore PROC
+    pushad
+    
+    ; Prepare data for writing
+    mov esi, OFFSET userName
+    mov edi, OFFSET tempBuffer
+    call CopyStringToBuffer
+    
+    ; Add comma
+    mov al, ','
+    mov [edi], al
+    inc edi
+    
+    ; Convert score to string
+    mov eax, score
+    call ConvertNumberToString
+    
+    ; Add comma
+    mov al, ','
+    mov [edi], al
+    inc edi
+    
+    ; Convert level to string
+    movzx eax, currentLevel
+    call ConvertNumberToString
+    
+    ; Add newline
+    mov al, 0Dh
+    mov [edi], al
+    inc edi
+    mov al, 0Ah
+    mov [edi], al
+    inc edi
+    
+    ; Open/Create file
+    mov edx, OFFSET filename
+    call OpenInputFile
+    cmp eax, INVALID_HANDLE_VALUE
+    je CreateNew
+    
+    ; File exists - close and reopen for append
+    mov fileHandle, eax
+    call CloseFile
+    mov edx, OFFSET filename
+    call CreateOutputFile
+    jmp FileReady
+    
+CreateNew:
+    mov edx, OFFSET filename
+    call CreateOutputFile
+    
+FileReady:
+    mov fileHandle, eax
+    cmp eax, INVALID_HANDLE_VALUE
+    je ErrorExit
+    
+    ; Write the prepared buffer
+    mov edx, OFFSET tempBuffer
+    mov ecx, edi
+    sub ecx, edx
+    call WriteToFile
+    
+ErrorExit:
+    mov eax, fileHandle
+    call CloseFile
+    popad
+    ret
+saveScore ENDP
+
+; Read scores from file
+readScoresFromFile PROC
+    pushad
+
+    mov edx, OFFSET filename
+    call OpenInputFile
+    cmp eax, INVALID_HANDLE_VALUE
+    je Done
+
+    mov fileHandle, eax
+    mov edx, OFFSET fileBuffer
+    mov ecx, BUFFER_SIZE
+    call ReadFromFile
+    mov bytesRead, eax
+
+    ; Parse the file buffer
+    mov esi, OFFSET fileBuffer
+    mov edi, 0
+    call ParseScoreData
+
+Done:
+    mov eax, fileHandle
+    call CloseFile
+    popad
+    ret
+readScoresFromFile ENDP
+
+; Helper procedure to parse score data
+ParseScoreData PROC
+ParseLoop:
+    cmp edi, MAX_SCORES
+    jge DoneReading
+
+    ; Read name
+    mov ebx, edi
+    imul ebx, MAX_NAME_LEN
+    call ReadName
+
+    ; Read score
+    call ReadNumber
+    mov scores[edi*4], eax
+
+    ; Read level
+    call ReadNumber
+    mov levels[edi], al
+
+    inc edi
+    jmp ParseLoop
+
+DoneReading:
+    mov scoreCount, edi
+    ret
+ParseScoreData ENDP
+
+; Helper to read a name from buffer
+ReadName PROC
+    xor ecx, ecx
+ReadNameChar:
+    mov al, [esi]
+    cmp al, ','
+    je StoreName
+    mov names[ebx], al
+    inc ebx
+    inc ecx
+    inc esi
+    jmp ReadNameChar
+StoreName:
+    mov names[ebx], 0
+    inc esi
+    ret
+ReadName ENDP
+
+; Helper to read a number from buffer
+ReadNumber PROC
+    xor eax, eax
+ReadDigit:
+    mov bl, [esi]
+    cmp bl, ','
+    je NumberDone
+    cmp bl, 0Dh
+    je NumberDone
+    sub bl, '0'
+    imul eax, 10
+    add eax, ebx
+    inc esi
+    jmp ReadDigit
+NumberDone:
+    inc esi
+    cmp bl, 0Dh
+    jne Return
+    inc esi  ; Skip LF
+Return:
+    ret
+ReadNumber ENDP
+
+; Helper to convert number to string
+ConvertNumberToString PROC
+    push ebx
+    push edx
+    push ecx
+    
+    mov ebx, 10
+    xor ecx, ecx
+    
+DivLoop:
+    xor edx, edx
+    div ebx
+    push dx
+    inc cx
+    test eax, eax
+    jnz DivLoop
+    
+WriteDigits:
+    pop ax
+    add al, '0'
+    mov [edi], al
+    inc edi
+    dec cx
+    jnz WriteDigits
+    
+    pop ecx
+    pop edx
+    pop ebx
+    ret
+ConvertNumberToString ENDP
+
+; Helper to copy string to buffer
+CopyStringToBuffer PROC
+CopyChar:
+    mov al, [esi]
+    mov [edi], al
+    inc esi
+    inc edi
+    test al, al
+    jnz CopyChar
+    dec edi  ; Back up over null terminator
+    ret
+CopyStringToBuffer ENDP
+
+; Add new score to arrays
+addNewScore PROC
+    pushad
+    mov eax, scoreCount
+    cmp eax, MAX_SCORES
+    jge SkipAdd
+
+    ; Copy name
+    mov ecx, MAX_NAME_LEN
+    mov esi, OFFSET userName
+    mov edi, eax
+    imul edi, MAX_NAME_LEN
+    add edi, OFFSET names
+    rep movsb
+
+    ; Store score and level
+    mov ebx, scoreCount
+    mov eax, score
+    mov scores[ebx*4], eax
+    mov al, currentLevel
+    mov levels[ebx], al
+
+    inc scoreCount
+SkipAdd:
+    popad
+    ret
+addNewScore ENDP
+
+; Sort scores in descending order
+sortScores PROC
+    pushad
+    
+    mov ecx, scoreCount
+    dec ecx
+    jle DoneSorting
+    
+OuterLoop:
+    push ecx
+    mov esi, 0
+    
+InnerLoop:
+    mov eax, scores[esi*4]
+    cmp eax, scores[esi*4 + 4]
+    jge NoSwap
+    
+    ; Swap scores
+    mov edx, scores[esi*4 + 4]
+    mov scores[esi*4], edx
+    mov scores[esi*4 + 4], eax
+    
+    ; Swap names
+    push esi
+    imul esi, MAX_NAME_LEN
+    lea edi, names[esi]
+    lea esi, names[esi + MAX_NAME_LEN]
+    mov ecx, MAX_NAME_LEN
+    call SwapMemory
+    
+    ; Swap levels
+    pop esi
+    mov al, levels[esi]
+    mov bl, levels[esi+1]
+    mov levels[esi+1], al
+    mov levels[esi], bl
+    
+NoSwap:
+    inc esi
+    dec ecx
+    jnz InnerLoop
+    
+    pop ecx
+    dec ecx
+    jnz OuterLoop
+    
+DoneSorting:
+    popad
+    ret
+sortScores ENDP
+
+; Helper to swap memory blocks
+SwapMemory PROC
+SwapByte:
+    mov al, [edi]
+    mov bl, [esi]
+    mov [esi], al
+    mov [edi], bl
+    inc edi
+    inc esi
+    loop SwapByte
+    ret
+SwapMemory ENDP
+
+; Write all scores to file
+writeAllScoresToFile PROC
+    pushad
+    mov edx, OFFSET filename
+    call CreateOutputFile
+    mov fileHandle, eax
+
+    mov ecx, scoreCount
+    mov esi, 0
+WriteLoop:
+    ; Prepare record in tempBuffer
+    mov edi, OFFSET tempBuffer
+    
+    ; Write name
+    mov eax, esi
+    imul eax, MAX_NAME_LEN
+    add eax, OFFSET names
+    mov esi, eax
+    call CopyStringToBuffer
+    mov esi, eax
+    
+    ; Add comma
+    mov al, ','
+    mov [edi], al
+    inc edi
+    
+    ; Write score
+    mov eax, scores[esi*4]
+    call ConvertNumberToString
+    
+    ; Add comma
+    mov al, ','
+    mov [edi], al
+    inc edi
+    
+    ; Write level
+    movzx eax, levels[esi]
+    call ConvertNumberToString
+    
+    ; Add newline
+    mov al, 0Dh
+    mov [edi], al
+    inc edi
+    mov al, 0Ah
+    mov [edi], al
+    inc edi
+    
+    ; Write record to file
+    mov edx, OFFSET tempBuffer
+    mov ecx, edi
+    sub ecx, edx
+    call WriteToFile
+    
+    inc esi
+    dec ecx
+    jnz WriteLoop
+
+    mov eax, fileHandle
+    call CloseFile
+    popad
+    ret
+writeAllScoresToFile ENDP
+
+; Helper procedure to write string to file
+WriteStringToFile PROC
+    pushad
+    mov ecx, 0
+NextChar:
+    mov al, [edx + ecx]
+    cmp al, 0
+    je WriteStr
+    inc ecx
+    jmp NextChar
+WriteStr:
+    call WriteToFile
+    popad
+    ret
+WriteStringToFile ENDP
+; ============================================================
 
 
 Level2Screen proc
