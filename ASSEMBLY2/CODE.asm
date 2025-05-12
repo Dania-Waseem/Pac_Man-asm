@@ -2162,7 +2162,6 @@ WriteStr:
     ret
 WriteStringToFile ENDP
 ; ============================================================
-
 Level2Screen PROC
     call Clrscr
     call levelSound
@@ -2228,7 +2227,7 @@ MoveUp:
     mov al, pacmanY
     mov oldPacmanY, al
     dec pacmanY
-    call CheckWallCollision
+    call CheckWallCollision2
     jc CancelMoveUp
     jmp AfterMove
 CancelMoveUp:
@@ -2241,7 +2240,7 @@ MoveLeft:
     mov al, pacmanY
     mov oldPacmanY, al
     dec pacmanX
-    call CheckWallCollision
+    call CheckWallCollision2
     jc CancelMoveLeft
     jmp AfterMove
 CancelMoveLeft:
@@ -2254,7 +2253,7 @@ MoveDown:
     mov al, pacmanY
     mov oldPacmanY, al
     inc pacmanY
-    call CheckWallCollision
+    call CheckWallCollision2
     jc CancelMoveDown
     jmp AfterMove
 CancelMoveDown:
@@ -2267,7 +2266,7 @@ MoveRight:
     mov al, pacmanY
     mov oldPacmanY, al
     inc pacmanX
-    call CheckWallCollision
+    call CheckWallCollision2
     jc CancelMoveRight
     jmp AfterMove
 CancelMoveRight:
@@ -2564,9 +2563,20 @@ sideBorders:
     
     ret
 DrawStaticElementsLevel2 ENDP
-
+;....................................................................
 DrawInnerWallsLevel2 PROC
-    ; Different wall pattern for level 2
+    ; Vertical wall at column 5 (X=5), rows 4-10 (length 7)
+    mov dh, 4
+    mov dl, 5
+    mov ecx, 7
+VerticalWall1:
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    inc dh
+    loop VerticalWall1
+
+    ; Original horizontal walls
     mov dh, 8
     mov dl, 15
     mov ecx, 20
@@ -2575,6 +2585,29 @@ DrawInnerWallsLevel2 PROC
     mov ecx, 20
     call DrawWall
 
+    ; First new horizontal wall at row 12 (Y=12), columns 25-34 (length 10)
+    mov dh, 12
+    mov dl, 25
+    mov ecx, 10
+HorizontalWall3:
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    inc dl
+    loop HorizontalWall3
+
+    ; Second new horizontal wall at row 16 (Y=16), columns 50-59 (length 10)
+    mov dh, 16
+    mov dl, 50
+    mov ecx, 10
+HorizontalWall4:
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    inc dl
+    loop HorizontalWall4
+
+    ; Original remaining walls
     mov dh, 12
     mov dl, 30
     mov ecx, 10
@@ -2606,7 +2639,7 @@ DrawInnerWallsLevel2 PROC
     call DrawWall
     ret
 DrawInnerWallsLevel2 ENDP
-
+;....................................................................
 DrawGameElementsLevel2 PROC
     ; Draw pellets
     mov eax, purpleTxt
@@ -2678,7 +2711,7 @@ SkipFruit2:
 
     ret
 DrawGameElementsLevel2 ENDP
-
+;....................................................................
 ClearOldPositionsLevel2 PROC
     ; Clear old Pac-Man position
     mov eax, blackTxt
@@ -2703,7 +2736,7 @@ ClearOldPositionsLevel2 PROC
     call WriteChar
     ret
 ClearOldPositionsLevel2 ENDP
-
+;....................................................................
 GhostMovementLevel2 PROC
     ; Save old positions
     mov al, ghostX
@@ -2736,7 +2769,7 @@ GhostMovementLevel2 PROC
 
 MoveGhostRight1:
     inc ghostX
-    call CheckGhostWallCollision
+    call CheckGhost1WallCollision
     jc UndoGhostMove1
     jmp MoveGhost2
 UndoGhostMove1:
@@ -2746,19 +2779,19 @@ UndoGhostMove1:
 
 MoveGhostLeft1:
     dec ghostX
-    call CheckGhostWallCollision
+    call CheckGhost1WallCollision
     jc UndoGhostMove1
     jmp MoveGhost2
 
 MoveGhostUp1:
     dec ghostY
-    call CheckGhostWallCollision
+    call CheckGhost1WallCollision
     jc UndoGhostMove1
     jmp MoveGhost2
 
 MoveGhostDown1:
     inc ghostY
-    call CheckGhostWallCollision
+    call CheckGhost1WallCollision
     jc UndoGhostMove1
     jmp MoveGhost2
 
@@ -2779,25 +2812,25 @@ RandomMove1:
 
 TryRight1:
     inc ghostX
-    call CheckGhostWallCollision
+    call CheckGhost1WallCollision
     jc UndoGhostMove1
     jmp MoveGhost2
 
 TryLeft1:
     dec ghostX
-    call CheckGhostWallCollision
+    call CheckGhost1WallCollision
     jc UndoGhostMove1
     jmp MoveGhost2
 
 TryUp1:
     dec ghostY
-    call CheckGhostWallCollision
+    call CheckGhost1WallCollision
     jc UndoGhostMove1
     jmp MoveGhost2
 
 TryDown1:
     inc ghostY
-    call CheckGhostWallCollision
+    call CheckGhost1WallCollision
     jc UndoGhostMove1
     jmp MoveGhost2
 
@@ -2949,14 +2982,7 @@ UndoGhostMove2:
     mov ghost2Y, al
     ret
 GhostMovementLevel2 ENDP
-
-CheckGhost2WallCollision PROC
-    mov dl, ghost2X
-    mov dh, ghost2Y
-    call CheckWallPosition
-    ret
-CheckGhost2WallCollision ENDP
-
+;....................................................................
 CheckGhostCollisionLevel2 PROC
     ; Check collision with first ghost
     mov al, pacmanX
@@ -3041,7 +3067,7 @@ GameOver:
     mov eax, 1
     ret
 CheckGhostCollisionLevel2 ENDP
-
+;....................................................................
 UpdateFruitTimer PROC
     ; Check if we need to spawn fruits
     cmp fruitActive[0], 1
@@ -3101,7 +3127,7 @@ SpawnSecond:
 SpawnDone:
     ret
 SpawnFruits ENDP
-
+;....................................................................
 FindEmptyPosition PROC
     ; Find a random empty position (not wall, not pellet, not pacman/ghosts)
 TryAgain:
@@ -3164,7 +3190,7 @@ CheckGhost2:
 PositionOK:
     ret
 FindEmptyPosition ENDP
-
+;....................................................................
 CheckFruitCollision PROC
     ; Check collision with first fruit
     cmp fruitActive[0], 1
@@ -3229,12 +3255,497 @@ CheckSecondFruit:
 NoFruitCollision:
     ret
 CheckFruitCollision ENDP
+;....................................................................
+
+;-----------------------------------------------------------
+; Ghost 1 Wall Collision Check
+; Checks if ghost position collides with any walls
+; Returns: CF=1 if collision, CF=0 if clear
+;-----------------------------------------------------------
+CheckGhost1WallCollision PROC
+    ; Check boundaries first
+    cmp ghostX, 0
+    jle Ghost1Collision
+    cmp ghostX, 114
+    jge Ghost1Collision
+    cmp ghostY, 5
+    jle Ghost1Collision
+    cmp ghostY, 29
+    jge Ghost1Collision
+
+    ; 1. Vertical wall at X=5 (Y=4-10)
+    cmp ghostX, 5
+    jne CheckGhost1Wall2
+    cmp ghostY, 4
+    jl CheckGhost1Wall2
+    cmp ghostY, 10
+    jg CheckGhost1Wall2
+    jmp Ghost1Collision
+
+CheckGhost1Wall2:
+    ; 2. Horizontal wall at Y=8 (X=15-34)
+    cmp ghostY, 8
+    jne CheckGhost1Wall3
+    cmp ghostX, 15
+    jl CheckGhost1Wall3
+    cmp ghostX, 34
+    jg CheckGhost1Wall3
+    jmp Ghost1Collision
+
+CheckGhost1Wall3:
+    ; 3. Horizontal wall at Y=8 (X=60-79)
+    cmp ghostY, 8
+    jne CheckGhost1Wall4
+    cmp ghostX, 60
+    jl CheckGhost1Wall4
+    cmp ghostX, 79
+    jg CheckGhost1Wall4
+    jmp Ghost1Collision
+
+CheckGhost1Wall4:
+    ; 4. Horizontal wall at Y=12 (X=30-39)
+    cmp ghostY, 12
+    jne CheckGhost1Wall5
+    cmp ghostX, 30
+    jl CheckGhost1Wall5
+    cmp ghostX, 39
+    jg CheckGhost1Wall5
+    jmp Ghost1Collision
+
+CheckGhost1Wall5:
+    ; 5. Horizontal wall at Y=12 (X=70-79)
+    cmp ghostY, 12
+    jne CheckGhost1Wall6
+    cmp ghostX, 70
+    jl CheckGhost1Wall6
+    cmp ghostX, 79
+    jg CheckGhost1Wall6
+    jmp Ghost1Collision
+
+CheckGhost1Wall6:
+    ; 6. Horizontal wall at Y=16 (X=10-24)
+    cmp ghostY, 16
+    jne CheckGhost1Wall7
+    cmp ghostX, 10
+    jl CheckGhost1Wall7
+    cmp ghostX, 24
+    jg CheckGhost1Wall7
+    jmp Ghost1Collision
+
+CheckGhost1Wall7:
+    ; 7. Horizontal wall at Y=16 (X=40-54)
+    cmp ghostY, 16
+    jne CheckGhost1Wall8
+    cmp ghostX, 40
+    jl CheckGhost1Wall8
+    cmp ghostX, 54
+    jg CheckGhost1Wall8
+    jmp Ghost1Collision
+
+CheckGhost1Wall8:
+    ; 8. Horizontal wall at Y=16 (X=80-94)
+    cmp ghostY, 16
+    jne CheckGhost1Wall9
+    cmp ghostX, 80
+    jl CheckGhost1Wall9
+    cmp ghostX, 94
+    jg CheckGhost1Wall9
+    jmp Ghost1Collision
+
+CheckGhost1Wall9:
+    ; 9. Horizontal wall at Y=20 (X=20-44)
+    cmp ghostY, 20
+    jne CheckGhost1Wall10
+    cmp ghostX, 20
+    jl CheckGhost1Wall10
+    cmp ghostX, 44
+    jg CheckGhost1Wall10
+    jmp Ghost1Collision
+
+CheckGhost1Wall10:
+    ; 10. Horizontal wall at Y=20 (X=70-94)
+    cmp ghostY, 20
+    jne CheckGhost1Wall11
+    cmp ghostX, 70
+    jl CheckGhost1Wall11
+    cmp ghostX, 94
+    jg CheckGhost1Wall11
+    jmp Ghost1Collision
+
+CheckGhost1Wall11:
+    ; 11. Horizontal wall at Y=24 (X=30-39)
+    cmp ghostY, 24
+    jne CheckGhost1Wall12
+    cmp ghostX, 30
+    jl CheckGhost1Wall12
+    cmp ghostX, 39
+    jg CheckGhost1Wall12
+    jmp Ghost1Collision
+
+CheckGhost1Wall12:
+    ; 12. Horizontal wall at Y=24 (X=70-79)
+    cmp ghostY, 24
+    jne CheckGhost1Wall13
+    cmp ghostX, 70
+    jl CheckGhost1Wall13
+    cmp ghostX, 79
+    jg CheckGhost1Wall13
+    jmp Ghost1Collision
+
+CheckGhost1Wall13:
+    ; 13. New horizontal wall at Y=12 (X=25-34)
+    cmp ghostY, 12
+    jne CheckGhost1Wall14
+    cmp ghostX, 25
+    jl CheckGhost1Wall14
+    cmp ghostX, 34
+    jg CheckGhost1Wall14
+    jmp Ghost1Collision
+
+CheckGhost1Wall14:
+    ; 14. New horizontal wall at Y=16 (X=50-59)
+    cmp ghostY, 16
+    jne Ghost1NoCollision
+    cmp ghostX, 50
+    jl Ghost1NoCollision
+    cmp ghostX, 59
+    jg Ghost1NoCollision
+    jmp Ghost1Collision
+
+Ghost1NoCollision:
+    clc
+    ret
+
+Ghost1Collision:
+    stc
+    ret
+CheckGhost1WallCollision ENDP
 
 
+;-----------------------------------------------------------
+; Ghost 2 Wall Collision Check
+; Checks if ghost position collides with any walls
+; Returns: CF=1 if collision, CF=0 if clear
+;-----------------------------------------------------------
+CheckGhost2WallCollision PROC
+    ; Check boundaries first
+    cmp ghost2X, 0
+    jle Ghost2Collision
+    cmp ghost2X, 114
+    jge Ghost2Collision
+    cmp ghost2Y, 5
+    jle Ghost2Collision
+    cmp ghost2Y, 29
+    jge Ghost2Collision
+
+    ; 1. Vertical wall at X=5 (Y=4-10)
+    cmp ghost2X, 5
+    jne CheckGhost2Wall2
+    cmp ghost2Y, 4
+    jl CheckGhost2Wall2
+    cmp ghost2Y, 10
+    jg CheckGhost2Wall2
+    jmp Ghost2Collision
+
+CheckGhost2Wall2:
+    ; 2. Horizontal wall at Y=8 (X=15-34)
+    cmp ghost2Y, 8
+    jne CheckGhost2Wall3
+    cmp ghost2X, 15
+    jl CheckGhost2Wall3
+    cmp ghost2X, 34
+    jg CheckGhost2Wall3
+    jmp Ghost2Collision
+
+CheckGhost2Wall3:
+    ; 3. Horizontal wall at Y=8 (X=60-79)
+    cmp ghost2Y, 8
+    jne CheckGhost2Wall4
+    cmp ghost2X, 60
+    jl CheckGhost2Wall4
+    cmp ghost2X, 79
+    jg CheckGhost2Wall4
+    jmp Ghost2Collision
+
+CheckGhost2Wall4:
+    ; 4. Horizontal wall at Y=12 (X=30-39)
+    cmp ghost2Y, 12
+    jne CheckGhost2Wall5
+    cmp ghost2X, 30
+    jl CheckGhost2Wall5
+    cmp ghost2X, 39
+    jg CheckGhost2Wall5
+    jmp Ghost2Collision
+
+CheckGhost2Wall5:
+    ; 5. Horizontal wall at Y=12 (X=70-79)
+    cmp ghost2Y, 12
+    jne CheckGhost2Wall6
+    cmp ghost2X, 70
+    jl CheckGhost2Wall6
+    cmp ghost2X, 79
+    jg CheckGhost2Wall6
+    jmp Ghost2Collision
+
+CheckGhost2Wall6:
+    ; 6. Horizontal wall at Y=16 (X=10-24)
+    cmp ghost2Y, 16
+    jne CheckGhost2Wall7
+    cmp ghost2X, 10
+    jl CheckGhost2Wall7
+    cmp ghost2X, 24
+    jg CheckGhost2Wall7
+    jmp Ghost2Collision
+
+CheckGhost2Wall7:
+    ; 7. Horizontal wall at Y=16 (X=40-54)
+    cmp ghost2Y, 16
+    jne CheckGhost2Wall8
+    cmp ghost2X, 40
+    jl CheckGhost2Wall8
+    cmp ghost2X, 54
+    jg CheckGhost2Wall8
+    jmp Ghost2Collision
+
+CheckGhost2Wall8:
+    ; 8. Horizontal wall at Y=16 (X=80-94)
+    cmp ghost2Y, 16
+    jne CheckGhost2Wall9
+    cmp ghost2X, 80
+    jl CheckGhost2Wall9
+    cmp ghost2X, 94
+    jg CheckGhost2Wall9
+    jmp Ghost2Collision
+
+CheckGhost2Wall9:
+    ; 9. Horizontal wall at Y=20 (X=20-44)
+    cmp ghost2Y, 20
+    jne CheckGhost2Wall10
+    cmp ghost2X, 20
+    jl CheckGhost2Wall10
+    cmp ghost2X, 44
+    jg CheckGhost2Wall10
+    jmp Ghost2Collision
+
+CheckGhost2Wall10:
+    ; 10. Horizontal wall at Y=20 (X=70-94)
+    cmp ghost2Y, 20
+    jne CheckGhost2Wall11
+    cmp ghost2X, 70
+    jl CheckGhost2Wall11
+    cmp ghost2X, 94
+    jg CheckGhost2Wall11
+    jmp Ghost2Collision
+
+CheckGhost2Wall11:
+    ; 11. Horizontal wall at Y=24 (X=30-39)
+    cmp ghost2Y, 24
+    jne CheckGhost2Wall12
+    cmp ghost2X, 30
+    jl CheckGhost2Wall12
+    cmp ghost2X, 39
+    jg CheckGhost2Wall12
+    jmp Ghost2Collision
+
+CheckGhost2Wall12:
+    ; 12. Horizontal wall at Y=24 (X=70-79)
+    cmp ghost2Y, 24
+    jne CheckGhost2Wall13
+    cmp ghost2X, 70
+    jl CheckGhost2Wall13
+    cmp ghost2X, 79
+    jg CheckGhost2Wall13
+    jmp Ghost2Collision
+
+CheckGhost2Wall13:
+    ; 13. New horizontal wall at Y=12 (X=25-34)
+    cmp ghost2Y, 12
+    jne CheckGhost2Wall14
+    cmp ghost2X, 25
+    jl CheckGhost2Wall14
+    cmp ghost2X, 34
+    jg CheckGhost2Wall14
+    jmp Ghost2Collision
+
+CheckGhost2Wall14:
+    ; 14. New horizontal wall at Y=16 (X=50-59)
+    cmp ghost2Y, 16
+    jne Ghost2NoCollision
+    cmp ghost2X, 50
+    jl Ghost2NoCollision
+    cmp ghost2X, 59
+    jg Ghost2NoCollision
+    jmp Ghost2Collision
+
+Ghost2NoCollision:
+    clc
+    ret
+
+Ghost2Collision:
+    stc
+    ret
+CheckGhost2WallCollision ENDP
+
+CheckWallCollision2 PROC
+    ; Check boundaries first
+    cmp pacmanX, 0
+    jle Collision
+    cmp pacmanX, 114
+    jge Collision
+    cmp pacmanY, 5
+    jle Collision
+    cmp pacmanY, 29
+    jge Collision
+
+    ; 1. Vertical wall at X=5 (Y=4-10)
+    cmp pacmanX, 5
+    jne CheckWall2
+    cmp pacmanY, 4
+    jl CheckWall2
+    cmp pacmanY, 10
+    jg CheckWall2
+    jmp Collision
+
+CheckWall2:
+    ; 2. Horizontal wall at Y=8 (X=15-34)
+    cmp pacmanY, 8
+    jne CheckWall3
+    cmp pacmanX, 15
+    jl CheckWall3
+    cmp pacmanX, 34
+    jg CheckWall3
+    jmp Collision
+
+CheckWall3:
+    ; 3. Horizontal wall at Y=8 (X=60-79)
+    cmp pacmanY, 8
+    jne CheckWall4
+    cmp pacmanX, 60
+    jl CheckWall4
+    cmp pacmanX, 79
+    jg CheckWall4
+    jmp Collision
+
+CheckWall4:
+    ; 4. Horizontal wall at Y=12 (X=30-39)
+    cmp pacmanY, 12
+    jne CheckWall5
+    cmp pacmanX, 30
+    jl CheckWall5
+    cmp pacmanX, 39
+    jg CheckWall5
+    jmp Collision
+
+CheckWall5:
+    ; 5. Horizontal wall at Y=12 (X=70-79)
+    cmp pacmanY, 12
+    jne CheckWall6
+    cmp pacmanX, 70
+    jl CheckWall6
+    cmp pacmanX, 79
+    jg CheckWall6
+    jmp Collision
+
+CheckWall6:
+    ; 6. Horizontal wall at Y=16 (X=10-24)
+    cmp pacmanY, 16
+    jne CheckWall7
+    cmp pacmanX, 10
+    jl CheckWall7
+    cmp pacmanX, 24
+    jg CheckWall7
+    jmp Collision
+
+CheckWall7:
+    ; 7. Horizontal wall at Y=16 (X=40-54)
+    cmp pacmanY, 16
+    jne CheckWall8
+    cmp pacmanX, 40
+    jl CheckWall8
+    cmp pacmanX, 54
+    jg CheckWall8
+    jmp Collision
+
+CheckWall8:
+    ; 8. Horizontal wall at Y=16 (X=80-94)
+    cmp pacmanY, 16
+    jne CheckWall9
+    cmp pacmanX, 80
+    jl CheckWall9
+    cmp pacmanX, 94
+    jg CheckWall9
+    jmp Collision
+
+CheckWall9:
+    ; 9. Horizontal wall at Y=20 (X=20-44)
+    cmp pacmanY, 20
+    jne CheckWall10
+    cmp pacmanX, 20
+    jl CheckWall10
+    cmp pacmanX, 44
+    jg CheckWall10
+    jmp Collision
+
+CheckWall10:
+    ; 10. Horizontal wall at Y=20 (X=70-94)
+    cmp pacmanY, 20
+    jne CheckWall11
+    cmp pacmanX, 70
+    jl CheckWall11
+    cmp pacmanX, 94
+    jg CheckWall11
+    jmp Collision
+
+CheckWall11:
+    ; 11. Horizontal wall at Y=24 (X=30-39)
+    cmp pacmanY, 24
+    jne CheckWall12
+    cmp pacmanX, 30
+    jl CheckWall12
+    cmp pacmanX, 39
+    jg CheckWall12
+    jmp Collision
+
+CheckWall12:
+    ; 12. Horizontal wall at Y=24 (X=70-79)
+    cmp pacmanY, 24
+    jne CheckWall13
+    cmp pacmanX, 70
+    jl CheckWall13
+    cmp pacmanX, 79
+    jg CheckWall13
+    jmp Collision
+
+CheckWall13:
+    ; 13. New horizontal wall at Y=12 (X=25-34)
+    cmp pacmanY, 12
+    jne CheckWall14
+    cmp pacmanX, 25
+    jl CheckWall14
+    cmp pacmanX, 34
+    jg CheckWall14
+    jmp Collision
+
+CheckWall14:
+    ; 14. New horizontal wall at Y=16 (X=50-59)
+    cmp pacmanY, 16
+    jne NoCollision
+    cmp pacmanX, 50
+    jl NoCollision
+    cmp pacmanX, 59
+    jg NoCollision
+    jmp Collision
+
+NoCollision:
+    clc
+    ret
+
+Collision:
+    stc
+    ret
+CheckWallCollision2 ENDP
 
 Level3Screen proc
 Level3Screen endp
 
 end main
-
-
