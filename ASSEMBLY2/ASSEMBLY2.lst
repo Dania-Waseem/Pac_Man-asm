@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/12/25 07:31:22
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/12/25 08:47:46
 CODE.asm						     Page 1 - 1
 
 
@@ -1039,7 +1039,7 @@ CODE.asm						     Page 1 - 1
 	   79 65 74 21 00
 
 
-				; ==================== LEVEL 2 VARIABLES ====================
+				; ==================== LEVEL 2,3 VARIABLES ====================
 				; Ghost variables for level 2
  00001976 46			ghost2X db 70
  00001977 0F			ghost2Y db 15
@@ -1047,18 +1047,30 @@ CODE.asm						     Page 1 - 1
  00001979 00			oldGhost2Y db ?
  0000197A 03			ghost2Dir db 3  ; Different initial direction for variety
  = 00000005			ghost2Color = magenta + (black*16)
+ = 0000000E			ghost3Color = yellow + (black*16)
+ 0000197B 50			ghost3X db 80
+ 0000197C 0F			ghost3Y db 15
+ 0000197D 00			oldGhost3X db ?
+ 0000197E 00			oldGhost3Y db ?
 
 				; Fruit variables
- 0000197B 4F 00			fruitChar db 'O',0
- 0000197D 00			fruit1X db ?
- 0000197E 00			fruit1Y db ?
- 0000197F 00			fruit2X db ?
- 00001980 00			fruit2Y db ?
- 00001981 00 00			fruitActive db 0, 0  ; Track if fruits are active
- 00001983 00000000		fruitTimer dd 0
+ 0000197F 4F 00			fruitChar db 'O',0
+ 00001981 00			fruit1X db ?
+ 00001982 00			fruit1Y db ?
+ 00001983 00			fruit2X db ?
+ 00001984 00			fruit2Y db ?
+ 00001985 00 00			fruitActive db 0, 0  ; Track if fruits are active
+ 00001987 00000000		fruitTimer dd 0
  = 00001770			FRUIT_SPAWN_TIME = 6000  ; 6 seconds
- = 00000005			FRUIT_POINTS = 5
+ = 0000000A			FRUIT_POINTS = 10
 
+ 0000198B 00			portal1X db ?
+ 0000198C 00			portal1Y db ?
+ 0000198D 00			portal2X db ?
+ 0000198E 00			portal2Y db ?
+
+ 0000198F 29			portalChar db ')'
+ 00001990 2A			hiddenWallChar db '*'
 				;=============================================================================================
 				;============================================================================================
  00000000			.code
@@ -1245,7 +1257,7 @@ CODE.asm						     Page 1 - 1
 				    
  000001D6  B6 07		    mov dh, 7
  000001D8  B2 1E		    mov dl, 30
- 000001DA  E8 00000000 E    call Gotoxy
+ 000001DA  E8 00000000 E	    call Gotoxy
  000001DF  BA 000004D5 R	    mov edx, offset menutitle2
  000001E4  E8 00000000 E	    call WriteString
 				    
@@ -3070,11 +3082,11 @@ CODE.asm						     Page 1 - 1
 	   02
 				    
 				    ; Initialize fruits as inactive
- 0000133E  C6 05 00001981 R	    mov fruitActive[0], 0
+ 0000133E  C6 05 00001985 R	    mov fruitActive[0], 0
 	   00
- 00001345  C6 05 00001982 R	    mov fruitActive[1], 0
+ 00001345  C6 05 00001986 R	    mov fruitActive[1], 0
 	   00
- 0000134C  C7 05 00001983 R	    mov fruitTimer, 0
+ 0000134C  C7 05 00001987 R	    mov fruitTimer, 0
 	   00000000
 				    
  00001356  E8 FFFFF8BA		    call InitializePellets
@@ -3104,7 +3116,7 @@ CODE.asm						     Page 1 - 1
  0000138E  0F 84 00000094	    je MoveRight
  00001394  3C 31		    cmp al, '1'    ; Return to menu
  00001396  0F 84 00000163	    je ExitLevel
- 0000139C  E9 000000CA    jmp NoPlayerInput
+ 0000139C  E9 000000CA		    jmp NoPlayerInput
 
  000013A1			MoveUp:
  000013A1  A0 00000FBF R	    mov al, pacmanX
@@ -3551,27 +3563,27 @@ CODE.asm						     Page 1 - 1
  00001856  E2 E2		    loop DrawPellets
 
 				    ; Draw fruits if active
- 00001858  80 3D 00001981 R	    cmp fruitActive[0], 1
+ 00001858  80 3D 00001985 R	    cmp fruitActive[0], 1
 	   01
  0000185F  75 25		    jne SkipFruit1
  00001861  B8 0000000E		    mov eax, yellowTxt
  00001866  E8 00000000 E	    call SetTextColor
- 0000186B  8A 15 0000197D R	    mov dl, fruit1X
- 00001871  8A 35 0000197E R	    mov dh, fruit1Y
+ 0000186B  8A 15 00001981 R	    mov dl, fruit1X
+ 00001871  8A 35 00001982 R	    mov dh, fruit1Y
  00001877  E8 00000000 E	    call Gotoxy
- 0000187C  A0 0000197B R	    mov al, fruitChar
+ 0000187C  A0 0000197F R	    mov al, fruitChar
  00001881  E8 00000000 E	    call WriteChar
 
  00001886			SkipFruit1:
- 00001886  80 3D 00001982 R	    cmp fruitActive[1], 1
+ 00001886  80 3D 00001986 R	    cmp fruitActive[1], 1
 	   01
  0000188D  75 25		    jne SkipFruit2
  0000188F  B8 0000000E		    mov eax, yellowTxt
  00001894  E8 00000000 E	    call SetTextColor
- 00001899  8A 15 0000197F R	    mov dl, fruit2X
- 0000189F  8A 35 00001980 R	    mov dh, fruit2Y
+ 00001899  8A 15 00001983 R	    mov dl, fruit2X
+ 0000189F  8A 35 00001984 R	    mov dh, fruit2Y
  000018A5  E8 00000000 E	    call Gotoxy
- 000018AA  A0 0000197B R	    mov al, fruitChar
+ 000018AA  A0 0000197F R	    mov al, fruitChar
  000018AF  E8 00000000 E	    call WriteChar
 
  000018B4			SkipFruit2:
@@ -3643,7 +3655,7 @@ CODE.asm						     Page 1 - 1
  0000199E  E8 00000000 E	    call Randomize
  000019A3  B8 0000000A		    mov eax, 10
  000019A8  E8 00000000 E	    call RandomRange
- 000019AD  83 F8 07		    cmp eax, 7  ; 70% chance to move toward Pac-Man
+ 000019AD  83 F8 04		    cmp eax, 4  ; 70% chance to move toward Pac-Man
  000019B0  72 73		    jb RandomMove1
 				    
 				    ; Move toward Pac-Man
@@ -3968,38 +3980,38 @@ CODE.asm						     Page 1 - 1
 				;....................................................................
  00001CD4			UpdateFruitTimer PROC
 				    ; Check if we need to spawn fruits
- 00001CD4  80 3D 00001981 R	    cmp fruitActive[0], 1
+ 00001CD4  80 3D 00001985 R	    cmp fruitActive[0], 1
 	   01
  00001CDB  74 2D		    je CheckSecondFruit
- 00001CDD  80 3D 00001982 R	    cmp fruitActive[1], 1
+ 00001CDD  80 3D 00001986 R	    cmp fruitActive[1], 1
 	   01
  00001CE4  74 24		    je CheckSecondFruit
 				    
 				    ; No fruits active - check timer
- 00001CE6  A1 00001983 R	    mov eax, fruitTimer
+ 00001CE6  A1 00001987 R	    mov eax, fruitTimer
  00001CEB  83 C0 64		    add eax, 100  ; Assuming this is called every game loop (100ms)
- 00001CEE  A3 00001983 R	    mov fruitTimer, eax
+ 00001CEE  A3 00001987 R	    mov fruitTimer, eax
 				    
  00001CF3  3D 00001770		    cmp eax, FRUIT_SPAWN_TIME
  00001CF8  72 33		    jb TimerDone
 				    
 				    ; Time to spawn fruits
  00001CFA  E8 0000002F		    call SpawnFruits
- 00001CFF  C7 05 00001983 R	    mov fruitTimer, 0
+ 00001CFF  C7 05 00001987 R	    mov fruitTimer, 0
 	   00000000
  00001D09  C3			    ret
 				    
  00001D0A			CheckSecondFruit:
 				    ; At least one fruit is active - just update timer
- 00001D0A  A1 00001983 R	    mov eax, fruitTimer
+ 00001D0A  A1 00001987 R	    mov eax, fruitTimer
  00001D0F  83 C0 64		    add eax, 100
- 00001D12  A3 00001983 R	    mov fruitTimer, eax
+ 00001D12  A3 00001987 R	    mov fruitTimer, eax
  00001D17  3D 00001770		    cmp eax, FRUIT_SPAWN_TIME
  00001D1C  72 0F		    jb TimerDone
 				    
 				    ; Time to respawn fruits
  00001D1E  E8 0000000B		    call SpawnFruits
- 00001D23  C7 05 00001983 R	    mov fruitTimer, 0
+ 00001D23  C7 05 00001987 R	    mov fruitTimer, 0
 	   00000000
 				    
  00001D2D			TimerDone:
@@ -4008,26 +4020,26 @@ CODE.asm						     Page 1 - 1
 
  00001D2E			SpawnFruits PROC
 				    ; Spawn first fruit if not active
- 00001D2E  80 3D 00001981 R	    cmp fruitActive[0], 1
+ 00001D2E  80 3D 00001985 R	    cmp fruitActive[0], 1
 	   01
  00001D35  74 18		    je SpawnSecond
 				    
  00001D37  E8 00000035		    call FindEmptyPosition
- 00001D3C  88 15 0000197D R	    mov fruit1X, dl
- 00001D42  88 35 0000197E R	    mov fruit1Y, dh
- 00001D48  C6 05 00001981 R	    mov fruitActive[0], 1
+ 00001D3C  88 15 00001981 R	    mov fruit1X, dl
+ 00001D42  88 35 00001982 R	    mov fruit1Y, dh
+ 00001D48  C6 05 00001985 R	    mov fruitActive[0], 1
 	   01
 				    
  00001D4F			SpawnSecond:
 				    ; Spawn second fruit if not active
- 00001D4F  80 3D 00001982 R	    cmp fruitActive[1], 1
+ 00001D4F  80 3D 00001986 R	    cmp fruitActive[1], 1
 	   01
  00001D56  74 18		    je SpawnDone
 				    
  00001D58  E8 00000014		    call FindEmptyPosition
- 00001D5D  88 15 0000197F R	    mov fruit2X, dl
- 00001D63  88 35 00001980 R	    mov fruit2Y, dh
- 00001D69  C6 05 00001982 R	    mov fruitActive[1], 1
+ 00001D5D  88 15 00001983 R	    mov fruit2X, dl
+ 00001D63  88 35 00001984 R	    mov fruit2Y, dh
+ 00001D69  C6 05 00001986 R	    mov fruitActive[1], 1
 	   01
 				    
  00001D70			SpawnDone:
@@ -4099,22 +4111,22 @@ CODE.asm						     Page 1 - 1
 				;....................................................................
  00001DEC			CheckFruitCollision PROC
 				    ; Check collision with first fruit
- 00001DEC  80 3D 00001981 R	    cmp fruitActive[0], 1
+ 00001DEC  80 3D 00001985 R	    cmp fruitActive[0], 1
 	   01
  00001DF3  75 55		    jne CheckSecondFruit
 				    
  00001DF5  A0 00000FBF R	    mov al, pacmanX
- 00001DFA  3A 05 0000197D R	    cmp al, fruit1X
+ 00001DFA  3A 05 00001981 R	    cmp al, fruit1X
  00001E00  75 48		    jne CheckSecondFruit
  00001E02  A0 00000FC0 R	    mov al, pacmanY
- 00001E07  3A 05 0000197E R	    cmp al, fruit1Y
+ 00001E07  3A 05 00001982 R	    cmp al, fruit1Y
  00001E0D  75 3B		    jne CheckSecondFruit
 				    
 				    ; Collision with first fruit
- 00001E0F  C6 05 00001981 R	    mov fruitActive[0], 0
+ 00001E0F  C6 05 00001985 R	    mov fruitActive[0], 0
 	   00
  00001E16  83 05 00000FC3 R	    add score, FRUIT_POINTS
-	   05
+	   0A
 				    
 				    ; Update score display
  00001E1D  B8 0000000F		    mov eax, whiteTxt
@@ -4133,22 +4145,22 @@ CODE.asm						     Page 1 - 1
 				    
  00001E4A			CheckSecondFruit:
 				    ; Check collision with second fruit
- 00001E4A  80 3D 00001982 R	    cmp fruitActive[1], 1
+ 00001E4A  80 3D 00001986 R	    cmp fruitActive[1], 1
 	   01
  00001E51  75 54		    jne NoFruitCollision
 				    
  00001E53  A0 00000FBF R	    mov al, pacmanX
- 00001E58  3A 05 0000197F R	    cmp al, fruit2X
+ 00001E58  3A 05 00001983 R	    cmp al, fruit2X
  00001E5E  75 47		    jne NoFruitCollision
  00001E60  A0 00000FC0 R	    mov al, pacmanY
- 00001E65  3A 05 00001980 R	    cmp al, fruit2Y
+ 00001E65  3A 05 00001984 R	    cmp al, fruit2Y
  00001E6B  75 3A		    jne NoFruitCollision
 				    
 				    ; Collision with second fruit
- 00001E6D  C6 05 00001982 R	    mov fruitActive[1], 0
+ 00001E6D  C6 05 00001986 R	    mov fruitActive[1], 0
 	   00
  00001E74  83 05 00000FC3 R	    add score, FRUIT_POINTS
-	   05
+	   0A
 				    
 				    ; Update score display
  00001E7B  B8 0000000F		    mov eax, whiteTxt
@@ -4380,11 +4392,6 @@ CODE.asm						     Page 1 - 1
  00002091			CheckGhost1WallCollision ENDP
 
 
-				;-----------------------------------------------------------
-				; Ghost 2 Wall Collision Check
-				; Checks if ghost position collides with any walls
-				; Returns: CF=1 if collision, CF=0 if clear
-				;-----------------------------------------------------------
  00002091			CheckGhost2WallCollision PROC
 				    ; Check boundaries first
  00002091  80 3D 00001976 R	    cmp ghost2X, 0
@@ -4653,7 +4660,7 @@ CODE.asm						     Page 1 - 1
  0000231E  7C 0E		    jl CheckWall5
  00002320  80 3D 00000FBF R	    cmp pacmanX, 39
 	   27
- 00002327  7F 05		    jg CheckWall5
+ 00002327  7F 05    jg CheckWall5
  00002329  E9 00000133		    jmp Collision
 
  0000232E			CheckWall5:
@@ -4795,11 +4802,2288 @@ CODE.asm						     Page 1 - 1
  00002462  C3			    ret
  00002463			CheckWallCollision2 ENDP
 
- 00002463			Level3Screen proc
- 00002463			Level3Screen endp
+				; ==================== LEVEL 3 SCREEN ====================
+ 00002463			Level3Screen PROC
+ 00002463  E8 00000000 E	    call Clrscr
+ 00002468  E8 FFFFDBD2		    call levelSound
+
+				    ; Initialize game state
+ 0000246D  C6 05 00000FBF R	    mov pacmanX, 10
+	   0A
+ 00002474  C6 05 00000FC0 R	    mov pacmanY, 15
+	   0F
+ 0000247B  C6 05 00000FCF R	    mov oldPacmanX, 10     
+	   0A
+ 00002482  C6 05 00000FD0 R	    mov oldPacmanY, 15
+	   0F
+				    
+				    ; Initialize three ghosts
+ 00002489  C6 05 00000FC1 R	    mov ghostX, 50
+	   32
+ 00002490  C6 05 00000FC2 R	    mov ghostY, 15
+	   0F
+ 00002497  C6 05 00000FD2 R	    mov oldGhostX, 50
+	   32
+ 0000249E  C6 05 00000FD3 R	    mov oldGhostY, 15
+	   0F
+ 000024A5  C6 05 00001976 R	    mov ghost2X, 70
+	   46
+ 000024AC  C6 05 00001977 R	    mov ghost2Y, 15
+	   0F
+ 000024B3  C6 05 00001978 R	    mov oldGhost2X, 70
+	   46
+ 000024BA  C6 05 00001979 R	    mov oldGhost2Y, 15
+	   0F
+ 000024C1  C6 05 0000197B R	    mov ghost3X, 30      ; Third ghost
+	   1E
+ 000024C8  C6 05 0000197C R	    mov ghost3Y, 20
+	   14
+ 000024CF  C6 05 0000197D R	    mov oldGhost3X, 30
+	   1E
+ 000024D6  C6 05 0000197E R	    mov oldGhost3Y, 20
+	   14
+				    
+ 000024DD  C7 05 00000FC3 R	    mov score, 0
+	   00000000
+ 000024E7  C6 05 00000F96 R	    mov pelletCount, 25   ; More pellets for level 3
+	   19
+ 000024EE  C6 05 0000100B R	    mov gamePaused, 0    
+	   00
+ 000024F5  C6 05 00000F6C R	    mov currentLevel, 3
+	   03
+				    
+				    ; Initialize fruits as inactive
+ 000024FC  C6 05 00001985 R	    mov fruitActive[0], 0
+	   00
+ 00002503  C6 05 00001986 R	    mov fruitActive[1], 0
+	   00
+ 0000250A  C7 05 00001987 R	    mov fruitTimer, 0
+	   00000000
+				    
+				    ; Initialize portals
+ 00002514  C6 05 0000198B R	    mov portal1X, 10
+	   0A
+ 0000251B  C6 05 0000198C R	    mov portal1Y, 10
+	   0A
+ 00002522  C6 05 0000198D R	    mov portal2X, 100
+	   64
+ 00002529  C6 05 0000198E R	    mov portal2Y, 20
+	   14
+				    
+ 00002530  E8 FFFFE6E0		    call InitializePellets
+ 00002535  E8 0000031E		    call DrawStaticElementsLevel3
+
+ 0000253A			GameLoop:
+				    ; Update fruit timer
+ 0000253A  E8 FFFFF795		    call UpdateFruitTimer
+				    
+ 0000253F  E8 00000000 E	    call ReadKey
+ 00002544  0F 84 00000100	    jz NoPlayerInput
+
+				    ; Check for pause input
+ 0000254A  3C 71		    cmp al, 'q'
+ 0000254C  0F 84 0000015F	    je TogglePause
+ 00002552  3C 51		    cmp al, 'Q'
+ 00002554  0F 84 00000157	    je TogglePause
+
+				    ; Handle movement and menu keys
+ 0000255A  3C 77		    cmp al, 'w'
+ 0000255C  74 1D		    je MoveUp
+ 0000255E  3C 61		    cmp al, 'a'
+ 00002560  74 4A		    je MoveLeft
+ 00002562  3C 73		    cmp al, 's'
+ 00002564  74 71		    je MoveDown
+ 00002566  3C 64		    cmp al, 'd'
+ 00002568  0F 84 00000094	    je MoveRight
+ 0000256E  3C 31		    cmp al, '1'    ; Return to menu
+ 00002570  0F 84 00000168	    je ExitLevel
+ 00002576  E9 000000CF		    jmp NoPlayerInput
+
+ 0000257B			MoveUp:
+ 0000257B  A0 00000FBF R	    mov al, pacmanX
+ 00002580  A2 00000FCF R	    mov oldPacmanX, al
+ 00002585  A0 00000FC0 R	    mov al, pacmanY
+ 0000258A  A2 00000FD0 R	    mov oldPacmanY, al
+ 0000258F  FE 0D 00000FC0 R	    dec pacmanY
+ 00002595  E8 00000BDB		    call CheckWallCollision3
+ 0000259A  72 05		    jc CancelMoveUp
+ 0000259C  E9 0000008C		    jmp AfterMove
+ 000025A1			CancelMoveUp:
+ 000025A1  FE 05 00000FC0 R	    inc pacmanY
+ 000025A7  E9 00000081		    jmp AfterMove
+
+ 000025AC			MoveLeft:
+ 000025AC  A0 00000FBF R	    mov al, pacmanX
+ 000025B1  A2 00000FCF R	    mov oldPacmanX, al
+ 000025B6  A0 00000FC0 R	    mov al, pacmanY
+ 000025BB  A2 00000FD0 R	    mov oldPacmanY, al
+ 000025C0  FE 0D 00000FBF R	    dec pacmanX
+ 000025C6  E8 00000BAA		    call CheckWallCollision3
+ 000025CB  72 02		    jc CancelMoveLeft
+ 000025CD  EB 5E		    jmp AfterMove
+ 000025CF			CancelMoveLeft:
+ 000025CF  FE 05 00000FBF R	    inc pacmanX
+ 000025D5  EB 56		    jmp AfterMove
+
+ 000025D7			MoveDown:
+ 000025D7  A0 00000FBF R	    mov al, pacmanX
+ 000025DC  A2 00000FCF R	    mov oldPacmanX, al
+ 000025E1  A0 00000FC0 R	    mov al, pacmanY
+ 000025E6  A2 00000FD0 R	    mov oldPacmanY, al
+ 000025EB  FE 05 00000FC0 R	    inc pacmanY
+ 000025F1  E8 00000B7F		    call CheckWallCollision3
+ 000025F6  72 02		    jc CancelMoveDown
+ 000025F8  EB 33		    jmp AfterMove
+ 000025FA			CancelMoveDown:
+ 000025FA  FE 0D 00000FC0 R	    dec pacmanY
+ 00002600  EB 2B		    jmp AfterMove
+
+ 00002602			MoveRight:
+ 00002602  A0 00000FBF R	    mov al, pacmanX
+ 00002607  A2 00000FCF R	    mov oldPacmanX, al
+ 0000260C  A0 00000FC0 R	    mov al, pacmanY
+ 00002611  A2 00000FD0 R	    mov oldPacmanY, al
+ 00002616  FE 05 00000FBF R	    inc pacmanX
+ 0000261C  E8 00000B54		    call CheckWallCollision3
+ 00002621  72 02		    jc CancelMoveRight
+ 00002623  EB 08		    jmp AfterMove
+ 00002625			CancelMoveRight:
+ 00002625  FE 0D 00000FBF R	    dec pacmanX
+ 0000262B  EB 00		    jmp AfterMove
+
+ 0000262D			AfterMove:
+ 0000262D  E8 00000ADA		    call CheckPortalCollision
+ 00002632  E8 FFFFE6F3		    call CheckPelletCollision
+ 00002637  E8 FFFFF7B0		    call CheckFruitCollision
+ 0000263C  E8 0000097B		    call CheckGhostCollisionLevel3
+ 00002641  83 F8 01		    cmp eax, 1
+ 00002644  0F 84 000000A0	    je GameLost
+
+ 0000264A			NoPlayerInput:
+				    ; Skip ghost and game logic if paused
+ 0000264A  80 3D 0000100B R	    cmp gamePaused, 1
+	   01
+ 00002651  74 30		    je PausedLoop
+
+ 00002653  E8 00000593		    call ClearOldPositionsLevel3
+ 00002658  E8 00000605		    call GhostMovementLevel3
+ 0000265D  E8 0000046F		    call DrawGameElementsLevel3
+
+				    ; Small delay
+ 00002662  B8 00000046		    mov eax, 70  ; Faster than level 2
+ 00002667  E8 00000000 E	    call Delay
+
+				    ; Check win condition (30 points to win)
+ 0000266C  83 3D 00000FC3 R	    cmp score, 30
+	   1E
+ 00002673  7D 6A		    jge LevelWon
+ 00002675  83 3D 00000FC7 R	    cmp lives, 0
+	   00
+ 0000267C  7E 6C		    jle GameLost
+ 0000267E  E9 FFFFFEB7		    jmp GameLoop
+
+ 00002683			PausedLoop:
+				    ; Show pause message once
+ 00002683  B8 0000000E		    mov eax, yellowTxt
+ 00002688  E8 00000000 E	    call SetTextColor
+ 0000268D  B6 0C		    mov dh, 12
+ 0000268F  B2 14		    mov dl, 20
+ 00002691  E8 00000000 E	    call Gotoxy
+ 00002696  BA 00000FEA R	    mov edx, OFFSET pausedMsg
+ 0000269B  E8 00000000 E	    call WriteString
+
+ 000026A0			WaitWhilePaused:
+ 000026A0  E8 00000000 E	    call ReadKey
+ 000026A5  74 F9		    jz WaitWhilePaused
+
+ 000026A7  3C 71		    cmp al, 'q'
+ 000026A9  74 06		    je TogglePause
+ 000026AB  3C 51		    cmp al, 'Q'
+ 000026AD  74 02		    je TogglePause
+ 000026AF  EB EF		    jmp WaitWhilePaused
+
+ 000026B1			TogglePause:
+ 000026B1  80 35 0000100B R	    xor gamePaused, 1
+	   01
+
+				    ; Clear pause message
+ 000026B8  B8 00000000		    mov eax, blackTxt
+ 000026BD  E8 00000000 E	    call SetTextColor
+ 000026C2  B6 0C		    mov dh, 12
+ 000026C4  B2 14		    mov dl, 20
+ 000026C6  E8 00000000 E	    call Gotoxy
+ 000026CB  B9 00000028		    mov ecx, 40
+ 000026D0			ClearPauseText:
+ 000026D0  B0 20		    mov al, ' '
+ 000026D2  E8 00000000 E	    call WriteChar
+ 000026D7  E2 F7		    loop ClearPauseText
+
+ 000026D9  E9 FFFFFE5C		    jmp GameLoop
+
+ 000026DE			ExitLevel:
+ 000026DE  C3			    ret
+
+ 000026DF			LevelWon:
+ 000026DF  E8 FFFFE914		    call SaveScore
+ 000026E4  E8 000000B4		    call LevelCompleteScreen
+ 000026E9  C3			    ret
+
+ 000026EA			GameLost:
+ 000026EA  E8 FFFFE909		    call SaveScore
+ 000026EF  E8 00000001		    call GameOverScreen
+ 000026F4  C3			    ret
+ 000026F5			GameOverScreen:
+ 000026F5  E8 00000000 E	    call Clrscr
+ 000026FA  B8 00000004		    mov eax, redTxt
+ 000026FF  E8 00000000 E	    call SetTextColor
+
+				    ; Draw game over message
+ 00002704  B6 05		    mov dh, 5
+ 00002706  B2 14		    mov dl, 20
+ 00002708  E8 00000000 E	    call Gotoxy
+ 0000270D  BA 00000D86 R	    mov edx, OFFSET gameOverMsg1
+ 00002712  E8 00000000 E	    call WriteString
+
+ 00002717  B6 06		    mov dh, 6
+ 00002719  B2 14		    mov dl, 20
+ 0000271B  E8 00000000 E	    call Gotoxy
+ 00002720  BA 00000DBA R	    mov edx, OFFSET gameOverMsg2
+ 00002725  E8 00000000 E	    call WriteString
+
+ 0000272A  B6 06		    mov dh, 6
+ 0000272C  B2 14		    mov dl, 20
+ 0000272E  E8 00000000 E	    call Gotoxy
+ 00002733  BA 00000DED R	    mov edx, OFFSET gameOverMsg3
+ 00002738  E8 00000000 E	    call WriteString
+
+ 0000273D  B6 07		    mov dh, 7
+ 0000273F  B2 14		    mov dl, 20
+ 00002741  E8 00000000 E	    call Gotoxy
+ 00002746  BA 00000E21 R	    mov edx, OFFSET gameOverMsg4
+ 0000274B  E8 00000000 E	    call WriteString
+
+ 00002750  B6 08		    mov dh, 8
+ 00002752  B2 14		    mov dl, 20
+ 00002754  E8 00000000 E	    call Gotoxy
+ 00002759  BA 00000E55 R	    mov edx, OFFSET gameOverMsg5
+ 0000275E  E8 00000000 E	    call WriteString
+
+				    ; Display score
+ 00002763  B6 0C		    mov dh, 12
+ 00002765  B2 14		    mov dl, 20
+ 00002767  E8 00000000 E	    call Gotoxy
+ 0000276C  BA 00000E89 R	    mov edx, OFFSET scoreDisplay
+ 00002771  E8 00000000 E	    call WriteString
+ 00002776  A1 00000FC3 R	    mov eax, score
+ 0000277B  E8 00000000 E	    call WriteDec
+
+				    ; Display return option
+ 00002780  B6 0E		    mov dh, 14
+ 00002782  B2 14		    mov dl, 20
+ 00002784  E8 00000000 E	    call Gotoxy
+ 00002789  BA 00000E9C R	    mov edx, OFFSET returnOption
+ 0000278E  E8 00000000 E	    call WriteString
+
+ 00002793			WaitForInput:
+ 00002793  E8 00000000 E	    call ReadChar
+ 00002798  3C 31		    cmp al, '1'
+ 0000279A  75 F7		    jne WaitForInput
+ 0000279C  C3			    ret
+
+
+ 0000279D			LevelCompleteScreen:
+ 0000279D  E8 00000000 E	    call Clrscr
+ 000027A2  B8 00000002		    mov eax, greenTxt
+ 000027A7  E8 00000000 E	    call SetTextColor
+
+				    ; Draw level complete message
+ 000027AC  B6 05		    mov dh, 5
+ 000027AE  B2 14		    mov dl, 20
+ 000027B0  E8 00000000 E	    call Gotoxy
+ 000027B5  BA 00000EB6 R	    mov edx, OFFSET levelCompleteMsg1
+ 000027BA  E8 00000000 E	    call WriteString
+
+ 000027BF  B6 06		    mov dh, 6
+ 000027C1  B2 14		    mov dl, 20
+ 000027C3  E8 00000000 E	    call Gotoxy
+ 000027C8  BA 00000ED4 R	    mov edx, OFFSET levelCompleteMsg2
+ 000027CD  E8 00000000 E	    call WriteString
+
+ 000027D2  B6 07		    mov dh, 7
+ 000027D4  B2 14		    mov dl, 20
+ 000027D6  E8 00000000 E	    call Gotoxy
+ 000027DB  BA 00000EF2 R	    mov edx, OFFSET levelCompleteMsg3
+ 000027E0  E8 00000000 E	    call WriteString
+
+ 000027E5  B6 08		    mov dh, 8
+ 000027E7  B2 14		    mov dl, 20
+ 000027E9  E8 00000000 E	    call Gotoxy
+ 000027EE  BA 00000F10 R	    mov edx, OFFSET levelCompleteMsg4
+ 000027F3  E8 00000000 E	    call WriteString
+
+ 000027F8  B6 09		    mov dh, 9
+ 000027FA  B2 14		    mov dl, 20
+ 000027FC  E8 00000000 E	    call Gotoxy
+ 00002801  BA 00000F2E R	    mov edx, OFFSET levelCompleteMsg5
+ 00002806  E8 00000000 E	    call WriteString
+
+ 0000280B  B6 0A		    mov dh, 10
+ 0000280D  B2 14		    mov dl, 20
+ 0000280F  E8 00000000 E	    call Gotoxy
+ 00002814  BA 00000F4C R	    mov edx, OFFSET levelCompleteMsg6
+ 00002819  E8 00000000 E	    call WriteString
+
+				    
+				    ; Display score
+ 0000281E  B6 0C		    mov dh, 12
+ 00002820  B2 14		    mov dl, 20
+ 00002822  E8 00000000 E	    call Gotoxy
+ 00002827  BA 00000E89 R	    mov edx, OFFSET scoreDisplay
+ 0000282C  E8 00000000 E	    call WriteString
+ 00002831  A1 00000FC3 R	    mov eax, score
+ 00002836  E8 00000000 E	    call WriteDec
+
+				    ; Display return option
+ 0000283B  B6 0E		    mov dh, 14
+ 0000283D  B2 14		    mov dl, 20
+ 0000283F  E8 00000000 E	    call Gotoxy
+ 00002844  BA 00000E9C R	    mov edx, OFFSET returnOption
+ 00002849  E8 00000000 E	    call WriteString
+
+ 0000284E			WaitForInput2:
+ 0000284E  E8 00000000 E	    call ReadChar
+ 00002853  3C 31		    cmp al, '1'
+ 00002855  75 F7		    jne WaitForInput2
+ 00002857  C3			    ret
+ 00002858			Level3Screen ENDP
+
+				; ==================== LEVEL 3 SPECIFIC PROCEDURES ====================
+
+ 00002858			DrawStaticElementsLevel3 PROC
+				    ; Draw info bar
+ 00002858  B8 0000000F		    mov eax, whiteTxt
+ 0000285D  E8 00000000 E	    call SetTextColor
+				    
+ 00002862  B6 00		    mov dh, 0
+ 00002864  B2 00		    mov dl, 0
+ 00002866  E8 00000000 E	    call Gotoxy
+ 0000286B  BA 00000F7E R	    mov edx, OFFSET livesMsg
+ 00002870  E8 00000000 E	    call WriteString
+ 00002875  A1 00000FC7 R	    mov eax, lives
+ 0000287A  E8 00000000 E	    call WriteDec
+
+ 0000287F  B6 01		    mov dh, 1
+ 00002881  B2 00		    mov dl, 0
+ 00002883  E8 00000000 E	    call Gotoxy
+ 00002888  BA 0000009D R	    mov edx, OFFSET userName
+ 0000288D  E8 00000000 E	    call WriteString
+
+ 00002892  B6 02		    mov dh, 2
+ 00002894  B2 4B		    mov dl, 75
+ 00002896  E8 00000000 E	    call Gotoxy
+ 0000289B  BA 00000F86 R	    mov edx, OFFSET levelMsg
+ 000028A0  E8 00000000 E	    call WriteString
+ 000028A5  A0 00000F6C R	    mov al, currentLevel
+ 000028AA  E8 00000000 E	    call WriteDec
+
+ 000028AF  B6 04		    mov dh, 4       
+ 000028B1  B2 01		    mov dl, 1
+ 000028B3  E8 00000000 E	    call Gotoxy
+ 000028B8  BA 00000FD4 R	    mov edx, OFFSET pauseMsg
+ 000028BD  E8 00000000 E	    call WriteString
+
+				    ; Draw borders
+				    ; Top border
+ 000028C2  B6 05		    mov dh, 5
+ 000028C4  B2 00		    mov dl, 0
+ 000028C6  B9 00000073		    mov ecx, 115
+ 000028CB  A0 00000F8E R	    mov al, wallChar
+ 000028D0			topBorder:
+ 000028D0  E8 00000000 E	    call Gotoxy
+ 000028D5  E8 00000000 E	    call WriteChar
+ 000028DA  FE C2		    inc dl
+ 000028DC  E2 F2		    loop topBorder
+
+				    ; Bottom border
+ 000028DE  B6 1D		    mov dh, 29
+ 000028E0  B2 00		    mov dl, 0
+ 000028E2  B9 00000073		    mov ecx, 115
+ 000028E7			bottomBorder:
+ 000028E7  E8 00000000 E	    call Gotoxy
+ 000028EC  E8 00000000 E	    call WriteChar
+ 000028F1  FE C2		    inc dl
+ 000028F3  E2 F2		    loop bottomBorder
+
+				    ; Left and right borders 
+ 000028F5  B6 05		    mov dh, 5
+ 000028F7  B9 0000001B		    mov ecx, 27        ; Height
+ 000028FC			sideBorders:
+				    ; Left border
+ 000028FC  B2 00		    mov dl, 0
+ 000028FE  E8 00000000 E	    call Gotoxy
+ 00002903  A0 00000F8E R	    mov al, wallChar
+ 00002908  E8 00000000 E	    call WriteChar
+				    ; Right border
+ 0000290D  B2 72		    mov dl, 114
+ 0000290F  E8 00000000 E	    call Gotoxy
+ 00002914  A0 00000F8E R	    mov al, wallChar
+ 00002919  E8 00000000 E	    call WriteChar
+ 0000291E  FE C6		    inc dh
+ 00002920  E2 DA		    loop sideBorders
+
+				    ; Inner walls - different pattern for level 3
+ 00002922  E8 00000054		    call DrawInnerWallsLevel3
+
+				    ; Draw portals
+ 00002927  B8 00000001		    mov eax, blueTxt
+ 0000292C  E8 00000000 E	    call SetTextColor
+ 00002931  8A 15 0000198B R	    mov dl, portal1X
+ 00002937  8A 35 0000198C R	    mov dh, portal1Y
+ 0000293D  E8 00000000 E	    call Gotoxy
+ 00002942  A0 0000198F R	    mov al, portalChar
+ 00002947  E8 00000000 E	    call WriteChar
+				    
+ 0000294C  8A 15 0000198D R	    mov dl, portal2X
+ 00002952  8A 35 0000198E R	    mov dh, portal2Y
+ 00002958  E8 00000000 E	    call Gotoxy
+ 0000295D  A0 0000198F R	    mov al, portalChar
+ 00002962  E8 00000000 E	    call WriteChar
+				    
+				    ; Return message
+ 00002967  B6 03		    mov dh, 3
+ 00002969  B2 02		    mov dl, 2
+ 0000296B  E8 00000000 E	    call Gotoxy
+ 00002970  BA 000000CF R	    mov edx, offset returnMsg
+ 00002975  E8 00000000 E	    call WriteString
+				    
+ 0000297A  C3			    ret
+ 0000297B			DrawStaticElementsLevel3 ENDP
+
+				;....................................................................
+ 0000297B			DrawInnerWallsLevel3 PROC
+				    ; Original walls from level 2
+ 0000297B  B6 08		    mov dh, 8
+ 0000297D  B2 0F		    mov dl, 15
+ 0000297F  B9 00000014		    mov ecx, 20
+ 00002984  E8 FFFFE472		    call DrawWall
+ 00002989  B2 3C		    mov dl, 60
+ 0000298B  B9 00000014		    mov ecx, 20
+ 00002990  E8 FFFFE466		    call DrawWall
+
+ 00002995  B6 0C		    mov dh, 12
+ 00002997  B2 1E		    mov dl, 30
+ 00002999  B9 0000000A		    mov ecx, 10
+ 0000299E  E8 FFFFE458		    call DrawWall
+ 000029A3  B2 46		    mov dl, 70
+ 000029A5  E8 FFFFE451		    call DrawWall
+
+ 000029AA  B6 10		    mov dh, 16
+ 000029AC  B2 0A		    mov dl, 10
+ 000029AE  B9 0000000F		    mov ecx, 15
+ 000029B3  E8 FFFFE443		    call DrawWall
+ 000029B8  B2 28		    mov dl, 40
+ 000029BA  E8 FFFFE43C		    call DrawWall
+ 000029BF  B2 50		    mov dl, 80
+ 000029C1  E8 FFFFE435		    call DrawWall
+
+ 000029C6  B6 14		    mov dh, 20
+ 000029C8  B2 14		    mov dl, 20
+ 000029CA  B9 00000019		    mov ecx, 25
+ 000029CF  E8 FFFFE427		    call DrawWall
+ 000029D4  B2 46		    mov dl, 70
+ 000029D6  E8 FFFFE420		    call DrawWall
+
+ 000029DB  B6 18		    mov dh, 24
+ 000029DD  B2 1E		    mov dl, 30
+ 000029DF  B9 0000000A		    mov ecx, 10
+ 000029E4  E8 FFFFE412		    call DrawWall
+ 000029E9  B2 46		    mov dl, 70
+ 000029EB  E8 FFFFE40B		    call DrawWall
+
+				    ; New small walls (2-3 characters long)
+				    ; Vertical small walls
+ 000029F0  B6 07		    mov dh, 7
+ 000029F2  B2 19		    mov dl, 25
+ 000029F4  B9 00000003		    mov ecx, 3
+ 000029F9			VerticalSmallWall1:
+ 000029F9  E8 00000000 E	    call Gotoxy
+ 000029FE  A0 00000F8E R	    mov al, wallChar
+ 00002A03  E8 00000000 E	    call WriteChar
+ 00002A08  FE C6		    inc dh
+ 00002A0A  E2 ED		    loop VerticalSmallWall1
+
+ 00002A0C  B6 0A		    mov dh, 10
+ 00002A0E  B2 2D		    mov dl, 45
+ 00002A10  B9 00000002		    mov ecx, 2
+ 00002A15			VerticalSmallWall2:
+ 00002A15  E8 00000000 E	    call Gotoxy
+ 00002A1A  A0 00000F8E R	    mov al, wallChar
+ 00002A1F  E8 00000000 E	    call WriteChar
+ 00002A24  FE C6		    inc dh
+ 00002A26  E2 ED		    loop VerticalSmallWall2
+
+ 00002A28  B6 0F		    mov dh, 15
+ 00002A2A  B2 41		    mov dl, 65
+ 00002A2C  B9 00000003		    mov ecx, 3
+ 00002A31			VerticalSmallWall3:
+ 00002A31  E8 00000000 E	    call Gotoxy
+ 00002A36  A0 00000F8E R	    mov al, wallChar
+ 00002A3B  E8 00000000 E	    call WriteChar
+ 00002A40  FE C6		    inc dh
+ 00002A42  E2 ED		    loop VerticalSmallWall3
+
+				    ; Horizontal small walls
+ 00002A44  B6 09		    mov dh, 9
+ 00002A46  B2 23		    mov dl, 35
+ 00002A48  B9 00000002		    mov ecx, 2
+ 00002A4D			HorizontalSmallWall1:
+ 00002A4D  E8 00000000 E	    call Gotoxy
+ 00002A52  A0 00000F8E R	    mov al, wallChar
+ 00002A57  E8 00000000 E	    call WriteChar
+ 00002A5C  FE C2		    inc dl
+ 00002A5E  E2 ED		    loop HorizontalSmallWall1
+
+ 00002A60  B6 0E		    mov dh, 14
+ 00002A62  B2 37		    mov dl, 55
+ 00002A64  B9 00000003		    mov ecx, 3
+ 00002A69			HorizontalSmallWall2:
+ 00002A69  E8 00000000 E	    call Gotoxy
+ 00002A6E  A0 00000F8E R	    mov al, wallChar
+ 00002A73  E8 00000000 E	    call WriteChar
+ 00002A78  FE C2		    inc dl
+ 00002A7A  E2 ED		    loop HorizontalSmallWall2
+
+ 00002A7C  B6 13		    mov dh, 19
+ 00002A7E  B2 4B		    mov dl, 75
+ 00002A80  B9 00000002		    mov ecx, 2
+ 00002A85			HorizontalSmallWall3:
+ 00002A85  E8 00000000 E	    call Gotoxy
+ 00002A8A  A0 00000F8E R	    mov al, wallChar
+ 00002A8F  E8 00000000 E	    call WriteChar
+ 00002A94  FE C2		    inc dl
+ 00002A96  E2 ED		    loop HorizontalSmallWall3
+
+				    ; Hidden shortcut walls (appear as normal but can be passed through)
+				    ; These will be handled in collision detection
+ 00002A98  B6 12		    mov dh, 18
+ 00002A9A  B2 32		    mov dl, 50
+ 00002A9C  B9 00000003		    mov ecx, 3
+ 00002AA1			HiddenShortcut1:
+ 00002AA1  E8 00000000 E	    call Gotoxy
+ 00002AA6  A0 00001990 R	    mov al, hiddenWallChar
+ 00002AAB  E8 00000000 E	    call WriteChar
+ 00002AB0  FE C2		    inc dl
+ 00002AB2  E2 ED		    loop HiddenShortcut1
+
+ 00002AB4  B6 16		    mov dh, 22
+ 00002AB6  B2 1E		    mov dl, 30
+ 00002AB8  B9 00000002		    mov ecx, 2
+ 00002ABD			HiddenShortcut2:
+ 00002ABD  E8 00000000 E	    call Gotoxy
+ 00002AC2  A0 00001990 R	    mov al, hiddenWallChar
+ 00002AC7  E8 00000000 E	    call WriteChar
+ 00002ACC  FE C2		    inc dl
+ 00002ACE  E2 ED		    loop HiddenShortcut2
+
+ 00002AD0  C3			    ret
+ 00002AD1			DrawInnerWallsLevel3 ENDP
+
+				;....................................................................
+ 00002AD1			DrawGameElementsLevel3 PROC
+				    ; Draw pellets
+ 00002AD1  B8 00000005		    mov eax, purpleTxt
+ 00002AD6  E8 00000000 E	    call SetTextColor
+ 00002ADB  BE 00000F97 R	    mov esi, OFFSET pelletPositions
+ 00002AE0  8A 0D 00000F96 R	    mov cl, pelletCount
+
+ 00002AE6			DrawPellets:
+ 00002AE6  80 3E 00		    cmp byte ptr [esi], 0  ; Skip if pellet collected
+ 00002AE9  74 14		    je SkipPellet
+				    
+ 00002AEB  8A 16		    mov dl, [esi]    ; X
+ 00002AED  8A 76 01		    mov dh, [esi+1]  ; Y
+ 00002AF0  E8 00000000 E	    call Gotoxy
+ 00002AF5  A0 00000F90 R	    mov al, pelletChar
+ 00002AFA  E8 00000000 E	    call WriteChar
+
+ 00002AFF			SkipPellet:
+ 00002AFF  83 C6 02		    add esi, 2
+ 00002B02  E2 E2		    loop DrawPellets
+
+				    ; Draw fruits if active
+ 00002B04  80 3D 00001985 R	    cmp fruitActive[0], 1
+	   01
+ 00002B0B  75 25		    jne SkipFruit1
+ 00002B0D  B8 0000000E		    mov eax, yellowTxt
+ 00002B12  E8 00000000 E	    call SetTextColor
+ 00002B17  8A 15 00001981 R	    mov dl, fruit1X
+ 00002B1D  8A 35 00001982 R	    mov dh, fruit1Y
+ 00002B23  E8 00000000 E	    call Gotoxy
+ 00002B28  A0 0000197F R	    mov al, fruitChar
+ 00002B2D  E8 00000000 E	    call WriteChar
+
+ 00002B32			SkipFruit1:
+ 00002B32  80 3D 00001986 R	    cmp fruitActive[1], 1
+	   01
+ 00002B39  75 25		    jne SkipFruit2
+ 00002B3B  B8 0000000E		    mov eax, yellowTxt
+ 00002B40  E8 00000000 E	    call SetTextColor
+ 00002B45  8A 15 00001983 R	    mov dl, fruit2X
+ 00002B4B  8A 35 00001984 R	    mov dh, fruit2Y
+ 00002B51  E8 00000000 E	    call Gotoxy
+ 00002B56  A0 0000197F R	    mov al, fruitChar
+ 00002B5B  E8 00000000 E	    call WriteChar
+
+ 00002B60			SkipFruit2:
+				    ; Draw Pac-Man
+ 00002B60  B8 0000000F		    mov eax, whiteTxt
+ 00002B65  E8 00000000 E	    call SetTextColor
+ 00002B6A  8A 15 00000FBF R	    mov dl, pacmanX
+ 00002B70  8A 35 00000FC0 R	    mov dh, pacmanY
+ 00002B76  E8 00000000 E	    call Gotoxy
+ 00002B7B  A0 00000F92 R	    mov al, pacmanChar
+ 00002B80  E8 00000000 E	    call WriteChar
+
+				    ; Draw Ghost 1 (normal ghost)
+ 00002B85  8A 15 00000FC1 R	    mov dl, ghostX
+ 00002B8B  8A 35 00000FC2 R	    mov dh, ghostY
+ 00002B91  E8 00000000 E	    call Gotoxy
+ 00002B96  A0 00000F94 R	    mov al, ghostChar
+ 00002B9B  E8 00000000 E	    call WriteChar
+
+				    ; Draw Ghost 2 (Pinky)
+ 00002BA0  B8 00000005		    mov eax, ghost2Color
+ 00002BA5  E8 00000000 E	    call SetTextColor
+ 00002BAA  8A 15 00001976 R	    mov dl, ghost2X
+ 00002BB0  8A 35 00001977 R	    mov dh, ghost2Y
+ 00002BB6  E8 00000000 E	    call Gotoxy
+ 00002BBB  A0 00000F94 R	    mov al, ghostChar
+ 00002BC0  E8 00000000 E	    call WriteChar
+
+				    ; Draw Ghost 3 (new ghost)
+ 00002BC5  B8 0000000E		    mov eax, ghost3Color
+ 00002BCA  E8 00000000 E	    call SetTextColor
+ 00002BCF  8A 15 0000197B R	    mov dl, ghost3X
+ 00002BD5  8A 35 0000197C R	    mov dh, ghost3Y
+ 00002BDB  E8 00000000 E	    call Gotoxy
+ 00002BE0  A0 00000F94 R	    mov al, ghostChar
+ 00002BE5  E8 00000000 E	    call WriteChar
+
+ 00002BEA  C3			    ret
+ 00002BEB			DrawGameElementsLevel3 ENDP
+
+				;....................................................................
+ 00002BEB			ClearOldPositionsLevel3 PROC
+				    ; Clear old Pac-Man position
+ 00002BEB  B8 00000000		    mov eax, blackTxt
+ 00002BF0  E8 00000000 E	    call SetTextColor
+ 00002BF5  8A 15 00000FCF R	    mov dl, oldPacmanX
+ 00002BFB  8A 35 00000FD0 R	    mov dh, oldPacmanY
+ 00002C01  E8 00000000 E	    call Gotoxy
+ 00002C06  A0 00000F8F R	    mov al, emptyChar
+ 00002C0B  E8 00000000 E	    call WriteChar
+				    
+				    ; Clear old ghost positions
+ 00002C10  8A 15 00000FD2 R	    mov dl, oldGhostX
+ 00002C16  8A 35 00000FD3 R	    mov dh, oldGhostY
+ 00002C1C  E8 00000000 E	    call Gotoxy
+ 00002C21  A0 00000F8F R	    mov al, emptyChar
+ 00002C26  E8 00000000 E	    call WriteChar
+				    
+ 00002C2B  8A 15 00001978 R	    mov dl, oldGhost2X
+ 00002C31  8A 35 00001979 R	    mov dh, oldGhost2Y
+ 00002C37  E8 00000000 E	    call Gotoxy
+ 00002C3C  A0 00000F8F R	    mov al, emptyChar
+ 00002C41  E8 00000000 E	    call WriteChar
+				    
+ 00002C46  8A 15 0000197D R	    mov dl, oldGhost3X
+ 00002C4C  8A 35 0000197E R	    mov dh, oldGhost3Y
+ 00002C52  E8 00000000 E	    call Gotoxy
+ 00002C57  A0 00000F8F R	    mov al, emptyChar
+ 00002C5C  E8 00000000 E	    call WriteChar
+ 00002C61  C3			    ret
+ 00002C62			ClearOldPositionsLevel3 ENDP
+
+				;....................................................................
+ 00002C62			GhostMovementLevel3 PROC
+				    ; Save old positions
+ 00002C62  A0 00000FC1 R	    mov al, ghostX
+ 00002C67  A2 00000FD2 R	    mov oldGhostX, al
+ 00002C6C  A0 00000FC2 R	    mov al, ghostY
+ 00002C71  A2 00000FD3 R	    mov oldGhostY, al
+ 00002C76  A0 00001976 R	    mov al, ghost2X
+ 00002C7B  A2 00001978 R	    mov oldGhost2X, al
+ 00002C80  A0 00001977 R	    mov al, ghost2Y
+ 00002C85  A2 00001979 R	    mov oldGhost2Y, al
+ 00002C8A  A0 0000197B R	    mov al, ghost3X
+ 00002C8F  A2 0000197D R	    mov oldGhost3X, al
+ 00002C94  A0 0000197C R	    mov al, ghost3Y
+ 00002C99  A2 0000197E R	    mov oldGhost3Y, al
+				    
+				    ; Move first ghost (same as level 1)
+ 00002C9E  E8 00000000 E	    call Randomize
+ 00002CA3  B8 0000000A		    mov eax, 10
+ 00002CA8  E8 00000000 E	    call RandomRange
+ 00002CAD  83 F8 07		    cmp eax, 7  ; 70% chance to move toward Pac-Man
+ 00002CB0  72 73		    jb RandomMove1
+				    
+				    ; Move toward Pac-Man
+ 00002CB2  8A 1D 00000FBF R	    mov bl, pacmanX
+ 00002CB8  8A 3D 00000FC0 R	    mov bh, pacmanY
+				    
+ 00002CBE  38 1D 00000FC1 R	    cmp ghostX, bl
+ 00002CC4  7C 0E		    jl MoveGhostRight1
+ 00002CC6  7F 2D		    jg MoveGhostLeft1
+ 00002CC8  38 3D 00000FC2 R	    cmp ghostY, bh
+ 00002CCE  7C 46		    jl MoveGhostDown1
+ 00002CD0  7F 35		    jg MoveGhostUp1
+ 00002CD2  EB 51		    jmp RandomMove1
+
+ 00002CD4			MoveGhostRight1:
+ 00002CD4  FE 05 00000FC1 R	    inc ghostX
+ 00002CDA  E8 0000073F		    call CheckGhost1WallCollision3
+ 00002CDF  72 05		    jc UndoGhostMove1
+ 00002CE1  E9 000000A2		    jmp MoveGhost2
+ 00002CE6			UndoGhostMove1:
+ 00002CE6  A0 00000FD2 R	    mov al, oldGhostX
+ 00002CEB  A2 00000FC1 R	    mov ghostX, al
+ 00002CF0  E9 00000093		    jmp MoveGhost2
+
+ 00002CF5			MoveGhostLeft1:
+ 00002CF5  FE 0D 00000FC1 R	    dec ghostX
+ 00002CFB  E8 0000071E		    call CheckGhost1WallCollision3
+ 00002D00  72 E4		    jc UndoGhostMove1
+ 00002D02  E9 00000081		    jmp MoveGhost2
+
+ 00002D07			MoveGhostUp1:
+ 00002D07  FE 0D 00000FC2 R	    dec ghostY
+ 00002D0D  E8 0000070C		    call CheckGhost1WallCollision3
+ 00002D12  72 D2		    jc UndoGhostMove1
+ 00002D14  EB 72		    jmp MoveGhost2
+
+ 00002D16			MoveGhostDown1:
+ 00002D16  FE 05 00000FC2 R	    inc ghostY
+ 00002D1C  E8 000006FD		    call CheckGhost1WallCollision3
+ 00002D21  72 C3		    jc UndoGhostMove1
+ 00002D23  EB 63		    jmp MoveGhost2
+
+ 00002D25			RandomMove1:
+				    ; Random direction (1-4)
+ 00002D25  B8 00000004		    mov eax, 4
+ 00002D2A  E8 00000000 E	    call RandomRange
+ 00002D2F  40			    inc eax
+				    
+ 00002D30  83 F8 01		    cmp eax, 1
+ 00002D33  74 0F		    je TryRight1
+ 00002D35  83 F8 02		    cmp eax, 2
+ 00002D38  74 19		    je TryLeft1
+ 00002D3A  83 F8 03		    cmp eax, 3
+ 00002D3D  74 23		    je TryUp1
+ 00002D3F  83 F8 04		    cmp eax, 4
+ 00002D42  74 31		    je TryDown1
+
+ 00002D44			TryRight1:
+ 00002D44  FE 05 00000FC1 R	    inc ghostX
+ 00002D4A  E8 000006CF		    call CheckGhost1WallCollision3
+ 00002D4F  72 95		    jc UndoGhostMove1
+ 00002D51  EB 35		    jmp MoveGhost2
+
+ 00002D53			TryLeft1:
+ 00002D53  FE 0D 00000FC1 R	    dec ghostX
+ 00002D59  E8 000006C0		    call CheckGhost1WallCollision3
+ 00002D5E  72 86		    jc UndoGhostMove1
+ 00002D60  EB 26		    jmp MoveGhost2
+
+ 00002D62			TryUp1:
+ 00002D62  FE 0D 00000FC2 R	    dec ghostY
+ 00002D68  E8 000006B1		    call CheckGhost1WallCollision3
+ 00002D6D  0F 82 FFFFFF73	    jc UndoGhostMove1
+ 00002D73  EB 13		    jmp MoveGhost2
+
+ 00002D75			TryDown1:
+ 00002D75  FE 05 00000FC2 R	    inc ghostY
+ 00002D7B  E8 0000069E		    call CheckGhost1WallCollision3
+ 00002D80  0F 82 FFFFFF60	    jc UndoGhostMove1
+ 00002D86  EB 00		    jmp MoveGhost2
+
+				; Move second ghost (Pinky - more unpredictable)
+ 00002D88			MoveGhost2:
+				    ; Pinky has different movement patterns
+ 00002D88  E8 00000000 E	    call Randomize
+ 00002D8D  B8 00000064		    mov eax, 100
+ 00002D92  E8 00000000 E	    call RandomRange
+				    
+				    ; 40% chance to move toward Pac-Man
+ 00002D97  83 F8 28		    cmp eax, 40
+ 00002D9A  72 0B		    jb MoveTowardPacman
+				    
+				    ; 30% chance to move randomly
+ 00002D9C  83 F8 46		    cmp eax, 70
+ 00002D9F  0F 82 0000008C	    jb MoveRandomly
+				    
+				    ; 30% chance to cut off Pac-Man's path
+ 00002DA5  EB 32		    jmp CutOffPath
+
+ 00002DA7			MoveTowardPacman:
+ 00002DA7  8A 1D 00000FBF R	    mov bl, pacmanX
+ 00002DAD  8A 3D 00000FC0 R	    mov bh, pacmanY
+				    
+ 00002DB3  38 1D 00001976 R	    cmp ghost2X, bl
+ 00002DB9  0F 8C 000000CD	    jl MoveGhostRight2
+ 00002DBF  0F 8F 000000D6	    jg MoveGhostLeft2
+ 00002DC5  38 3D 00001977 R	    cmp ghost2Y, bh
+ 00002DCB  0F 8C 000000E8	    jl MoveGhostDown2
+ 00002DD1  0F 8F 000000D3	    jg MoveGhostUp2
+ 00002DD7  EB 58		    jmp MoveRandomly
+
+ 00002DD9			CutOffPath:
+				    ; Try to predict Pac-Man's path
+ 00002DD9  8A 1D 00000FBF R	    mov bl, pacmanX
+ 00002DDF  8A 3D 00000FC0 R	    mov bh, pacmanY
+				    
+				    ; Check Pac-Man's direction by comparing with old position
+ 00002DE5  A0 00000FBF R	    mov al, pacmanX
+ 00002DEA  3A 05 00000FCF R	    cmp al, oldPacmanX
+ 00002DF0  7F 13		    jg MovingRight
+ 00002DF2  7C 16		    jl MovingLeft
+				    
+ 00002DF4  A0 00000FC0 R	    mov al, pacmanY
+ 00002DF9  3A 05 00000FD0 R	    cmp al, oldPacmanY
+ 00002DFF  7F 13		    jg MovingDown
+ 00002E01  7C 0C		    jl MovingUp
+				    
+				    ; If not moving, default to toward movement
+ 00002E03  EB A2		    jmp MoveTowardPacman
+
+ 00002E05			MovingRight:
+				    ; Try to get ahead to the right
+ 00002E05  80 C3 05		    add bl, 5
+ 00002E08  EB 0D		    jmp MoveTowardPoint
+
+ 00002E0A			MovingLeft:
+				    ; Try to get ahead to the left
+ 00002E0A  80 EB 05		    sub bl, 5
+ 00002E0D  EB 08		    jmp MoveTowardPoint
+
+ 00002E0F			MovingUp:
+				    ; Try to get above
+ 00002E0F  80 EF 05		    sub bh, 5
+ 00002E12  EB 03		    jmp MoveTowardPoint
+
+ 00002E14			MovingDown:
+				    ; Try to get below
+ 00002E14  80 C7 05		    add bh, 5
+
+ 00002E17			MoveTowardPoint:
+				    ; Move toward the predicted point (bl,bh)
+ 00002E17  38 1D 00001976 R	    cmp ghost2X, bl
+ 00002E1D  7C 6D		    jl MoveGhostRight2
+ 00002E1F  7F 7A		    jg MoveGhostLeft2
+ 00002E21  38 3D 00001977 R	    cmp ghost2Y, bh
+ 00002E27  0F 8C 0000008C	    jl MoveGhostDown2
+ 00002E2D  7F 7B		    jg MoveGhostUp2
+ 00002E2F  EB 00		    jmp MoveRandomly
+
+ 00002E31			MoveRandomly:
+				    ; Random direction (1-4)
+ 00002E31  B8 00000004		    mov eax, 4
+ 00002E36  E8 00000000 E	    call RandomRange
+ 00002E3B  40			    inc eax
+				    
+ 00002E3C  83 F8 01		    cmp eax, 1
+ 00002E3F  74 0F		    je TryRight2
+ 00002E41  83 F8 02		    cmp eax, 2
+ 00002E44  74 19		    je TryLeft2
+ 00002E46  83 F8 03		    cmp eax, 3
+ 00002E49  74 23		    je TryUp2
+ 00002E4B  83 F8 04		    cmp eax, 4
+ 00002E4E  74 2D		    je TryDown2
+
+ 00002E50			TryRight2:
+ 00002E50  FE 05 00001976 R	    inc ghost2X
+ 00002E56  E8 0000082C		    call CheckGhost2WallCollision3
+ 00002E5B  72 6B		    jc UndoGhostMove2
+ 00002E5D  EB 7F		    jmp MoveGhost3
+
+ 00002E5F			TryLeft2:
+ 00002E5F  FE 0D 00001976 R	    dec ghost2X
+ 00002E65  E8 0000081D		    call CheckGhost2WallCollision3
+ 00002E6A  72 5C		    jc UndoGhostMove2
+ 00002E6C  EB 70		    jmp MoveGhost3
+
+ 00002E6E			TryUp2:
+ 00002E6E  FE 0D 00001977 R	    dec ghost2Y
+ 00002E74  E8 0000080E		    call CheckGhost2WallCollision3
+ 00002E79  72 4D		    jc UndoGhostMove2
+ 00002E7B  EB 61		    jmp MoveGhost3
+
+ 00002E7D			TryDown2:
+ 00002E7D  FE 05 00001977 R	    inc ghost2Y
+ 00002E83  E8 000007FF		    call CheckGhost2WallCollision3
+ 00002E88  72 3E		    jc UndoGhostMove2
+ 00002E8A  EB 52		    jmp MoveGhost3
+
+ 00002E8C			MoveGhostRight2:
+ 00002E8C  FE 05 00001976 R	    inc ghost2X
+ 00002E92  E8 000007F0		    call CheckGhost2WallCollision3
+ 00002E97  72 2F		    jc UndoGhostMove2
+ 00002E99  EB 43		    jmp MoveGhost3
+
+ 00002E9B			MoveGhostLeft2:
+ 00002E9B  FE 0D 00001976 R	    dec ghost2X
+ 00002EA1  E8 000007E1		    call CheckGhost2WallCollision3
+ 00002EA6  72 20		    jc UndoGhostMove2
+ 00002EA8  EB 34		    jmp MoveGhost3
+
+ 00002EAA			MoveGhostUp2:
+ 00002EAA  FE 0D 00001977 R	    dec ghost2Y
+ 00002EB0  E8 000007D2		    call CheckGhost2WallCollision3
+ 00002EB5  72 11		    jc UndoGhostMove2
+ 00002EB7  EB 25		    jmp MoveGhost3
+
+ 00002EB9			MoveGhostDown2:
+ 00002EB9  FE 05 00001977 R	    inc ghost2Y
+ 00002EBF  E8 000007C3		    call CheckGhost2WallCollision3
+ 00002EC4  72 02		    jc UndoGhostMove2
+ 00002EC6  EB 16		    jmp MoveGhost3
+
+ 00002EC8			UndoGhostMove2:
+ 00002EC8  A0 00001978 R	    mov al, oldGhost2X
+ 00002ECD  A2 00001976 R	    mov ghost2X, al
+ 00002ED2  A0 00001979 R	    mov al, oldGhost2Y
+ 00002ED7  A2 00001977 R	    mov ghost2Y, al
+ 00002EDC  EB 00		    jmp MoveGhost3
+
+				; Move third ghost (same as ghost1 but with different collision checks)
+ 00002EDE			MoveGhost3:
+ 00002EDE  E8 00000000 E	    call Randomize
+ 00002EE3  B8 0000000A		    mov eax, 10
+ 00002EE8  E8 00000000 E	    call RandomRange
+ 00002EED  83 F8 07		    cmp eax, 7  ; 70% chance to move toward Pac-Man
+ 00002EF0  72 5E		    jb RandomMove3
+				    
+				    ; Move toward Pac-Man
+ 00002EF2  8A 1D 00000FBF R	    mov bl, pacmanX
+ 00002EF8  8A 3D 00000FC0 R	    mov bh, pacmanY
+				    
+ 00002EFE  38 1D 0000197B R	    cmp ghost3X, bl
+ 00002F04  7C 0E		    jl MoveGhostRight3
+ 00002F06  7F 1E		    jg MoveGhostLeft3
+ 00002F08  38 3D 0000197C R	    cmp ghost3Y, bh
+ 00002F0E  7C 32		    jl MoveGhostDown3
+ 00002F10  7F 22		    jg MoveGhostUp3
+ 00002F12  EB 3C		    jmp RandomMove3
+
+ 00002F14			MoveGhostRight3:
+ 00002F14  FE 05 0000197B R	    inc ghost3X
+ 00002F1A  E8 000009D1		    call CheckGhost3WallCollision3
+ 00002F1F  0F 82 00000082	    jc UndoGhostMove3
+ 00002F25  C3			    ret
+
+ 00002F26			MoveGhostLeft3:
+ 00002F26  FE 0D 0000197B R	    dec ghost3X
+ 00002F2C  E8 000009BF		    call CheckGhost3WallCollision3
+ 00002F31  72 74		    jc UndoGhostMove3
+ 00002F33  C3			    ret
+
+ 00002F34			MoveGhostUp3:
+ 00002F34  FE 0D 0000197C R	    dec ghost3Y
+ 00002F3A  E8 000009B1		    call CheckGhost3WallCollision3
+ 00002F3F  72 66		    jc UndoGhostMove3
+ 00002F41  C3			    ret
+
+ 00002F42			MoveGhostDown3:
+ 00002F42  FE 05 0000197C R	    inc ghost3Y
+ 00002F48  E8 000009A3		    call CheckGhost3WallCollision3
+ 00002F4D  72 58		    jc UndoGhostMove3
+ 00002F4F  C3			    ret
+
+ 00002F50			RandomMove3:
+				    ; Random direction (1-4)
+ 00002F50  B8 00000004		    mov eax, 4
+ 00002F55  E8 00000000 E	    call RandomRange
+ 00002F5A  40			    inc eax
+				    
+ 00002F5B  83 F8 01		    cmp eax, 1
+ 00002F5E  74 0F		    je TryRight3
+ 00002F60  83 F8 02		    cmp eax, 2
+ 00002F63  74 18		    je TryLeft3
+ 00002F65  83 F8 03		    cmp eax, 3
+ 00002F68  74 21		    je TryUp3
+ 00002F6A  83 F8 04		    cmp eax, 4
+ 00002F6D  74 2A		    je TryDown3
+
+ 00002F6F			TryRight3:
+ 00002F6F  FE 05 0000197B R	    inc ghost3X
+ 00002F75  E8 00000976		    call CheckGhost3WallCollision3
+ 00002F7A  72 2B		    jc UndoGhostMove3
+ 00002F7C  C3			    ret
+
+ 00002F7D			TryLeft3:
+ 00002F7D  FE 0D 0000197B R	    dec ghost3X
+ 00002F83  E8 00000968		    call CheckGhost3WallCollision3
+ 00002F88  72 1D		    jc UndoGhostMove3
+ 00002F8A  C3			    ret
+
+ 00002F8B			TryUp3:
+ 00002F8B  FE 0D 0000197C R	    dec ghost3Y
+ 00002F91  E8 0000095A		    call CheckGhost3WallCollision3
+ 00002F96  72 0F		    jc UndoGhostMove3
+ 00002F98  C3			    ret
+
+ 00002F99			TryDown3:
+ 00002F99  FE 05 0000197C R	    inc ghost3Y
+ 00002F9F  E8 0000094C		    call CheckGhost3WallCollision3
+ 00002FA4  72 01		    jc UndoGhostMove3
+ 00002FA6  C3			    ret
+
+ 00002FA7			UndoGhostMove3:
+ 00002FA7  A0 0000197D R	    mov al, oldGhost3X
+ 00002FAC  A2 0000197B R	    mov ghost3X, al
+ 00002FB1  A0 0000197E R	    mov al, oldGhost3Y
+ 00002FB6  A2 0000197C R	    mov ghost3Y, al
+ 00002FBB  C3			    ret
+ 00002FBC			GhostMovementLevel3 ENDP
+
+				;....................................................................
+ 00002FBC			CheckGhostCollisionLevel3 PROC
+				    ; Check collision with first ghost
+ 00002FBC  A0 00000FBF R	    mov al, pacmanX
+ 00002FC1  2A 05 00000FC1 R	    sub al, ghostX
+ 00002FC7  3C FF		    cmp al, -1
+ 00002FC9  7C 19		    jl CheckSecondGhost
+ 00002FCB  3C 01		    cmp al, 1
+ 00002FCD  7F 15		    jg CheckSecondGhost
+				    
+ 00002FCF  A0 00000FC0 R	    mov al, pacmanY
+ 00002FD4  2A 05 00000FC2 R	    sub al, ghostY
+ 00002FDA  3C FF		    cmp al, -1
+ 00002FDC  7C 06		    jl CheckSecondGhost
+ 00002FDE  3C 01		    cmp al, 1
+ 00002FE0  7F 02		    jg CheckSecondGhost
+				    
+				    ; Collision with first ghost
+ 00002FE2  EB 5E		    jmp GhostCollision
+				    
+ 00002FE4			CheckSecondGhost:
+				    ; Check collision with second ghost
+ 00002FE4  A0 00000FBF R	    mov al, pacmanX
+ 00002FE9  2A 05 00001976 R	    sub al, ghost2X
+ 00002FEF  3C FF		    cmp al, -1
+ 00002FF1  7C 19		    jl CheckThirdGhost
+ 00002FF3  3C 01		    cmp al, 1
+ 00002FF5  7F 15		    jg CheckThirdGhost
+				    
+ 00002FF7  A0 00000FC0 R	    mov al, pacmanY
+ 00002FFC  2A 05 00001977 R	    sub al, ghost2Y
+ 00003002  3C FF		    cmp al, -1
+ 00003004  7C 06		    jl CheckThirdGhost
+ 00003006  3C 01		    cmp al, 1
+ 00003008  7F 02		    jg CheckThirdGhost
+				    
+				    ; Collision with second ghost
+ 0000300A  EB 36		    jmp GhostCollision
+				    
+ 0000300C			CheckThirdGhost:
+				    ; Check collision with third ghost
+ 0000300C  A0 00000FBF R	    mov al, pacmanX
+ 00003011  2A 05 0000197B R	    sub al, ghost3X
+ 00003017  3C FF		    cmp al, -1
+ 00003019  0F 8C 000000E1	    jl NoCollision
+ 0000301F  3C 01		    cmp al, 1
+ 00003021  0F 8F 000000D9	    jg NoCollision
+				    
+ 00003027  A0 00000FC0 R	    mov al, pacmanY
+ 0000302C  2A 05 0000197C R	    sub al, ghost3Y
+ 00003032  3C FF		    cmp al, -1
+ 00003034  0F 8C 000000C6	    jl NoCollision
+ 0000303A  3C 01		    cmp al, 1
+ 0000303C  0F 8F 000000BE	    jg NoCollision
+				    
+				    ; Collision with third ghost
+ 00003042			GhostCollision:
+ 00003042  FF 0D 00000FC7 R	    dec lives
+
+				    ; Update lives display
+ 00003048  B8 0000000F		    mov eax, whiteTxt
+ 0000304D  E8 00000000 E	    call SetTextColor
+ 00003052  B6 00		    mov dh, 0
+ 00003054  B2 07		    mov dl, 7
+ 00003056  E8 00000000 E	    call Gotoxy
+ 0000305B  A1 00000FC7 R	    mov eax, lives
+ 00003060  0F B6 C0		    movzx eax, al
+ 00003063  E8 00000000 E	    call WriteDec
+
+				    ; Clear ghosts from screen
+ 00003068  8A 15 00000FC1 R	    mov dl, ghostX
+ 0000306E  8A 35 00000FC2 R	    mov dh, ghostY
+ 00003074  E8 00000000 E	    call Gotoxy
+ 00003079  A0 00000F8F R	    mov al, emptyChar
+ 0000307E  E8 00000000 E	    call WriteChar
+				    
+ 00003083  8A 15 00001976 R	    mov dl, ghost2X
+ 00003089  8A 35 00001977 R	    mov dh, ghost2Y
+ 0000308F  E8 00000000 E	    call Gotoxy
+ 00003094  A0 00000F8F R	    mov al, emptyChar
+ 00003099  E8 00000000 E	    call WriteChar
+				    
+ 0000309E  8A 15 0000197B R	    mov dl, ghost3X
+ 000030A4  8A 35 0000197C R	    mov dh, ghost3Y
+ 000030AA  E8 00000000 E	    call Gotoxy
+ 000030AF  A0 00000F8F R	    mov al, emptyChar
+ 000030B4  E8 00000000 E	    call WriteChar
+
+				    ; Reset positions
+ 000030B9  C6 05 00000FBF R	    mov pacmanX, 10
+	   0A
+ 000030C0  C6 05 00000FC0 R	    mov pacmanY, 15
+	   0F
+ 000030C7  C6 05 00000FC1 R	    mov ghostX, 50
+	   32
+ 000030CE  C6 05 00000FC2 R	    mov ghostY, 15
+	   0F
+ 000030D5  C6 05 00001976 R	    mov ghost2X, 70
+	   46
+ 000030DC  C6 05 00001977 R	    mov ghost2Y, 15
+	   0F
+ 000030E3  C6 05 0000197B R	    mov ghost3X, 30
+	   1E
+ 000030EA  C6 05 0000197C R	    mov ghost3Y, 20
+	   14
+
+ 000030F1  83 3D 00000FC7 R	    cmp lives, 0
+	   00
+ 000030F8  7E 0C		    jle GameOver
+
+ 000030FA  B8 00000000		    mov eax, 0
+ 000030FF  C3			    ret
+
+ 00003100			NoCollision:
+ 00003100  B8 00000000		    mov eax, 0
+ 00003105  C3			    ret
+
+ 00003106			GameOver:
+ 00003106  B8 00000001		    mov eax, 1
+ 0000310B  C3			    ret
+ 0000310C			CheckGhostCollisionLevel3 ENDP
+
+				;....................................................................
+ 0000310C			CheckPortalCollision PROC
+				    ; Check collision with portal 1
+ 0000310C  A0 00000FBF R	    mov al, pacmanX
+ 00003111  3A 05 0000198B R	    cmp al, portal1X
+ 00003117  75 23		    jne CheckPortal2
+ 00003119  A0 00000FC0 R	    mov al, pacmanY
+ 0000311E  3A 05 0000198C R	    cmp al, portal1Y
+ 00003124  75 16		    jne CheckPortal2
+				    
+				    ; Teleport to portal 2
+ 00003126  A0 0000198D R	    mov al, portal2X
+ 0000312B  A2 00000FBF R	    mov pacmanX, al
+ 00003130  A0 0000198E R	    mov al, portal2Y
+ 00003135  A2 00000FC0 R	    mov pacmanY, al
+ 0000313A  EB 2E		    jmp PortalUsed
+
+ 0000313C			CheckPortal2:
+				    ; Check collision with portal 2
+ 0000313C  A0 00000FBF R	    mov al, pacmanX
+ 00003141  3A 05 0000198D R	    cmp al, portal2X
+ 00003147  75 2B		    jne NoPortalCollision
+ 00003149  A0 00000FC0 R	    mov al, pacmanY
+ 0000314E  3A 05 0000198E R	    cmp al, portal2Y
+ 00003154  75 1E		    jne NoPortalCollision
+				    
+				    ; Teleport to portal 1
+ 00003156  A0 0000198B R	    mov al, portal1X
+ 0000315B  A2 00000FBF R	    mov pacmanX, al
+ 00003160  A0 0000198C R	    mov al, portal1Y
+ 00003165  A2 00000FC0 R	    mov pacmanY, al
+
+ 0000316A			PortalUsed:
+				    ; Play teleport sound
+ 0000316A  B8 000003E8		    mov eax, 1000
+ 0000316F  E8 00000000 E	    call Delay
+
+ 00003174			NoPortalCollision:
+ 00003174  C3			    ret
+ 00003175			CheckPortalCollision ENDP
+
+				;....................................................................
+ 00003175			CheckWallCollision3 PROC
+				    ; Check boundaries first
+ 00003175  80 3D 00000FBF R	    cmp pacmanX, 0
+	   00
+ 0000317C  0F 8E 0000029A	    jle Collision
+ 00003182  80 3D 00000FBF R	    cmp pacmanX, 114
+	   72
+ 00003189  0F 8D 0000028D	    jge Collision
+ 0000318F  80 3D 00000FC0 R	    cmp pacmanY, 5
+	   05
+ 00003196  0F 8E 00000280	    jle Collision
+ 0000319C  80 3D 00000FC0 R	    cmp pacmanY, 29
+	   1D
+ 000031A3  0F 8D 00000273	    jge Collision
+
+				    ; Check if position is a hidden shortcut (can pass through)
+				    ; Hidden shortcut 1 at (50,18)-(52,18)
+ 000031A9  80 3D 00000FC0 R	    cmp pacmanY, 18
+	   12
+ 000031B0  75 17		    jne CheckHiddenShortcut2
+ 000031B2  80 3D 00000FBF R	    cmp pacmanX, 50
+	   32
+ 000031B9  7C 0E		    jl CheckHiddenShortcut2
+ 000031BB  80 3D 00000FBF R	    cmp pacmanX, 52
+	   34
+ 000031C2  7F 05		    jg CheckHiddenShortcut2
+ 000031C4  E9 00000251		    jmp NoCollision
+
+ 000031C9			CheckHiddenShortcut2:
+				    ; Hidden shortcut 2 at (30,22)-(31,22)
+ 000031C9  80 3D 00000FC0 R	    cmp pacmanY, 22
+	   16
+ 000031D0  75 17		    jne CheckRegularWalls
+ 000031D2  80 3D 00000FBF R	    cmp pacmanX, 30
+	   1E
+ 000031D9  7C 0E		    jl CheckRegularWalls
+ 000031DB  80 3D 00000FBF R	    cmp pacmanX, 31
+	   1F
+ 000031E2  7F 05		    jg CheckRegularWalls
+ 000031E4  E9 00000231		    jmp NoCollision
+
+ 000031E9			CheckRegularWalls:
+				    ; Original walls from level 2
+				    ; 1. Vertical wall at X=5 (Y=4-10)
+ 000031E9  80 3D 00000FBF R	    cmp pacmanX, 5
+	   05
+ 000031F0  75 17		    jne CheckWall2
+ 000031F2  80 3D 00000FC0 R	    cmp pacmanY, 4
+	   04
+ 000031F9  7C 0E		    jl CheckWall2
+ 000031FB  80 3D 00000FC0 R	    cmp pacmanY, 10
+	   0A
+ 00003202  7F 05		    jg CheckWall2
+ 00003204  E9 00000213		    jmp Collision
+
+ 00003209			CheckWall2:
+				    ; 2. Horizontal wall at Y=8 (X=15-34)
+ 00003209  80 3D 00000FC0 R	    cmp pacmanY, 8
+	   08
+ 00003210  75 17		    jne CheckWall3
+ 00003212  80 3D 00000FBF R	    cmp pacmanX, 15
+	   0F
+ 00003219  7C 0E		    jl CheckWall3
+ 0000321B  80 3D 00000FBF R	    cmp pacmanX, 34
+	   22
+ 00003222  7F 05		    jg CheckWall3
+ 00003224  E9 000001F3		    jmp Collision
+
+ 00003229			CheckWall3:
+				    ; 3. Horizontal wall at Y=8 (X=60-79)
+ 00003229  80 3D 00000FC0 R	    cmp pacmanY, 8
+	   08
+ 00003230  75 17		    jne CheckWall4
+ 00003232  80 3D 00000FBF R	    cmp pacmanX, 60
+	   3C
+ 00003239  7C 0E		    jl CheckWall4
+ 0000323B  80 3D 00000FBF R	    cmp pacmanX, 79
+	   4F
+ 00003242  7F 05		    jg CheckWall4
+ 00003244  E9 000001D3		    jmp Collision
+
+ 00003249			CheckWall4:
+				    ; 4. Horizontal wall at Y=12 (X=30-39)
+ 00003249  80 3D 00000FC0 R	    cmp pacmanY, 12
+	   0C
+ 00003250  75 17		    jne CheckWall5
+ 00003252  80 3D 00000FBF R	    cmp pacmanX, 30
+	   1E
+ 00003259  7C 0E		    jl CheckWall5
+ 0000325B  80 3D 00000FBF R	    cmp pacmanX, 39
+	   27
+ 00003262  7F 05		    jg CheckWall5
+ 00003264  E9 000001B3		    jmp Collision
+
+ 00003269			CheckWall5:
+				    ; 5. Horizontal wall at Y=12 (X=70-79)
+ 00003269  80 3D 00000FC0 R	    cmp pacmanY, 12
+	   0C
+ 00003270  75 17		    jne CheckWall6
+ 00003272  80 3D 00000FBF R	    cmp pacmanX, 70
+	   46
+ 00003279  7C 0E		    jl CheckWall6
+ 0000327B  80 3D 00000FBF R	    cmp pacmanX, 79
+	   4F
+ 00003282  7F 05		    jg CheckWall6
+ 00003284  E9 00000193		    jmp Collision
+
+ 00003289			CheckWall6:
+				    ; 6. Horizontal wall at Y=16 (X=10-24)
+ 00003289  80 3D 00000FC0 R	    cmp pacmanY, 16
+	   10
+ 00003290  75 17		    jne CheckWall7
+ 00003292  80 3D 00000FBF R	    cmp pacmanX, 10
+	   0A
+ 00003299  7C 0E		    jl CheckWall7
+ 0000329B  80 3D 00000FBF R	    cmp pacmanX, 24
+	   18
+ 000032A2  7F 05		    jg CheckWall7
+ 000032A4  E9 00000173		    jmp Collision
+
+ 000032A9			CheckWall7:
+				    ; 7. Horizontal wall at Y=16 (X=40-54)
+ 000032A9  80 3D 00000FC0 R	    cmp pacmanY, 16
+	   10
+ 000032B0  75 17		    jne CheckWall8
+ 000032B2  80 3D 00000FBF R	    cmp pacmanX, 40
+	   28
+ 000032B9  7C 0E		    jl CheckWall8
+ 000032BB  80 3D 00000FBF R	    cmp pacmanX, 54
+	   36
+ 000032C2  7F 05		    jg CheckWall8
+ 000032C4  E9 00000153		    jmp Collision
+
+ 000032C9			CheckWall8:
+				    ; 8. Horizontal wall at Y=16 (X=80-94)
+ 000032C9  80 3D 00000FC0 R	    cmp pacmanY, 16
+	   10
+ 000032D0  75 17		    jne CheckWall9
+ 000032D2  80 3D 00000FBF R	    cmp pacmanX, 80
+	   50
+ 000032D9  7C 0E		    jl CheckWall9
+ 000032DB  80 3D 00000FBF R	    cmp pacmanX, 94
+	   5E
+ 000032E2  7F 05		    jg CheckWall9
+ 000032E4  E9 00000133		    jmp Collision
+
+ 000032E9			CheckWall9:
+				    ; 9. Horizontal wall at Y=20 (X=20-44)
+ 000032E9  80 3D 00000FC0 R	    cmp pacmanY, 20
+	   14
+ 000032F0  75 17		    jne CheckWall10
+ 000032F2  80 3D 00000FBF R	    cmp pacmanX, 20
+	   14
+ 000032F9  7C 0E		    jl CheckWall10
+ 000032FB  80 3D 00000FBF R	    cmp pacmanX, 44
+	   2C
+ 00003302  7F 05		    jg CheckWall10
+ 00003304  E9 00000113		    jmp Collision
+
+ 00003309			CheckWall10:
+				    ; 10. Horizontal wall at Y=20 (X=70-94)
+ 00003309  80 3D 00000FC0 R	    cmp pacmanY, 20
+	   14
+ 00003310  75 17		    jne CheckWall11
+ 00003312  80 3D 00000FBF R	    cmp pacmanX, 70
+	   46
+ 00003319  7C 0E		    jl CheckWall11
+ 0000331B  80 3D 00000FBF R	    cmp pacmanX, 94
+	   5E
+ 00003322  7F 05		    jg CheckWall11
+ 00003324  E9 000000F3		    jmp Collision
+
+ 00003329			CheckWall11:
+				    ; 11. Horizontal wall at Y=24 (X=30-39)
+ 00003329  80 3D 00000FC0 R	    cmp pacmanY, 24
+	   18
+ 00003330  75 17		    jne CheckWall12
+ 00003332  80 3D 00000FBF R	    cmp pacmanX, 30
+	   1E
+ 00003339  7C 0E		    jl CheckWall12
+ 0000333B  80 3D 00000FBF R	    cmp pacmanX, 39
+	   27
+ 00003342  7F 05		    jg CheckWall12
+ 00003344  E9 000000D3		    jmp Collision
+
+ 00003349			CheckWall12:
+				    ; 12. Horizontal wall at Y=24 (X=70-79)
+ 00003349  80 3D 00000FC0 R	    cmp pacmanY, 24
+	   18
+ 00003350  75 17		    jne CheckWall13
+ 00003352  80 3D 00000FBF R	    cmp pacmanX, 70
+	   46
+ 00003359  7C 0E		    jl CheckWall13
+ 0000335B  80 3D 00000FBF R	    cmp pacmanX, 79
+	   4F
+ 00003362  7F 05		    jg CheckWall13
+ 00003364  E9 000000B3		    jmp Collision
+
+ 00003369			CheckWall13:
+				    ; New small walls for level 3
+				    ; 13. Vertical small wall at X=25 (Y=7-9)
+ 00003369  80 3D 00000FBF R	    cmp pacmanX, 25
+	   19
+ 00003370  75 17		    jne CheckWall14
+ 00003372  80 3D 00000FC0 R	    cmp pacmanY, 7
+	   07
+ 00003379  7C 0E		    jl CheckWall14
+ 0000337B  80 3D 00000FC0 R	    cmp pacmanY, 9
+	   09
+ 00003382  7F 05		    jg CheckWall14
+ 00003384  E9 00000093		    jmp Collision
+
+ 00003389			CheckWall14:
+				    ; 14. Vertical small wall at X=45 (Y=10-11)
+ 00003389  80 3D 00000FBF R	    cmp pacmanX, 45
+	   2D
+ 00003390  75 14		    jne CheckWall15
+ 00003392  80 3D 00000FC0 R	    cmp pacmanY, 10
+	   0A
+ 00003399  7C 0B		    jl CheckWall15
+ 0000339B  80 3D 00000FC0 R	    cmp pacmanY, 11
+	   0B
+ 000033A2  7F 02		    jg CheckWall15
+ 000033A4  EB 76		    jmp Collision
+
+ 000033A6			CheckWall15:
+				    ; 15. Vertical small wall at X=65 (Y=15-17)
+ 000033A6  80 3D 00000FBF R	    cmp pacmanX, 65
+	   41
+ 000033AD  75 14		    jne CheckWall16
+ 000033AF  80 3D 00000FC0 R	    cmp pacmanY, 15
+	   0F
+ 000033B6  7C 0B		    jl CheckWall16
+ 000033B8  80 3D 00000FC0 R	    cmp pacmanY, 17
+	   11
+ 000033BF  7F 02		    jg CheckWall16
+ 000033C1  EB 59		    jmp Collision
+
+ 000033C3			CheckWall16:
+				    ; 16. Horizontal small wall at Y=9 (X=35-36)
+ 000033C3  80 3D 00000FC0 R	    cmp pacmanY, 9
+	   09
+ 000033CA  75 14		    jne CheckWall17
+ 000033CC  80 3D 00000FBF R	    cmp pacmanX, 35
+	   23
+ 000033D3  7C 0B		    jl CheckWall17
+ 000033D5  80 3D 00000FBF R	    cmp pacmanX, 36
+	   24
+ 000033DC  7F 02		    jg CheckWall17
+ 000033DE  EB 3C		    jmp Collision
+
+ 000033E0			CheckWall17:
+				    ; 17. Horizontal small wall at Y=14 (X=55-57)
+ 000033E0  80 3D 00000FC0 R	    cmp pacmanY, 14
+	   0E
+ 000033E7  75 14		    jne CheckWall18
+ 000033E9  80 3D 00000FBF R	    cmp pacmanX, 55
+	   37
+ 000033F0  7C 0B		    jl CheckWall18
+ 000033F2  80 3D 00000FBF R	    cmp pacmanX, 57
+	   39
+ 000033F9  7F 02		    jg CheckWall18
+ 000033FB  EB 1F		    jmp Collision
+
+ 000033FD			CheckWall18:
+				    ; 18. Horizontal small wall at Y=19 (X=75-76)
+ 000033FD  80 3D 00000FC0 R	    cmp pacmanY, 19
+	   13
+ 00003404  75 14		    jne NoCollision
+ 00003406  80 3D 00000FBF R	    cmp pacmanX, 75
+	   4B
+ 0000340D  7C 0B		    jl NoCollision
+ 0000340F  80 3D 00000FBF R	    cmp pacmanX, 76
+	   4C
+ 00003416  7F 02		    jg NoCollision
+ 00003418  EB 02		    jmp Collision
+
+ 0000341A			NoCollision:
+ 0000341A  F8			    clc
+ 0000341B  C3			    ret
+
+ 0000341C			Collision:
+ 0000341C  F9			    stc
+ 0000341D  C3			    ret
+ 0000341E			CheckWallCollision3 ENDP
+
+				;....................................................................
+				;....................................................................
+ 0000341E			CheckGhost1WallCollision3 PROC
+				    ; Similar to CheckWallCollision3 but for ghost1
+				    ; Check boundaries first
+ 0000341E  80 3D 00000FC1 R	    cmp ghostX, 0
+	   00
+ 00003425  0F 8E 0000025A	    jle Ghost1Collision
+ 0000342B  80 3D 00000FC1 R	    cmp ghostX, 114
+	   72
+ 00003432  0F 8D 0000024D	    jge Ghost1Collision
+ 00003438  80 3D 00000FC2 R	    cmp ghostY, 5
+	   05
+ 0000343F  0F 8E 00000240	    jle Ghost1Collision
+ 00003445  80 3D 00000FC2 R	    cmp ghostY, 29
+	   1D
+ 0000344C  0F 8D 00000233	    jge Ghost1Collision
+
+				    ; Ghosts can't use hidden shortcuts
+				    ; Original walls from level 2
+				    ; 1. Vertical wall at X=5 (Y=4-10)
+ 00003452  80 3D 00000FC1 R	    cmp ghostX, 5
+	   05
+ 00003459  75 17		    jne CheckGhost1Wall2
+ 0000345B  80 3D 00000FC2 R	    cmp ghostY, 4
+	   04
+ 00003462  7C 0E		    jl CheckGhost1Wall2
+ 00003464  80 3D 00000FC2 R	    cmp ghostY, 10
+	   0A
+ 0000346B  7F 05		    jg CheckGhost1Wall2
+ 0000346D  E9 00000213		    jmp Ghost1Collision
+
+ 00003472			CheckGhost1Wall2:
+				    ; 2. Horizontal wall at Y=8 (X=15-34)
+ 00003472  80 3D 00000FC2 R	    cmp ghostY, 8
+	   08
+ 00003479  75 17		    jne CheckGhost1Wall3
+ 0000347B  80 3D 00000FC1 R	    cmp ghostX, 15
+	   0F
+ 00003482  7C 0E		    jl CheckGhost1Wall3
+ 00003484  80 3D 00000FC1 R	    cmp ghostX, 34
+	   22
+ 0000348B  7F 05		    jg CheckGhost1Wall3
+ 0000348D  E9 000001F3		    jmp Ghost1Collision
+
+ 00003492			CheckGhost1Wall3:
+				    ; 3. Horizontal wall at Y=8 (X=60-79)
+ 00003492  80 3D 00000FC2 R	    cmp ghostY, 8
+	   08
+ 00003499  75 17		    jne CheckGhost1Wall4
+ 0000349B  80 3D 00000FC1 R	    cmp ghostX, 60
+	   3C
+ 000034A2  7C 0E		    jl CheckGhost1Wall4
+ 000034A4  80 3D 00000FC1 R	    cmp ghostX, 79
+	   4F
+ 000034AB  7F 05		    jg CheckGhost1Wall4
+ 000034AD  E9 000001D3		    jmp Ghost1Collision
+
+ 000034B2			CheckGhost1Wall4:
+				    ; 4. Horizontal wall at Y=12 (X=30-39)
+ 000034B2  80 3D 00000FC2 R	    cmp ghostY, 12
+	   0C
+ 000034B9  75 17		    jne CheckGhost1Wall5
+ 000034BB  80 3D 00000FC1 R	    cmp ghostX, 30
+	   1E
+ 000034C2  7C 0E		    jl CheckGhost1Wall5
+ 000034C4  80 3D 00000FC1 R	    cmp ghostX, 39
+	   27
+ 000034CB  7F 05		    jg CheckGhost1Wall5
+ 000034CD  E9 000001B3		    jmp Ghost1Collision
+
+ 000034D2			CheckGhost1Wall5:
+				    ; 5. Horizontal wall at Y=12 (X=70-79)
+ 000034D2  80 3D 00000FC2 R	    cmp ghostY, 12
+	   0C
+ 000034D9  75 17		    jne CheckGhost1Wall6
+ 000034DB  80 3D 00000FC1 R	    cmp ghostX, 70
+	   46
+ 000034E2  7C 0E		    jl CheckGhost1Wall6
+ 000034E4  80 3D 00000FC1 R	    cmp ghostX, 79
+	   4F
+ 000034EB  7F 05		    jg CheckGhost1Wall6
+ 000034ED  E9 00000193		    jmp Ghost1Collision
+
+ 000034F2			CheckGhost1Wall6:
+				    ; 6. Horizontal wall at Y=16 (X=10-24)
+ 000034F2  80 3D 00000FC2 R	    cmp ghostY, 16
+	   10
+ 000034F9  75 17		    jne CheckGhost1Wall7
+ 000034FB  80 3D 00000FC1 R	    cmp ghostX, 10
+	   0A
+ 00003502  7C 0E		    jl CheckGhost1Wall7
+ 00003504  80 3D 00000FC1 R	    cmp ghostX, 24
+	   18
+ 0000350B  7F 05		    jg CheckGhost1Wall7
+ 0000350D  E9 00000173		    jmp Ghost1Collision
+
+ 00003512			CheckGhost1Wall7:
+				    ; 7. Horizontal wall at Y=16 (X=40-54)
+ 00003512  80 3D 00000FC2 R	    cmp ghostY, 16
+	   10
+ 00003519  75 17		    jne CheckGhost1Wall8
+ 0000351B  80 3D 00000FC1 R	    cmp ghostX, 40
+	   28
+ 00003522  7C 0E		    jl CheckGhost1Wall8
+ 00003524  80 3D 00000FC1 R	    cmp ghostX, 54
+	   36
+ 0000352B  7F 05		    jg CheckGhost1Wall8
+ 0000352D  E9 00000153		    jmp Ghost1Collision
+
+ 00003532			CheckGhost1Wall8:
+				    ; 8. Horizontal wall at Y=16 (X=80-94)
+ 00003532  80 3D 00000FC2 R	    cmp ghostY, 16
+	   10
+ 00003539  75 17		    jne CheckGhost1Wall9
+ 0000353B  80 3D 00000FC1 R	    cmp ghostX, 80
+	   50
+ 00003542  7C 0E		    jl CheckGhost1Wall9
+ 00003544  80 3D 00000FC1 R	    cmp ghostX, 94
+	   5E
+ 0000354B  7F 05		    jg CheckGhost1Wall9
+ 0000354D  E9 00000133		    jmp Ghost1Collision
+
+ 00003552			CheckGhost1Wall9:
+				    ; 9. Horizontal wall at Y=20 (X=20-44)
+ 00003552  80 3D 00000FC2 R	    cmp ghostY, 20
+	   14
+ 00003559  75 17		    jne CheckGhost1Wall10
+ 0000355B  80 3D 00000FC1 R	    cmp ghostX, 20
+	   14
+ 00003562  7C 0E		    jl CheckGhost1Wall10
+ 00003564  80 3D 00000FC1 R	    cmp ghostX, 44
+	   2C
+ 0000356B  7F 05		    jg CheckGhost1Wall10
+ 0000356D  E9 00000113		    jmp Ghost1Collision
+
+ 00003572			CheckGhost1Wall10:
+				    ; 10. Horizontal wall at Y=20 (X=70-94)
+ 00003572  80 3D 00000FC2 R	    cmp ghostY, 20
+	   14
+ 00003579  75 17		    jne CheckGhost1Wall11
+ 0000357B  80 3D 00000FC1 R	    cmp ghostX, 70
+	   46
+ 00003582  7C 0E		    jl CheckGhost1Wall11
+ 00003584  80 3D 00000FC1 R	    cmp ghostX, 94
+	   5E
+ 0000358B  7F 05		    jg CheckGhost1Wall11
+ 0000358D  E9 000000F3		    jmp Ghost1Collision
+
+ 00003592			CheckGhost1Wall11:
+				    ; 11. Horizontal wall at Y=24 (X=30-39)
+ 00003592  80 3D 00000FC2 R	    cmp ghostY, 24
+	   18
+ 00003599  75 17		    jne CheckGhost1Wall12
+ 0000359B  80 3D 00000FC1 R	    cmp ghostX, 30
+	   1E
+ 000035A2  7C 0E		    jl CheckGhost1Wall12
+ 000035A4  80 3D 00000FC1 R	    cmp ghostX, 39
+	   27
+ 000035AB  7F 05		    jg CheckGhost1Wall12
+ 000035AD  E9 000000D3		    jmp Ghost1Collision
+
+ 000035B2			CheckGhost1Wall12:
+				    ; 12. Horizontal wall at Y=24 (X=70-79)
+ 000035B2  80 3D 00000FC2 R	    cmp ghostY, 24
+	   18
+ 000035B9  75 17		    jne CheckGhost1Wall13
+ 000035BB  80 3D 00000FC1 R	    cmp ghostX, 70
+	   46
+ 000035C2  7C 0E		    jl CheckGhost1Wall13
+ 000035C4  80 3D 00000FC1 R	    cmp ghostX, 79
+	   4F
+ 000035CB  7F 05		    jg CheckGhost1Wall13
+ 000035CD  E9 000000B3		    jmp Ghost1Collision
+
+ 000035D2			CheckGhost1Wall13:
+				    ; New small walls for level 3
+				    ; 13. Vertical small wall at X=25 (Y=7-9)
+ 000035D2  80 3D 00000FC1 R	    cmp ghostX, 25
+	   19
+ 000035D9  75 17		    jne CheckGhost1Wall14
+ 000035DB  80 3D 00000FC2 R	    cmp ghostY, 7
+	   07
+ 000035E2  7C 0E		    jl CheckGhost1Wall14
+ 000035E4  80 3D 00000FC2 R	    cmp ghostY, 9
+	   09
+ 000035EB  7F 05		    jg CheckGhost1Wall14
+ 000035ED  E9 00000093		    jmp Ghost1Collision
+
+ 000035F2			CheckGhost1Wall14:
+				    ; 14. Vertical small wall at X=45 (Y=10-11)
+ 000035F2  80 3D 00000FC1 R	    cmp ghostX, 45
+	   2D
+ 000035F9  75 14		    jne CheckGhost1Wall15
+ 000035FB  80 3D 00000FC2 R	    cmp ghostY, 10
+	   0A
+ 00003602  7C 0B		    jl CheckGhost1Wall15
+ 00003604  80 3D 00000FC2 R	    cmp ghostY, 11
+	   0B
+ 0000360B  7F 02		    jg CheckGhost1Wall15
+ 0000360D  EB 76		    jmp Ghost1Collision
+
+ 0000360F			CheckGhost1Wall15:
+				    ; 15. Vertical small wall at X=65 (Y=15-17)
+ 0000360F  80 3D 00000FC1 R	    cmp ghostX, 65
+	   41
+ 00003616  75 14		    jne CheckGhost1Wall16
+ 00003618  80 3D 00000FC2 R	    cmp ghostY, 15
+	   0F
+ 0000361F  7C 0B		    jl CheckGhost1Wall16
+ 00003621  80 3D 00000FC2 R	    cmp ghostY, 17
+	   11
+ 00003628  7F 02		    jg CheckGhost1Wall16
+ 0000362A  EB 59		    jmp Ghost1Collision
+
+ 0000362C			CheckGhost1Wall16:
+				    ; 16. Horizontal small wall at Y=9 (X=35-36)
+ 0000362C  80 3D 00000FC2 R	    cmp ghostY, 9
+	   09
+ 00003633  75 14		    jne CheckGhost1Wall17
+ 00003635  80 3D 00000FC1 R	    cmp ghostX, 35
+	   23
+ 0000363C  7C 0B		    jl CheckGhost1Wall17
+ 0000363E  80 3D 00000FC1 R	    cmp ghostX, 36
+	   24
+ 00003645  7F 02		    jg CheckGhost1Wall17
+ 00003647  EB 3C		    jmp Ghost1Collision
+
+ 00003649			CheckGhost1Wall17:
+				    ; 17. Horizontal small wall at Y=14 (X=55-57)
+ 00003649  80 3D 00000FC2 R	    cmp ghostY, 14
+	   0E
+ 00003650  75 14		    jne CheckGhost1Wall18
+ 00003652  80 3D 00000FC1 R	    cmp ghostX, 55
+	   37
+ 00003659  7C 0B		    jl CheckGhost1Wall18
+ 0000365B  80 3D 00000FC1 R	    cmp ghostX, 57
+	   39
+ 00003662  7F 02		    jg CheckGhost1Wall18
+ 00003664  EB 1F		    jmp Ghost1Collision
+
+ 00003666			CheckGhost1Wall18:
+				    ; 18. Horizontal small wall at Y=19 (X=75-76)
+ 00003666  80 3D 00000FC2 R	    cmp ghostY, 19
+	   13
+ 0000366D  75 14		    jne Ghost1NoCollision
+ 0000366F  80 3D 00000FC1 R	    cmp ghostX, 75
+	   4B
+ 00003676  7C 0B		    jl Ghost1NoCollision
+ 00003678  80 3D 00000FC1 R	    cmp ghostX, 76
+	   4C
+ 0000367F  7F 02		    jg Ghost1NoCollision
+ 00003681  EB 02		    jmp Ghost1Collision
+
+ 00003683			Ghost1NoCollision:
+ 00003683  F8			    clc
+ 00003684  C3			    ret
+
+ 00003685			Ghost1Collision:
+ 00003685  F9			    stc
+ 00003686  C3			    ret
+ 00003687			CheckGhost1WallCollision3 ENDP
+
+				;....................................................................
+ 00003687			CheckGhost2WallCollision3 PROC
+				    ; Similar to CheckGhost1WallCollision3 but for ghost2
+				    ; Check boundaries first
+ 00003687  80 3D 00001976 R	    cmp ghost2X, 0
+	   00
+ 0000368E  0F 8E 0000025A	    jle Ghost2Collision
+ 00003694  80 3D 00001976 R	    cmp ghost2X, 114
+	   72
+ 0000369B  0F 8D 0000024D	    jge Ghost2Collision
+ 000036A1  80 3D 00001977 R	    cmp ghost2Y, 5
+	   05
+ 000036A8  0F 8E 00000240	    jle Ghost2Collision
+ 000036AE  80 3D 00001977 R	    cmp ghost2Y, 29
+	   1D
+ 000036B5  0F 8D 00000233	    jge Ghost2Collision
+
+				    ; Original walls from level 2
+				    ; 1. Vertical wall at X=5 (Y=4-10)
+ 000036BB  80 3D 00001976 R	    cmp ghost2X, 5
+	   05
+ 000036C2  75 17		    jne CheckGhost2Wall2
+ 000036C4  80 3D 00001977 R	    cmp ghost2Y, 4
+	   04
+ 000036CB  7C 0E		    jl CheckGhost2Wall2
+ 000036CD  80 3D 00001977 R	    cmp ghost2Y, 10
+	   0A
+ 000036D4  7F 05		    jg CheckGhost2Wall2
+ 000036D6  E9 00000213		    jmp Ghost2Collision
+
+ 000036DB			CheckGhost2Wall2:
+				    ; 2. Horizontal wall at Y=8 (X=15-34)
+ 000036DB  80 3D 00001977 R	    cmp ghost2Y, 8
+	   08
+ 000036E2  75 17		    jne CheckGhost2Wall3
+ 000036E4  80 3D 00001976 R	    cmp ghost2X, 15
+	   0F
+ 000036EB  7C 0E		    jl CheckGhost2Wall3
+ 000036ED  80 3D 00001976 R	    cmp ghost2X, 34
+	   22
+ 000036F4  7F 05		    jg CheckGhost2Wall3
+ 000036F6  E9 000001F3		    jmp Ghost2Collision
+
+ 000036FB			CheckGhost2Wall3:
+				    ; 3. Horizontal wall at Y=8 (X=60-79)
+ 000036FB  80 3D 00001977 R	    cmp ghost2Y, 8
+	   08
+ 00003702  75 17		    jne CheckGhost2Wall4
+ 00003704  80 3D 00001976 R	    cmp ghost2X, 60
+	   3C
+ 0000370B  7C 0E		    jl CheckGhost2Wall4
+ 0000370D  80 3D 00001976 R	    cmp ghost2X, 79
+	   4F
+ 00003714  7F 05		    jg CheckGhost2Wall4
+ 00003716  E9 000001D3		    jmp Ghost2Collision
+
+ 0000371B			CheckGhost2Wall4:
+				    ; 4. Horizontal wall at Y=12 (X=30-39)
+ 0000371B  80 3D 00001977 R	    cmp ghost2Y, 12
+	   0C
+ 00003722  75 17		    jne CheckGhost2Wall5
+ 00003724  80 3D 00001976 R	    cmp ghost2X, 30
+	   1E
+ 0000372B  7C 0E		    jl CheckGhost2Wall5
+ 0000372D  80 3D 00001976 R	    cmp ghost2X, 39
+	   27
+ 00003734  7F 05		    jg CheckGhost2Wall5
+ 00003736  E9 000001B3		    jmp Ghost2Collision
+
+ 0000373B			CheckGhost2Wall5:
+				    ; 5. Horizontal wall at Y=12 (X=70-79)
+ 0000373B  80 3D 00001977 R	    cmp ghost2Y, 12
+	   0C
+ 00003742  75 17		    jne CheckGhost2Wall6
+ 00003744  80 3D 00001976 R	    cmp ghost2X, 70
+	   46
+ 0000374B  7C 0E		    jl CheckGhost2Wall6
+ 0000374D  80 3D 00001976 R	    cmp ghost2X, 79
+	   4F
+ 00003754  7F 05		    jg CheckGhost2Wall6
+ 00003756  E9 00000193		    jmp Ghost2Collision
+
+ 0000375B			CheckGhost2Wall6:
+				    ; 6. Horizontal wall at Y=16 (X=10-24)
+ 0000375B  80 3D 00001977 R	    cmp ghost2Y, 16
+	   10
+ 00003762  75 17		    jne CheckGhost2Wall7
+ 00003764  80 3D 00001976 R	    cmp ghost2X, 10
+	   0A
+ 0000376B  7C 0E		    jl CheckGhost2Wall7
+ 0000376D  80 3D 00001976 R	    cmp ghost2X, 24
+	   18
+ 00003774  7F 05		    jg CheckGhost2Wall7
+ 00003776  E9 00000173		    jmp Ghost2Collision
+
+ 0000377B			CheckGhost2Wall7:
+				    ; 7. Horizontal wall at Y=16 (X=40-54)
+ 0000377B  80 3D 00001977 R	    cmp ghost2Y, 16
+	   10
+ 00003782  75 17		    jne CheckGhost2Wall8
+ 00003784  80 3D 00001976 R	    cmp ghost2X, 40
+	   28
+ 0000378B  7C 0E		    jl CheckGhost2Wall8
+ 0000378D  80 3D 00001976 R	    cmp ghost2X, 54
+	   36
+ 00003794  7F 05		    jg CheckGhost2Wall8
+ 00003796  E9 00000153		    jmp Ghost2Collision
+
+ 0000379B			CheckGhost2Wall8:
+				    ; 8. Horizontal wall at Y=16 (X=80-94)
+ 0000379B  80 3D 00001977 R	    cmp ghost2Y, 16
+	   10
+ 000037A2  75 17		    jne CheckGhost2Wall9
+ 000037A4  80 3D 00001976 R	    cmp ghost2X, 80
+	   50
+ 000037AB  7C 0E		    jl CheckGhost2Wall9
+ 000037AD  80 3D 00001976 R	    cmp ghost2X, 94
+	   5E
+ 000037B4  7F 05		    jg CheckGhost2Wall9
+ 000037B6  E9 00000133		    jmp Ghost2Collision
+
+ 000037BB			CheckGhost2Wall9:
+				    ; 9. Horizontal wall at Y=20 (X=20-44)
+ 000037BB  80 3D 00001977 R	    cmp ghost2Y, 20
+	   14
+ 000037C2  75 17		    jne CheckGhost2Wall10
+ 000037C4  80 3D 00001976 R	    cmp ghost2X, 20
+	   14
+ 000037CB  7C 0E		    jl CheckGhost2Wall10
+ 000037CD  80 3D 00001976 R	    cmp ghost2X, 44
+	   2C
+ 000037D4  7F 05		    jg CheckGhost2Wall10
+ 000037D6  E9 00000113		    jmp Ghost2Collision
+
+ 000037DB			CheckGhost2Wall10:
+				    ; 10. Horizontal wall at Y=20 (X=70-94)
+ 000037DB  80 3D 00001977 R	    cmp ghost2Y, 20
+	   14
+ 000037E2  75 17		    jne CheckGhost2Wall11
+ 000037E4  80 3D 00001976 R	    cmp ghost2X, 70
+	   46
+ 000037EB  7C 0E		    jl CheckGhost2Wall11
+ 000037ED  80 3D 00001976 R	    cmp ghost2X, 94
+	   5E
+ 000037F4  7F 05		    jg CheckGhost2Wall11
+ 000037F6  E9 000000F3		    jmp Ghost2Collision
+
+ 000037FB			CheckGhost2Wall11:
+				    ; 11. Horizontal wall at Y=24 (X=30-39)
+ 000037FB  80 3D 00001977 R	    cmp ghost2Y, 24
+	   18
+ 00003802  75 17		    jne CheckGhost2Wall12
+ 00003804  80 3D 00001976 R	    cmp ghost2X, 30
+	   1E
+ 0000380B  7C 0E		    jl CheckGhost2Wall12
+ 0000380D  80 3D 00001976 R	    cmp ghost2X, 39
+	   27
+ 00003814  7F 05		    jg CheckGhost2Wall12
+ 00003816  E9 000000D3		    jmp Ghost2Collision
+
+ 0000381B			CheckGhost2Wall12:
+				    ; 12. Horizontal wall at Y=24 (X=70-79)
+ 0000381B  80 3D 00001977 R	    cmp ghost2Y, 24
+	   18
+ 00003822  75 17		    jne CheckGhost2Wall13
+ 00003824  80 3D 00001976 R	    cmp ghost2X, 70
+	   46
+ 0000382B  7C 0E		    jl CheckGhost2Wall13
+ 0000382D  80 3D 00001976 R	    cmp ghost2X, 79
+	   4F
+ 00003834  7F 05		    jg CheckGhost2Wall13
+ 00003836  E9 000000B3		    jmp Ghost2Collision
+
+ 0000383B			CheckGhost2Wall13:
+				    ; New small walls for level 3
+				    ; 13. Vertical small wall at X=25 (Y=7-9)
+ 0000383B  80 3D 00001976 R	    cmp ghost2X, 25
+	   19
+ 00003842  75 17		    jne CheckGhost2Wall14
+ 00003844  80 3D 00001977 R	    cmp ghost2Y, 7
+	   07
+ 0000384B  7C 0E		    jl CheckGhost2Wall14
+ 0000384D  80 3D 00001977 R	    cmp ghost2Y, 9
+	   09
+ 00003854  7F 05		    jg CheckGhost2Wall14
+ 00003856  E9 00000093		    jmp Ghost2Collision
+
+ 0000385B			CheckGhost2Wall14:
+				    ; 14. Vertical small wall at X=45 (Y=10-11)
+ 0000385B  80 3D 00001976 R	    cmp ghost2X, 45
+	   2D
+ 00003862  75 14		    jne CheckGhost2Wall15
+ 00003864  80 3D 00001977 R	    cmp ghost2Y, 10
+	   0A
+ 0000386B  7C 0B		    jl CheckGhost2Wall15
+ 0000386D  80 3D 00001977 R	    cmp ghost2Y, 11
+	   0B
+ 00003874  7F 02		    jg CheckGhost2Wall15
+ 00003876  EB 76		    jmp Ghost2Collision
+
+ 00003878			CheckGhost2Wall15:
+				    ; 15. Vertical small wall at X=65 (Y=15-17)
+ 00003878  80 3D 00001976 R	    cmp ghost2X, 65
+	   41
+ 0000387F  75 14		    jne CheckGhost2Wall16
+ 00003881  80 3D 00001977 R	    cmp ghost2Y, 15
+	   0F
+ 00003888  7C 0B		    jl CheckGhost2Wall16
+ 0000388A  80 3D 00001977 R	    cmp ghost2Y, 17
+	   11
+ 00003891  7F 02		    jg CheckGhost2Wall16
+ 00003893  EB 59		    jmp Ghost2Collision
+
+ 00003895			CheckGhost2Wall16:
+				    ; 16. Horizontal small wall at Y=9 (X=35-36)
+ 00003895  80 3D 00001977 R	    cmp ghost2Y, 9
+	   09
+ 0000389C  75 14		    jne CheckGhost2Wall17
+ 0000389E  80 3D 00001976 R	    cmp ghost2X, 35
+	   23
+ 000038A5  7C 0B		    jl CheckGhost2Wall17
+ 000038A7  80 3D 00001976 R	    cmp ghost2X, 36
+	   24
+ 000038AE  7F 02		    jg CheckGhost2Wall17
+ 000038B0  EB 3C		    jmp Ghost2Collision
+
+ 000038B2			CheckGhost2Wall17:
+				    ; 17. Horizontal small wall at Y=14 (X=55-57)
+ 000038B2  80 3D 00001977 R	    cmp ghost2Y, 14
+	   0E
+ 000038B9  75 14		    jne CheckGhost2Wall18
+ 000038BB  80 3D 00001976 R	    cmp ghost2X, 55
+	   37
+ 000038C2  7C 0B		    jl CheckGhost2Wall18
+ 000038C4  80 3D 00001976 R	    cmp ghost2X, 57
+	   39
+ 000038CB  7F 02		    jg CheckGhost2Wall18
+ 000038CD  EB 1F		    jmp Ghost2Collision
+
+ 000038CF			CheckGhost2Wall18:
+				    ; 18. Horizontal small wall at Y=19 (X=75-76)
+ 000038CF  80 3D 00001977 R	    cmp ghost2Y, 19
+	   13
+ 000038D6  75 14		    jne Ghost2NoCollision
+ 000038D8  80 3D 00001976 R	    cmp ghost2X, 75
+	   4B
+ 000038DF  7C 0B		    jl Ghost2NoCollision
+ 000038E1  80 3D 00001976 R	    cmp ghost2X, 76
+	   4C
+ 000038E8  7F 02		    jg Ghost2NoCollision
+ 000038EA  EB 02		    jmp Ghost2Collision
+
+ 000038EC			Ghost2NoCollision:
+ 000038EC  F8			    clc
+ 000038ED  C3			    ret
+
+ 000038EE			Ghost2Collision:
+ 000038EE  F9			    stc
+ 000038EF  C3			    ret
+ 000038F0			CheckGhost2WallCollision3 ENDP
+
+				;....................................................................
+ 000038F0			CheckGhost3WallCollision3 PROC
+				    ; Similar to CheckGhost1WallCollision3 but for ghost3
+				    ; Check boundaries first
+ 000038F0  80 3D 0000197B R	    cmp ghost3X, 0
+	   00
+ 000038F7  0F 8E 0000025A	    jle Ghost3Collision
+ 000038FD  80 3D 0000197B R	    cmp ghost3X, 114
+	   72
+ 00003904  0F 8D 0000024D	    jge Ghost3Collision
+ 0000390A  80 3D 0000197C R	    cmp ghost3Y, 5
+	   05
+ 00003911  0F 8E 00000240	    jle Ghost3Collision
+ 00003917  80 3D 0000197C R	    cmp ghost3Y, 29
+	   1D
+ 0000391E  0F 8D 00000233	    jge Ghost3Collision
+
+				    ; Original walls from level 2
+				    ; 1. Vertical wall at X=5 (Y=4-10)
+ 00003924  80 3D 0000197B R	    cmp ghost3X, 5
+	   05
+ 0000392B  75 17		    jne CheckGhost3Wall2
+ 0000392D  80 3D 0000197C R	    cmp ghost3Y, 4
+	   04
+ 00003934  7C 0E		    jl CheckGhost3Wall2
+ 00003936  80 3D 0000197C R	    cmp ghost3Y, 10
+	   0A
+ 0000393D  7F 05		    jg CheckGhost3Wall2
+ 0000393F  E9 00000213		    jmp Ghost3Collision
+
+ 00003944			CheckGhost3Wall2:
+				    ; 2. Horizontal wall at Y=8 (X=15-34)
+ 00003944  80 3D 0000197C R	    cmp ghost3Y, 8
+	   08
+ 0000394B  75 17		    jne CheckGhost3Wall3
+ 0000394D  80 3D 0000197B R	    cmp ghost3X, 15
+	   0F
+ 00003954  7C 0E		    jl CheckGhost3Wall3
+ 00003956  80 3D 0000197B R	    cmp ghost3X, 34
+	   22
+ 0000395D  7F 05		    jg CheckGhost3Wall3
+ 0000395F  E9 000001F3		    jmp Ghost3Collision
+
+ 00003964			CheckGhost3Wall3:
+				    ; 3. Horizontal wall at Y=8 (X=60-79)
+ 00003964  80 3D 0000197C R	    cmp ghost3Y, 8
+	   08
+ 0000396B  75 17		    jne CheckGhost3Wall4
+ 0000396D  80 3D 0000197B R	    cmp ghost3X, 60
+	   3C
+ 00003974  7C 0E		    jl CheckGhost3Wall4
+ 00003976  80 3D 0000197B R	    cmp ghost3X, 79
+	   4F
+ 0000397D  7F 05		    jg CheckGhost3Wall4
+ 0000397F  E9 000001D3		    jmp Ghost3Collision
+
+ 00003984			CheckGhost3Wall4:
+				    ; 4. Horizontal wall at Y=12 (X=30-39)
+ 00003984  80 3D 0000197C R	    cmp ghost3Y, 12
+	   0C
+ 0000398B  75 17		    jne CheckGhost3Wall5
+ 0000398D  80 3D 0000197B R	    cmp ghost3X, 30
+	   1E
+ 00003994  7C 0E		    jl CheckGhost3Wall5
+ 00003996  80 3D 0000197B R	    cmp ghost3X, 39
+	   27
+ 0000399D  7F 05		    jg CheckGhost3Wall5
+ 0000399F  E9 000001B3		    jmp Ghost3Collision
+
+ 000039A4			CheckGhost3Wall5:
+				    ; 5. Horizontal wall at Y=12 (X=70-79)
+ 000039A4  80 3D 0000197C R	    cmp ghost3Y, 12
+	   0C
+ 000039AB  75 17		    jne CheckGhost3Wall6
+ 000039AD  80 3D 0000197B R	    cmp ghost3X, 70
+	   46
+ 000039B4  7C 0E		    jl CheckGhost3Wall6
+ 000039B6  80 3D 0000197B R	    cmp ghost3X, 79
+	   4F
+ 000039BD  7F 05		    jg CheckGhost3Wall6
+ 000039BF  E9 00000193		    jmp Ghost3Collision
+
+ 000039C4			CheckGhost3Wall6:
+				    ; 6. Horizontal wall at Y=16 (X=10-24)
+ 000039C4  80 3D 0000197C R	    cmp ghost3Y, 16
+	   10
+ 000039CB  75 17		    jne CheckGhost3Wall7
+ 000039CD  80 3D 0000197B R	    cmp ghost3X, 10
+	   0A
+ 000039D4  7C 0E		    jl CheckGhost3Wall7
+ 000039D6  80 3D 0000197B R	    cmp ghost3X, 24
+	   18
+ 000039DD  7F 05		    jg CheckGhost3Wall7
+ 000039DF  E9 00000173		    jmp Ghost3Collision
+
+ 000039E4			CheckGhost3Wall7:
+				    ; 7. Horizontal wall at Y=16 (X=40-54)
+ 000039E4  80 3D 0000197C R	    cmp ghost3Y, 16
+	   10
+ 000039EB  75 17		    jne CheckGhost3Wall8
+ 000039ED  80 3D 0000197B R	    cmp ghost3X, 40
+	   28
+ 000039F4  7C 0E		    jl CheckGhost3Wall8
+ 000039F6  80 3D 0000197B R	    cmp ghost3X, 54
+	   36
+ 000039FD  7F 05		    jg CheckGhost3Wall8
+ 000039FF  E9 00000153		    jmp Ghost3Collision
+
+ 00003A04			CheckGhost3Wall8:
+				    ; 8. Horizontal wall at Y=16 (X=80-94)
+ 00003A04  80 3D 0000197C R	    cmp ghost3Y, 16
+	   10
+ 00003A0B  75 17		    jne CheckGhost3Wall9
+ 00003A0D  80 3D 0000197B R	    cmp ghost3X, 80
+	   50
+ 00003A14  7C 0E		    jl CheckGhost3Wall9
+ 00003A16  80 3D 0000197B R	    cmp ghost3X, 94
+	   5E
+ 00003A1D  7F 05		    jg CheckGhost3Wall9
+ 00003A1F  E9 00000133		    jmp Ghost3Collision
+
+ 00003A24			CheckGhost3Wall9:
+				    ; 9. Horizontal wall at Y=20 (X=20-44)
+ 00003A24  80 3D 0000197C R	    cmp ghost3Y, 20
+	   14
+ 00003A2B  75 17		    jne CheckGhost3Wall10
+ 00003A2D  80 3D 0000197B R	    cmp ghost3X, 20
+	   14
+ 00003A34  7C 0E		    jl CheckGhost3Wall10
+ 00003A36  80 3D 0000197B R	    cmp ghost3X, 44
+	   2C
+ 00003A3D  7F 05		    jg CheckGhost3Wall10
+ 00003A3F  E9 00000113		    jmp Ghost3Collision
+
+ 00003A44			CheckGhost3Wall10:
+				    ; 10. Horizontal wall at Y=20 (X=70-94)
+ 00003A44  80 3D 0000197C R	    cmp ghost3Y, 20
+	   14
+ 00003A4B  75 17		    jne CheckGhost3Wall11
+ 00003A4D  80 3D 0000197B R	    cmp ghost3X, 70
+	   46
+ 00003A54  7C 0E		    jl CheckGhost3Wall11
+ 00003A56  80 3D 0000197B R	    cmp ghost3X, 94
+	   5E
+ 00003A5D  7F 05		    jg CheckGhost3Wall11
+ 00003A5F  E9 000000F3		    jmp Ghost3Collision
+
+ 00003A64			CheckGhost3Wall11:
+				    ; 11. Horizontal wall at Y=24 (X=30-39)
+ 00003A64  80 3D 0000197C R	    cmp ghost3Y, 24
+	   18
+ 00003A6B  75 17		    jne CheckGhost3Wall12
+ 00003A6D  80 3D 0000197B R	    cmp ghost3X, 30
+	   1E
+ 00003A74  7C 0E		    jl CheckGhost3Wall12
+ 00003A76  80 3D 0000197B R	    cmp ghost3X, 39
+	   27
+ 00003A7D  7F 05		    jg CheckGhost3Wall12
+ 00003A7F  E9 000000D3		    jmp Ghost3Collision
+
+ 00003A84			CheckGhost3Wall12:
+				    ; 12. Horizontal wall at Y=24 (X=70-79)
+ 00003A84  80 3D 0000197C R	    cmp ghost3Y, 24
+	   18
+ 00003A8B  75 17		    jne CheckGhost3Wall13
+ 00003A8D  80 3D 0000197B R	    cmp ghost3X, 70
+	   46
+ 00003A94  7C 0E		    jl CheckGhost3Wall13
+ 00003A96  80 3D 0000197B R	    cmp ghost3X, 79
+	   4F
+ 00003A9D  7F 05		    jg CheckGhost3Wall13
+ 00003A9F  E9 000000B3		    jmp Ghost3Collision
+
+ 00003AA4			CheckGhost3Wall13:
+				    ; New small walls for level 3
+				    ; 13. Vertical small wall at X=25 (Y=7-9)
+ 00003AA4  80 3D 0000197B R	    cmp ghost3X, 25
+	   19
+ 00003AAB  75 17		    jne CheckGhost3Wall14
+ 00003AAD  80 3D 0000197C R	    cmp ghost3Y, 7
+	   07
+ 00003AB4  7C 0E		    jl CheckGhost3Wall14
+ 00003AB6  80 3D 0000197C R	    cmp ghost3Y, 9
+	   09
+ 00003ABD  7F 05		    jg CheckGhost3Wall14
+ 00003ABF  E9 00000093		    jmp Ghost3Collision
+
+ 00003AC4			CheckGhost3Wall14:
+				    ; 14. Vertical small wall at X=45 (Y=10-11)
+ 00003AC4  80 3D 0000197B R	    cmp ghost3X, 45
+	   2D
+ 00003ACB  75 14		    jne CheckGhost3Wall15
+ 00003ACD  80 3D 0000197C R	    cmp ghost3Y, 10
+	   0A
+ 00003AD4  7C 0B		    jl CheckGhost3Wall15
+ 00003AD6  80 3D 0000197C R	    cmp ghost3Y, 11
+	   0B
+ 00003ADD  7F 02		    jg CheckGhost3Wall15
+ 00003ADF  EB 76		    jmp Ghost3Collision
+
+ 00003AE1			CheckGhost3Wall15:
+				    ; 15. Vertical small wall at X=65 (Y=15-17)
+ 00003AE1  80 3D 0000197B R	    cmp ghost3X, 65
+	   41
+ 00003AE8  75 14		    jne CheckGhost3Wall16
+ 00003AEA  80 3D 0000197C R	    cmp ghost3Y, 15
+	   0F
+ 00003AF1  7C 0B		    jl CheckGhost3Wall16
+ 00003AF3  80 3D 0000197C R	    cmp ghost3Y, 17
+	   11
+ 00003AFA  7F 02		    jg CheckGhost3Wall16
+ 00003AFC  EB 59		    jmp Ghost3Collision
+
+ 00003AFE			CheckGhost3Wall16:
+				    ; 16. Horizontal small wall at Y=9 (X=35-36)
+ 00003AFE  80 3D 0000197C R	    cmp ghost3Y, 9
+	   09
+ 00003B05  75 14		    jne CheckGhost3Wall17
+ 00003B07  80 3D 0000197B R	    cmp ghost3X, 35
+	   23
+ 00003B0E  7C 0B		    jl CheckGhost3Wall17
+ 00003B10  80 3D 0000197B R	    cmp ghost3X, 36
+	   24
+ 00003B17  7F 02		    jg CheckGhost3Wall17
+ 00003B19  EB 3C		    jmp Ghost3Collision
+
+ 00003B1B			CheckGhost3Wall17:
+				    ; 17. Horizontal small wall at Y=14 (X=55-57)
+ 00003B1B  80 3D 0000197C R	    cmp ghost3Y, 14
+	   0E
+ 00003B22  75 14		    jne CheckGhost3Wall18
+ 00003B24  80 3D 0000197B R	    cmp ghost3X, 55
+	   37
+ 00003B2B  7C 0B		    jl CheckGhost3Wall18
+ 00003B2D  80 3D 0000197B R	    cmp ghost3X, 57
+	   39
+ 00003B34  7F 02		    jg CheckGhost3Wall18
+ 00003B36  EB 1F		    jmp Ghost3Collision
+
+ 00003B38			CheckGhost3Wall18:
+				    ; 18. Horizontal small wall at Y=19 (X=75-76)
+ 00003B38  80 3D 0000197C R	    cmp ghost3Y, 19
+	   13
+ 00003B3F  75 14		    jne Ghost3NoCollision
+ 00003B41  80 3D 0000197B R	    cmp ghost3X, 75
+	   4B
+ 00003B48  7C 0B		    jl Ghost3NoCollision
+ 00003B4A  80 3D 0000197B R	    cmp ghost3X, 76
+	   4C
+ 00003B51  7F 02		    jg Ghost3NoCollision
+ 00003B53  EB 02		    jmp Ghost3Collision
+
+ 00003B55			Ghost3NoCollision:
+ 00003B55  F8			    clc
+ 00003B56  C3			    ret
+
+ 00003B57			Ghost3Collision:
+ 00003B57  F9			    stc
+ 00003B58  C3			    ret
+ 00003B59			CheckGhost3WallCollision3 ENDP
+
+
 
 				end main
-Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/12/25 07:31:22
+Microsoft (R) Macro Assembler Version 14.42.34436.0	    05/12/25 08:47:46
 CODE.asm						     Symbols 2 - 1
 
 
@@ -4893,8 +7177,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00001987 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00002463 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00001991 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00003B59 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -4904,6 +7188,26 @@ Procedures, parameters, and locals:
 CheckFruitCollision  . . . . . .	P Near	 00001DEC _TEXT	Length= 000000BC Public STDCALL
   CheckSecondFruit . . . . . . .	L Near	 00001E4A _TEXT	
   NoFruitCollision . . . . . . .	L Near	 00001EA7 _TEXT	
+CheckGhost1WallCollision3  . . .	P Near	 0000341E _TEXT	Length= 00000269 Public STDCALL
+  CheckGhost1Wall2 . . . . . . .	L Near	 00003472 _TEXT	
+  CheckGhost1Wall3 . . . . . . .	L Near	 00003492 _TEXT	
+  CheckGhost1Wall4 . . . . . . .	L Near	 000034B2 _TEXT	
+  CheckGhost1Wall5 . . . . . . .	L Near	 000034D2 _TEXT	
+  CheckGhost1Wall6 . . . . . . .	L Near	 000034F2 _TEXT	
+  CheckGhost1Wall7 . . . . . . .	L Near	 00003512 _TEXT	
+  CheckGhost1Wall8 . . . . . . .	L Near	 00003532 _TEXT	
+  CheckGhost1Wall9 . . . . . . .	L Near	 00003552 _TEXT	
+  CheckGhost1Wall10  . . . . . .	L Near	 00003572 _TEXT	
+  CheckGhost1Wall11  . . . . . .	L Near	 00003592 _TEXT	
+  CheckGhost1Wall12  . . . . . .	L Near	 000035B2 _TEXT	
+  CheckGhost1Wall13  . . . . . .	L Near	 000035D2 _TEXT	
+  CheckGhost1Wall14  . . . . . .	L Near	 000035F2 _TEXT	
+  CheckGhost1Wall15  . . . . . .	L Near	 0000360F _TEXT	
+  CheckGhost1Wall16  . . . . . .	L Near	 0000362C _TEXT	
+  CheckGhost1Wall17  . . . . . .	L Near	 00003649 _TEXT	
+  CheckGhost1Wall18  . . . . . .	L Near	 00003666 _TEXT	
+  Ghost1NoCollision  . . . . . .	L Near	 00003683 _TEXT	
+  Ghost1Collision  . . . . . . .	L Near	 00003685 _TEXT	
 CheckGhost1WallCollision . . . .	P Near	 00001EA8 _TEXT	Length= 000001E9 Public STDCALL
   CheckGhost1Wall2 . . . . . . .	L Near	 00001EFC _TEXT	
   CheckGhost1Wall3 . . . . . . .	L Near	 00001F1C _TEXT	
@@ -4920,6 +7224,26 @@ CheckGhost1WallCollision . . . .	P Near	 00001EA8 _TEXT	Length= 000001E9 Public 
   CheckGhost1Wall14  . . . . . .	L Near	 00002070 _TEXT	
   Ghost1NoCollision  . . . . . .	L Near	 0000208D _TEXT	
   Ghost1Collision  . . . . . . .	L Near	 0000208F _TEXT	
+CheckGhost2WallCollision3  . . .	P Near	 00003687 _TEXT	Length= 00000269 Public STDCALL
+  CheckGhost2Wall2 . . . . . . .	L Near	 000036DB _TEXT	
+  CheckGhost2Wall3 . . . . . . .	L Near	 000036FB _TEXT	
+  CheckGhost2Wall4 . . . . . . .	L Near	 0000371B _TEXT	
+  CheckGhost2Wall5 . . . . . . .	L Near	 0000373B _TEXT	
+  CheckGhost2Wall6 . . . . . . .	L Near	 0000375B _TEXT	
+  CheckGhost2Wall7 . . . . . . .	L Near	 0000377B _TEXT	
+  CheckGhost2Wall8 . . . . . . .	L Near	 0000379B _TEXT	
+  CheckGhost2Wall9 . . . . . . .	L Near	 000037BB _TEXT	
+  CheckGhost2Wall10  . . . . . .	L Near	 000037DB _TEXT	
+  CheckGhost2Wall11  . . . . . .	L Near	 000037FB _TEXT	
+  CheckGhost2Wall12  . . . . . .	L Near	 0000381B _TEXT	
+  CheckGhost2Wall13  . . . . . .	L Near	 0000383B _TEXT	
+  CheckGhost2Wall14  . . . . . .	L Near	 0000385B _TEXT	
+  CheckGhost2Wall15  . . . . . .	L Near	 00003878 _TEXT	
+  CheckGhost2Wall16  . . . . . .	L Near	 00003895 _TEXT	
+  CheckGhost2Wall17  . . . . . .	L Near	 000038B2 _TEXT	
+  CheckGhost2Wall18  . . . . . .	L Near	 000038CF _TEXT	
+  Ghost2NoCollision  . . . . . .	L Near	 000038EC _TEXT	
+  Ghost2Collision  . . . . . . .	L Near	 000038EE _TEXT	
 CheckGhost2WallCollision . . . .	P Near	 00002091 _TEXT	Length= 000001E9 Public STDCALL
   CheckGhost2Wall2 . . . . . . .	L Near	 000020E5 _TEXT	
   CheckGhost2Wall3 . . . . . . .	L Near	 00002105 _TEXT	
@@ -4936,11 +7260,37 @@ CheckGhost2WallCollision . . . .	P Near	 00002091 _TEXT	Length= 000001E9 Public 
   CheckGhost2Wall14  . . . . . .	L Near	 00002259 _TEXT	
   Ghost2NoCollision  . . . . . .	L Near	 00002276 _TEXT	
   Ghost2Collision  . . . . . . .	L Near	 00002278 _TEXT	
+CheckGhost3WallCollision3  . . .	P Near	 000038F0 _TEXT	Length= 00000269 Public STDCALL
+  CheckGhost3Wall2 . . . . . . .	L Near	 00003944 _TEXT	
+  CheckGhost3Wall3 . . . . . . .	L Near	 00003964 _TEXT	
+  CheckGhost3Wall4 . . . . . . .	L Near	 00003984 _TEXT	
+  CheckGhost3Wall5 . . . . . . .	L Near	 000039A4 _TEXT	
+  CheckGhost3Wall6 . . . . . . .	L Near	 000039C4 _TEXT	
+  CheckGhost3Wall7 . . . . . . .	L Near	 000039E4 _TEXT	
+  CheckGhost3Wall8 . . . . . . .	L Near	 00003A04 _TEXT	
+  CheckGhost3Wall9 . . . . . . .	L Near	 00003A24 _TEXT	
+  CheckGhost3Wall10  . . . . . .	L Near	 00003A44 _TEXT	
+  CheckGhost3Wall11  . . . . . .	L Near	 00003A64 _TEXT	
+  CheckGhost3Wall12  . . . . . .	L Near	 00003A84 _TEXT	
+  CheckGhost3Wall13  . . . . . .	L Near	 00003AA4 _TEXT	
+  CheckGhost3Wall14  . . . . . .	L Near	 00003AC4 _TEXT	
+  CheckGhost3Wall15  . . . . . .	L Near	 00003AE1 _TEXT	
+  CheckGhost3Wall16  . . . . . .	L Near	 00003AFE _TEXT	
+  CheckGhost3Wall17  . . . . . .	L Near	 00003B1B _TEXT	
+  CheckGhost3Wall18  . . . . . .	L Near	 00003B38 _TEXT	
+  Ghost3NoCollision  . . . . . .	L Near	 00003B55 _TEXT	
+  Ghost3Collision  . . . . . . .	L Near	 00003B57 _TEXT	
 CheckGhostCollisionLevel2  . . .	P Near	 00001BD5 _TEXT	Length= 000000FF Public STDCALL
   CheckSecondGhost . . . . . . .	L Near	 00001BFD _TEXT	
   GhostCollision . . . . . . . .	L Near	 00001C33 _TEXT	
   NoCollision  . . . . . . . . .	L Near	 00001CC8 _TEXT	
   GameOver . . . . . . . . . . .	L Near	 00001CCE _TEXT	
+CheckGhostCollisionLevel3  . . .	P Near	 00002FBC _TEXT	Length= 00000150 Public STDCALL
+  CheckSecondGhost . . . . . . .	L Near	 00002FE4 _TEXT	
+  CheckThirdGhost  . . . . . . .	L Near	 0000300C _TEXT	
+  GhostCollision . . . . . . . .	L Near	 00003042 _TEXT	
+  NoCollision  . . . . . . . . .	L Near	 00003100 _TEXT	
+  GameOver . . . . . . . . . . .	L Near	 00003106 _TEXT	
 CheckGhostCollision  . . . . . .	P Near	 00000F56 _TEXT	Length= 000000A2 Public STDCALL
   NoCollisionX . . . . . . . . .	L Near	 00000FEC _TEXT	
   NoCollision  . . . . . . . . .	L Near	 00000FEC _TEXT	
@@ -4949,6 +7299,10 @@ CheckGhostWallCollision  . . . .	P Near	 00000F44 _TEXT	Length= 00000012 Public 
 CheckPelletCollision . . . . . .	P Near	 00000D2A _TEXT	Length= 00000062 Public STDCALL
   CheckPellets . . . . . . . . .	L Near	 00000D35 _TEXT	
   NextPellet . . . . . . . . . .	L Near	 00000D85 _TEXT	
+CheckPortalCollision . . . . . .	P Near	 0000310C _TEXT	Length= 00000069 Public STDCALL
+  CheckPortal2 . . . . . . . . .	L Near	 0000313C _TEXT	
+  PortalUsed . . . . . . . . . .	L Near	 0000316A _TEXT	
+  NoPortalCollision  . . . . . .	L Near	 00003174 _TEXT	
 CheckWallCollision2  . . . . . .	P Near	 0000227A _TEXT	Length= 000001E9 Public STDCALL
   CheckWall2 . . . . . . . . . .	L Near	 000022CE _TEXT	
   CheckWall3 . . . . . . . . . .	L Near	 000022EE _TEXT	
@@ -4965,6 +7319,28 @@ CheckWallCollision2  . . . . . .	P Near	 0000227A _TEXT	Length= 000001E9 Public 
   CheckWall14  . . . . . . . . .	L Near	 00002442 _TEXT	
   NoCollision  . . . . . . . . .	L Near	 0000245F _TEXT	
   Collision  . . . . . . . . . .	L Near	 00002461 _TEXT	
+CheckWallCollision3  . . . . . .	P Near	 00003175 _TEXT	Length= 000002A9 Public STDCALL
+  CheckHiddenShortcut2 . . . . .	L Near	 000031C9 _TEXT	
+  CheckRegularWalls  . . . . . .	L Near	 000031E9 _TEXT	
+  CheckWall2 . . . . . . . . . .	L Near	 00003209 _TEXT	
+  CheckWall3 . . . . . . . . . .	L Near	 00003229 _TEXT	
+  CheckWall4 . . . . . . . . . .	L Near	 00003249 _TEXT	
+  CheckWall5 . . . . . . . . . .	L Near	 00003269 _TEXT	
+  CheckWall6 . . . . . . . . . .	L Near	 00003289 _TEXT	
+  CheckWall7 . . . . . . . . . .	L Near	 000032A9 _TEXT	
+  CheckWall8 . . . . . . . . . .	L Near	 000032C9 _TEXT	
+  CheckWall9 . . . . . . . . . .	L Near	 000032E9 _TEXT	
+  CheckWall10  . . . . . . . . .	L Near	 00003309 _TEXT	
+  CheckWall11  . . . . . . . . .	L Near	 00003329 _TEXT	
+  CheckWall12  . . . . . . . . .	L Near	 00003349 _TEXT	
+  CheckWall13  . . . . . . . . .	L Near	 00003369 _TEXT	
+  CheckWall14  . . . . . . . . .	L Near	 00003389 _TEXT	
+  CheckWall15  . . . . . . . . .	L Near	 000033A6 _TEXT	
+  CheckWall16  . . . . . . . . .	L Near	 000033C3 _TEXT	
+  CheckWall17  . . . . . . . . .	L Near	 000033E0 _TEXT	
+  CheckWall18  . . . . . . . . .	L Near	 000033FD _TEXT	
+  NoCollision  . . . . . . . . .	L Near	 0000341A _TEXT	
+  Collision  . . . . . . . . . .	L Near	 0000341C _TEXT	
 CheckWallCollision . . . . . . .	P Near	 00000D18 _TEXT	Length= 00000012 Public STDCALL
 CheckWallPosition  . . . . . . .	P Near	 00000C50 _TEXT	Length= 000000C8 Public STDCALL
   NotWall1 . . . . . . . . . . .	L Near	 00000C88 _TEXT	
@@ -4980,6 +7356,7 @@ CheckWallPosition  . . . . . . .	P Near	 00000C50 _TEXT	Length= 000000C8 Public 
   NotWall  . . . . . . . . . . .	L Near	 00000D14 _TEXT	
   IsWall . . . . . . . . . . . .	L Near	 00000D16 _TEXT	
 ClearOldPositionsLevel2  . . . .	P Near	 0000191A _TEXT	Length= 0000005C Public STDCALL
+ClearOldPositionsLevel3  . . . .	P Near	 00002BEB _TEXT	Length= 00000077 Public STDCALL
 ClearOldPositions  . . . . . . .	P Near	 00000E11 _TEXT	Length= 00000041 Public STDCALL
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -4998,6 +7375,11 @@ DrawGameElementsLevel2 . . . . .	P Near	 00001826 _TEXT	Length= 000000F4 Public 
   SkipPellet . . . . . . . . . .	L Near	 00001853 _TEXT	
   SkipFruit1 . . . . . . . . . .	L Near	 00001886 _TEXT	
   SkipFruit2 . . . . . . . . . .	L Near	 000018B4 _TEXT	
+DrawGameElementsLevel3 . . . . .	P Near	 00002AD1 _TEXT	Length= 0000011A Public STDCALL
+  DrawPellets  . . . . . . . . .	L Near	 00002AE6 _TEXT	
+  SkipPellet . . . . . . . . . .	L Near	 00002AFF _TEXT	
+  SkipFruit1 . . . . . . . . . .	L Near	 00002B32 _TEXT	
+  SkipFruit2 . . . . . . . . . .	L Near	 00002B60 _TEXT	
 DrawGameElements . . . . . . . .	P Near	 00000BA2 _TEXT	Length= 00000073 Public STDCALL
   DrawPellets  . . . . . . . . .	L Near	 00000BB6 _TEXT	
   SkipPellet . . . . . . . . . .	L Near	 00000BCF _TEXT	
@@ -5005,11 +7387,24 @@ DrawInnerWallsLevel2 . . . . . .	P Near	 0000175C _TEXT	Length= 000000CA Public 
   VerticalWall1  . . . . . . . .	L Near	 00001765 _TEXT	
   HorizontalWall3  . . . . . . .	L Near	 0000179B _TEXT	
   HorizontalWall4  . . . . . . .	L Near	 000017B7 _TEXT	
+DrawInnerWallsLevel3 . . . . . .	P Near	 0000297B _TEXT	Length= 00000156 Public STDCALL
+  VerticalSmallWall1 . . . . . .	L Near	 000029F9 _TEXT	
+  VerticalSmallWall2 . . . . . .	L Near	 00002A15 _TEXT	
+  VerticalSmallWall3 . . . . . .	L Near	 00002A31 _TEXT	
+  HorizontalSmallWall1 . . . . .	L Near	 00002A4D _TEXT	
+  HorizontalSmallWall2 . . . . .	L Near	 00002A69 _TEXT	
+  HorizontalSmallWall3 . . . . .	L Near	 00002A85 _TEXT	
+  HiddenShortcut1  . . . . . . .	L Near	 00002AA1 _TEXT	
+  HiddenShortcut2  . . . . . . .	L Near	 00002ABD _TEXT	
 DrawInnerWalls . . . . . . . . .	P Near	 00000D8C _TEXT	Length= 0000006F Public STDCALL
 DrawStaticElementsLevel2 . . . .	P Near	 00001679 _TEXT	Length= 000000E3 Public STDCALL
   topBorder  . . . . . . . . . .	L Near	 000016F1 _TEXT	
   bottomBorder . . . . . . . . .	L Near	 00001708 _TEXT	
   sideBorders  . . . . . . . . .	L Near	 0000171D _TEXT	
+DrawStaticElementsLevel3 . . . .	P Near	 00002858 _TEXT	Length= 00000123 Public STDCALL
+  topBorder  . . . . . . . . . .	L Near	 000028D0 _TEXT	
+  bottomBorder . . . . . . . . .	L Near	 000028E7 _TEXT	
+  sideBorders  . . . . . . . . .	L Near	 000028FC _TEXT	
 DrawStaticElements . . . . . . .	P Near	 00000ABF _TEXT	Length= 000000E3 Public STDCALL
   topBorder  . . . . . . . . . .	L Near	 00000B37 _TEXT	
   bottomBorder . . . . . . . . .	L Near	 00000B4E _TEXT	
@@ -5078,6 +7473,46 @@ GhostMovementLevel2  . . . . . .	P Near	 00001976 _TEXT	Length= 0000025F Public 
   MoveGhostUp2 . . . . . . . . .	L Near	 00001BA4 _TEXT	
   MoveGhostDown2 . . . . . . . .	L Near	 00001BB2 _TEXT	
   UndoGhostMove2 . . . . . . . .	L Near	 00001BC0 _TEXT	
+GhostMovementLevel3  . . . . . .	P Near	 00002C62 _TEXT	Length= 0000035A Public STDCALL
+  MoveGhostRight1  . . . . . . .	L Near	 00002CD4 _TEXT	
+  UndoGhostMove1 . . . . . . . .	L Near	 00002CE6 _TEXT	
+  MoveGhostLeft1 . . . . . . . .	L Near	 00002CF5 _TEXT	
+  MoveGhostUp1 . . . . . . . . .	L Near	 00002D07 _TEXT	
+  MoveGhostDown1 . . . . . . . .	L Near	 00002D16 _TEXT	
+  RandomMove1  . . . . . . . . .	L Near	 00002D25 _TEXT	
+  TryRight1  . . . . . . . . . .	L Near	 00002D44 _TEXT	
+  TryLeft1 . . . . . . . . . . .	L Near	 00002D53 _TEXT	
+  TryUp1 . . . . . . . . . . . .	L Near	 00002D62 _TEXT	
+  TryDown1 . . . . . . . . . . .	L Near	 00002D75 _TEXT	
+  MoveGhost2 . . . . . . . . . .	L Near	 00002D88 _TEXT	
+  MoveTowardPacman . . . . . . .	L Near	 00002DA7 _TEXT	
+  CutOffPath . . . . . . . . . .	L Near	 00002DD9 _TEXT	
+  MovingRight  . . . . . . . . .	L Near	 00002E05 _TEXT	
+  MovingLeft . . . . . . . . . .	L Near	 00002E0A _TEXT	
+  MovingUp . . . . . . . . . . .	L Near	 00002E0F _TEXT	
+  MovingDown . . . . . . . . . .	L Near	 00002E14 _TEXT	
+  MoveTowardPoint  . . . . . . .	L Near	 00002E17 _TEXT	
+  MoveRandomly . . . . . . . . .	L Near	 00002E31 _TEXT	
+  TryRight2  . . . . . . . . . .	L Near	 00002E50 _TEXT	
+  TryLeft2 . . . . . . . . . . .	L Near	 00002E5F _TEXT	
+  TryUp2 . . . . . . . . . . . .	L Near	 00002E6E _TEXT	
+  TryDown2 . . . . . . . . . . .	L Near	 00002E7D _TEXT	
+  MoveGhostRight2  . . . . . . .	L Near	 00002E8C _TEXT	
+  MoveGhostLeft2 . . . . . . . .	L Near	 00002E9B _TEXT	
+  MoveGhostUp2 . . . . . . . . .	L Near	 00002EAA _TEXT	
+  MoveGhostDown2 . . . . . . . .	L Near	 00002EB9 _TEXT	
+  UndoGhostMove2 . . . . . . . .	L Near	 00002EC8 _TEXT	
+  MoveGhost3 . . . . . . . . . .	L Near	 00002EDE _TEXT	
+  MoveGhostRight3  . . . . . . .	L Near	 00002F14 _TEXT	
+  MoveGhostLeft3 . . . . . . . .	L Near	 00002F26 _TEXT	
+  MoveGhostUp3 . . . . . . . . .	L Near	 00002F34 _TEXT	
+  MoveGhostDown3 . . . . . . . .	L Near	 00002F42 _TEXT	
+  RandomMove3  . . . . . . . . .	L Near	 00002F50 _TEXT	
+  TryRight3  . . . . . . . . . .	L Near	 00002F6F _TEXT	
+  TryLeft3 . . . . . . . . . . .	L Near	 00002F7D _TEXT	
+  TryUp3 . . . . . . . . . . . .	L Near	 00002F8B _TEXT	
+  TryDown3 . . . . . . . . . . .	L Near	 00002F99 _TEXT	
+  UndoGhostMove3 . . . . . . . .	L Near	 00002FA7 _TEXT	
 GhostMovement  . . . . . . . . .	P Near	 00000E52 _TEXT	Length= 000000F2 Public STDCALL
   MoveGhostRight . . . . . . . .	L Near	 00000E9C _TEXT	
   MoveGhostLeft  . . . . . . . .	L Near	 00000EAE _TEXT	
@@ -5151,7 +7586,29 @@ Level2Screen . . . . . . . . . .	P Near	 000012C1 _TEXT	Length= 000003B8 Public 
   WaitForInput . . . . . . . . .	L Near	 000015B4 _TEXT	
   LevelCompleteScreen  . . . . .	L Near	 000015BE _TEXT	
   WaitForInput2  . . . . . . . .	L Near	 0000166F _TEXT	
-Level3Screen . . . . . . . . . .	P Near	 00002463 _TEXT	Length= 00000000 Public STDCALL
+Level3Screen . . . . . . . . . .	P Near	 00002463 _TEXT	Length= 000003F5 Public STDCALL
+  GameLoop . . . . . . . . . . .	L Near	 0000253A _TEXT	
+  MoveUp . . . . . . . . . . . .	L Near	 0000257B _TEXT	
+  CancelMoveUp . . . . . . . . .	L Near	 000025A1 _TEXT	
+  MoveLeft . . . . . . . . . . .	L Near	 000025AC _TEXT	
+  CancelMoveLeft . . . . . . . .	L Near	 000025CF _TEXT	
+  MoveDown . . . . . . . . . . .	L Near	 000025D7 _TEXT	
+  CancelMoveDown . . . . . . . .	L Near	 000025FA _TEXT	
+  MoveRight  . . . . . . . . . .	L Near	 00002602 _TEXT	
+  CancelMoveRight  . . . . . . .	L Near	 00002625 _TEXT	
+  AfterMove  . . . . . . . . . .	L Near	 0000262D _TEXT	
+  NoPlayerInput  . . . . . . . .	L Near	 0000264A _TEXT	
+  PausedLoop . . . . . . . . . .	L Near	 00002683 _TEXT	
+  WaitWhilePaused  . . . . . . .	L Near	 000026A0 _TEXT	
+  TogglePause  . . . . . . . . .	L Near	 000026B1 _TEXT	
+  ClearPauseText . . . . . . . .	L Near	 000026D0 _TEXT	
+  ExitLevel  . . . . . . . . . .	L Near	 000026DE _TEXT	
+  LevelWon . . . . . . . . . . .	L Near	 000026DF _TEXT	
+  GameLost . . . . . . . . . . .	L Near	 000026EA _TEXT	
+  GameOverScreen . . . . . . . .	L Near	 000026F5 _TEXT	
+  WaitForInput . . . . . . . . .	L Near	 00002793 _TEXT	
+  LevelCompleteScreen  . . . . .	L Near	 0000279D _TEXT	
+  WaitForInput2  . . . . . . . .	L Near	 0000284E _TEXT	
 LevelSelectScreen  . . . . . . .	P Near	 00000318 _TEXT	Length= 000001C6 Public STDCALL
   StartLevel1  . . . . . . . . .	L Near	 000004AA _TEXT	
   StartLevel2  . . . . . . . . .	L Near	 000004B7 _TEXT	
@@ -5328,7 +7785,7 @@ FILE_WRITE_DATA  . . . . . . . .	Number	 00000002h
 FOCUS_EVENT  . . . . . . . . . .	Number	 00000010h   
 FORMAT_MESSAGE_ALLOCATE_BUFFER .	Number	 00000100h   
 FORMAT_MESSAGE_FROM_SYSTEM . . .	Number	 00001000h   
-FRUIT_POINTS . . . . . . . . . .	Number	 00000005h   
+FRUIT_POINTS . . . . . . . . . .	Number	 0000000Ah   
 FRUIT_SPAWN_TIME . . . . . . . .	Number	 00001770h   
 FormatMessage  . . . . . . . . .	Text   	 FormatMessageA
 GAME_WIDTH . . . . . . . . . . .	Number	 00000050h   
@@ -5512,13 +7969,13 @@ exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 fileBuffer . . . . . . . . . . .	Byte	 00001020 _DATA	
 fileHandle . . . . . . . . . . .	DWord	 00001018 _DATA	
 filename . . . . . . . . . . . .	Byte	 0000100D _DATA	
-fruit1X  . . . . . . . . . . . .	Byte	 0000197D _DATA	
-fruit1Y  . . . . . . . . . . . .	Byte	 0000197E _DATA	
-fruit2X  . . . . . . . . . . . .	Byte	 0000197F _DATA	
-fruit2Y  . . . . . . . . . . . .	Byte	 00001980 _DATA	
-fruitActive  . . . . . . . . . .	Byte	 00001981 _DATA	
-fruitChar  . . . . . . . . . . .	Byte	 0000197B _DATA	
-fruitTimer . . . . . . . . . . .	DWord	 00001983 _DATA	
+fruit1X  . . . . . . . . . . . .	Byte	 00001981 _DATA	
+fruit1Y  . . . . . . . . . . . .	Byte	 00001982 _DATA	
+fruit2X  . . . . . . . . . . . .	Byte	 00001983 _DATA	
+fruit2Y  . . . . . . . . . . . .	Byte	 00001984 _DATA	
+fruitActive  . . . . . . . . . .	Byte	 00001985 _DATA	
+fruitChar  . . . . . . . . . . .	Byte	 0000197F _DATA	
+fruitTimer . . . . . . . . . . .	DWord	 00001987 _DATA	
 gameOverMsg1 . . . . . . . . . .	Byte	 00000D86 _DATA	
 gameOverMsg2 . . . . . . . . . .	Byte	 00000DBA _DATA	
 gameOverMsg3 . . . . . . . . . .	Byte	 00000DED _DATA	
@@ -5533,6 +7990,9 @@ ghost2Color  . . . . . . . . . .	Number	 00000005h
 ghost2Dir  . . . . . . . . . . .	Byte	 0000197A _DATA	
 ghost2X  . . . . . . . . . . . .	Byte	 00001976 _DATA	
 ghost2Y  . . . . . . . . . . . .	Byte	 00001977 _DATA	
+ghost3Color  . . . . . . . . . .	Number	 0000000Eh   
+ghost3X  . . . . . . . . . . . .	Byte	 0000197B _DATA	
+ghost3Y  . . . . . . . . . . . .	Byte	 0000197C _DATA	
 ghostChar  . . . . . . . . . . .	Byte	 00000F94 _DATA	
 ghostDir . . . . . . . . . . . .	Byte	 00000FD1 _DATA	
 ghostX . . . . . . . . . . . . .	Byte	 00000FC1 _DATA	
@@ -5540,6 +8000,7 @@ ghostY . . . . . . . . . . . . .	Byte	 00000FC2 _DATA
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 greenTxt . . . . . . . . . . . .	Number	 00000002h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
+hiddenWallChar . . . . . . . . .	Byte	 00001990 _DATA	
 hsHeader1  . . . . . . . . . . .	Byte	 0000191F _DATA	
 hsHeader2  . . . . . . . . . . .	Byte	 00001942 _DATA	
 hsTitle0 . . . . . . . . . . . .	Byte	 00000C02 _DATA	
@@ -5613,6 +8074,8 @@ newline  . . . . . . . . . . . .	Byte	 00001822 _DATA
 noScoresMsg  . . . . . . . . . .	Byte	 00001962 _DATA	
 oldGhost2X . . . . . . . . . . .	Byte	 00001978 _DATA	
 oldGhost2Y . . . . . . . . . . .	Byte	 00001979 _DATA	
+oldGhost3X . . . . . . . . . . .	Byte	 0000197D _DATA	
+oldGhost3Y . . . . . . . . . . .	Byte	 0000197E _DATA	
 oldGhostX  . . . . . . . . . . .	Byte	 00000FD2 _DATA	
 oldGhostY  . . . . . . . . . . .	Byte	 00000FD3 _DATA	
 oldPacmanX . . . . . . . . . . .	Byte	 00000FCF _DATA	
@@ -5637,6 +8100,11 @@ pmtitle6 . . . . . . . . . . . .	Byte	 0000028B _DATA
 pmtitle7 . . . . . . . . . . . .	Byte	 000002DD _DATA	
 pmtitle8 . . . . . . . . . . . .	Byte	 0000032F _DATA	
 pmtitle9 . . . . . . . . . . . .	Byte	 00000381 _DATA	
+portal1X . . . . . . . . . . . .	Byte	 0000198B _DATA	
+portal1Y . . . . . . . . . . . .	Byte	 0000198C _DATA	
+portal2X . . . . . . . . . . . .	Byte	 0000198D _DATA	
+portal2Y . . . . . . . . . . . .	Byte	 0000198E _DATA	
+portalChar . . . . . . . . . . .	Byte	 0000198F _DATA	
 prevPauseState . . . . . . . . .	Byte	 0000100C _DATA	
 purpleTxt  . . . . . . . . . . .	Number	 00000005h   
 redTxt . . . . . . . . . . . . .	Number	 00000004h   

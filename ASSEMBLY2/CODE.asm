@@ -230,7 +230,7 @@ hsHeader2 db "-------------------------------", 0
 noScoresMsg db "No high scores yet!", 0
 
 
-; ==================== LEVEL 2 VARIABLES ====================
+; ==================== LEVEL 2,3 VARIABLES ====================
 ; Ghost variables for level 2
 ghost2X db 70
 ghost2Y db 15
@@ -238,6 +238,11 @@ oldGhost2X db ?
 oldGhost2Y db ?
 ghost2Dir db 3  ; Different initial direction for variety
 ghost2Color = magenta + (black*16)
+ghost3Color = yellow + (black*16)
+ghost3X db 80
+ghost3Y db 15
+oldGhost3X db ?
+oldGhost3Y db ?
 
 ; Fruit variables
 fruitChar db 'O',0
@@ -248,8 +253,15 @@ fruit2Y db ?
 fruitActive db 0, 0  ; Track if fruits are active
 fruitTimer dd 0
 FRUIT_SPAWN_TIME = 6000  ; 6 seconds
-FRUIT_POINTS = 5
+FRUIT_POINTS = 10
 
+portal1X db ?
+portal1Y db ?
+portal2X db ?
+portal2Y db ?
+
+portalChar db ')'
+hiddenWallChar db '*'
 ;=============================================================================================
 ;============================================================================================
 .code
@@ -2752,7 +2764,7 @@ GhostMovementLevel2 PROC
     call Randomize
     mov eax, 10
     call RandomRange
-    cmp eax, 7  ; 70% chance to move toward Pac-Man
+    cmp eax, 4  ; 70% chance to move toward Pac-Man
     jb RandomMove1
     
     ; Move toward Pac-Man
@@ -3422,11 +3434,6 @@ Ghost1Collision:
 CheckGhost1WallCollision ENDP
 
 
-;-----------------------------------------------------------
-; Ghost 2 Wall Collision Check
-; Checks if ghost position collides with any walls
-; Returns: CF=1 if collision, CF=0 if clear
-;-----------------------------------------------------------
 CheckGhost2WallCollision PROC
     ; Check boundaries first
     cmp ghost2X, 0
@@ -3745,7 +3752,2004 @@ Collision:
     ret
 CheckWallCollision2 ENDP
 
-Level3Screen proc
-Level3Screen endp
+; ==================== LEVEL 3 SCREEN ====================
+Level3Screen PROC
+    call Clrscr
+    call levelSound
+
+    ; Initialize game state
+    mov pacmanX, 10
+    mov pacmanY, 15
+    mov oldPacmanX, 10     
+    mov oldPacmanY, 15
+    
+    ; Initialize three ghosts
+    mov ghostX, 50
+    mov ghostY, 15
+    mov oldGhostX, 50
+    mov oldGhostY, 15
+    mov ghost2X, 70
+    mov ghost2Y, 15
+    mov oldGhost2X, 70
+    mov oldGhost2Y, 15
+    mov ghost3X, 30      ; Third ghost
+    mov ghost3Y, 20
+    mov oldGhost3X, 30
+    mov oldGhost3Y, 20
+    
+    mov score, 0
+    mov pelletCount, 25   ; More pellets for level 3
+    mov gamePaused, 0    
+    mov currentLevel, 3
+    
+    ; Initialize fruits as inactive
+    mov fruitActive[0], 0
+    mov fruitActive[1], 0
+    mov fruitTimer, 0
+    
+    ; Initialize portals
+    mov portal1X, 10
+    mov portal1Y, 10
+    mov portal2X, 100
+    mov portal2Y, 20
+    
+    call InitializePellets
+    call DrawStaticElementsLevel3
+
+GameLoop:
+    ; Update fruit timer
+    call UpdateFruitTimer
+    
+    call ReadKey
+    jz NoPlayerInput
+
+    ; Check for pause input
+    cmp al, 'q'
+    je TogglePause
+    cmp al, 'Q'
+    je TogglePause
+
+    ; Handle movement and menu keys
+    cmp al, 'w'
+    je MoveUp
+    cmp al, 'a'
+    je MoveLeft
+    cmp al, 's'
+    je MoveDown
+    cmp al, 'd'
+    je MoveRight
+    cmp al, '1'    ; Return to menu
+    je ExitLevel
+    jmp NoPlayerInput
+
+MoveUp:
+    mov al, pacmanX
+    mov oldPacmanX, al
+    mov al, pacmanY
+    mov oldPacmanY, al
+    dec pacmanY
+    call CheckWallCollision3
+    jc CancelMoveUp
+    jmp AfterMove
+CancelMoveUp:
+    inc pacmanY
+    jmp AfterMove
+
+MoveLeft:
+    mov al, pacmanX
+    mov oldPacmanX, al
+    mov al, pacmanY
+    mov oldPacmanY, al
+    dec pacmanX
+    call CheckWallCollision3
+    jc CancelMoveLeft
+    jmp AfterMove
+CancelMoveLeft:
+    inc pacmanX
+    jmp AfterMove
+
+MoveDown:
+    mov al, pacmanX
+    mov oldPacmanX, al
+    mov al, pacmanY
+    mov oldPacmanY, al
+    inc pacmanY
+    call CheckWallCollision3
+    jc CancelMoveDown
+    jmp AfterMove
+CancelMoveDown:
+    dec pacmanY
+    jmp AfterMove
+
+MoveRight:
+    mov al, pacmanX
+    mov oldPacmanX, al
+    mov al, pacmanY
+    mov oldPacmanY, al
+    inc pacmanX
+    call CheckWallCollision3
+    jc CancelMoveRight
+    jmp AfterMove
+CancelMoveRight:
+    dec pacmanX
+    jmp AfterMove
+
+AfterMove:
+    call CheckPortalCollision
+    call CheckPelletCollision
+    call CheckFruitCollision
+    call CheckGhostCollisionLevel3
+    cmp eax, 1
+    je GameLost
+
+NoPlayerInput:
+    ; Skip ghost and game logic if paused
+    cmp gamePaused, 1
+    je PausedLoop
+
+    call ClearOldPositionsLevel3
+    call GhostMovementLevel3
+    call DrawGameElementsLevel3
+
+    ; Small delay
+    mov eax, 70  ; Faster than level 2
+    call Delay
+
+    ; Check win condition (30 points to win)
+    cmp score, 30
+    jge LevelWon
+    cmp lives, 0
+    jle GameLost
+    jmp GameLoop
+
+PausedLoop:
+    ; Show pause message once
+    mov eax, yellowTxt
+    call SetTextColor
+    mov dh, 12
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET pausedMsg
+    call WriteString
+
+WaitWhilePaused:
+    call ReadKey
+    jz WaitWhilePaused
+
+    cmp al, 'q'
+    je TogglePause
+    cmp al, 'Q'
+    je TogglePause
+    jmp WaitWhilePaused
+
+TogglePause:
+    xor gamePaused, 1
+
+    ; Clear pause message
+    mov eax, blackTxt
+    call SetTextColor
+    mov dh, 12
+    mov dl, 20
+    call Gotoxy
+    mov ecx, 40
+ClearPauseText:
+    mov al, ' '
+    call WriteChar
+    loop ClearPauseText
+
+    jmp GameLoop
+
+ExitLevel:
+    ret
+
+LevelWon:
+    call SaveScore
+    call LevelCompleteScreen
+    ret
+
+GameLost:
+    call SaveScore
+    call GameOverScreen
+    ret
+GameOverScreen:
+    call Clrscr
+    mov eax, redTxt
+    call SetTextColor
+
+    ; Draw game over message
+    mov dh, 5
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg1
+    call WriteString
+
+    mov dh, 6
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg2
+    call WriteString
+
+    mov dh, 6
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg3
+    call WriteString
+
+    mov dh, 7
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg4
+    call WriteString
+
+    mov dh, 8
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET gameOverMsg5
+    call WriteString
+
+    ; Display score
+    mov dh, 12
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET scoreDisplay
+    call WriteString
+    mov eax, score
+    call WriteDec
+
+    ; Display return option
+    mov dh, 14
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET returnOption
+    call WriteString
+
+WaitForInput:
+    call ReadChar
+    cmp al, '1'
+    jne WaitForInput
+    ret
+
+
+LevelCompleteScreen:
+    call Clrscr
+    mov eax, greenTxt
+    call SetTextColor
+
+    ; Draw level complete message
+    mov dh, 5
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg1
+    call WriteString
+
+    mov dh, 6
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg2
+    call WriteString
+
+    mov dh, 7
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg3
+    call WriteString
+
+    mov dh, 8
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg4
+    call WriteString
+
+    mov dh, 9
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg5
+    call WriteString
+
+    mov dh, 10
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET levelCompleteMsg6
+    call WriteString
+
+    
+    ; Display score
+    mov dh, 12
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET scoreDisplay
+    call WriteString
+    mov eax, score
+    call WriteDec
+
+    ; Display return option
+    mov dh, 14
+    mov dl, 20
+    call Gotoxy
+    mov edx, OFFSET returnOption
+    call WriteString
+
+WaitForInput2:
+    call ReadChar
+    cmp al, '1'
+    jne WaitForInput2
+    ret
+Level3Screen ENDP
+
+; ==================== LEVEL 3 SPECIFIC PROCEDURES ====================
+
+DrawStaticElementsLevel3 PROC
+    ; Draw info bar
+    mov eax, whiteTxt
+    call SetTextColor
+    
+    mov dh, 0
+    mov dl, 0
+    call Gotoxy
+    mov edx, OFFSET livesMsg
+    call WriteString
+    mov eax, lives
+    call WriteDec
+
+    mov dh, 1
+    mov dl, 0
+    call Gotoxy
+    mov edx, OFFSET userName
+    call WriteString
+
+    mov dh, 2
+    mov dl, 75
+    call Gotoxy
+    mov edx, OFFSET levelMsg
+    call WriteString
+    mov al, currentLevel
+    call WriteDec
+
+    mov dh, 4       
+    mov dl, 1
+    call Gotoxy
+    mov edx, OFFSET pauseMsg
+    call WriteString
+
+    ; Draw borders
+    ; Top border
+    mov dh, 5
+    mov dl, 0
+    mov ecx, 115
+    mov al, wallChar
+topBorder:
+    call Gotoxy
+    call WriteChar
+    inc dl
+    loop topBorder
+
+    ; Bottom border
+    mov dh, 29
+    mov dl, 0
+    mov ecx, 115
+bottomBorder:
+    call Gotoxy
+    call WriteChar
+    inc dl
+    loop bottomBorder
+
+    ; Left and right borders 
+    mov dh, 5
+    mov ecx, 27        ; Height
+sideBorders:
+    ; Left border
+    mov dl, 0
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    ; Right border
+    mov dl, 114
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    inc dh
+    loop sideBorders
+
+    ; Inner walls - different pattern for level 3
+    call DrawInnerWallsLevel3
+
+    ; Draw portals
+    mov eax, blueTxt
+    call SetTextColor
+    mov dl, portal1X
+    mov dh, portal1Y
+    call Gotoxy
+    mov al, portalChar
+    call WriteChar
+    
+    mov dl, portal2X
+    mov dh, portal2Y
+    call Gotoxy
+    mov al, portalChar
+    call WriteChar
+    
+    ; Return message
+    mov dh, 3
+    mov dl, 2
+    call Gotoxy
+    mov edx, offset returnMsg
+    call WriteString
+    
+    ret
+DrawStaticElementsLevel3 ENDP
+
+;....................................................................
+DrawInnerWallsLevel3 PROC
+    ; Original walls from level 2
+    mov dh, 8
+    mov dl, 15
+    mov ecx, 20
+    call DrawWall
+    mov dl, 60
+    mov ecx, 20
+    call DrawWall
+
+    mov dh, 12
+    mov dl, 30
+    mov ecx, 10
+    call DrawWall
+    mov dl, 70
+    call DrawWall
+
+    mov dh, 16
+    mov dl, 10
+    mov ecx, 15
+    call DrawWall
+    mov dl, 40
+    call DrawWall
+    mov dl, 80
+    call DrawWall
+
+    mov dh, 20
+    mov dl, 20
+    mov ecx, 25
+    call DrawWall
+    mov dl, 70
+    call DrawWall
+
+    mov dh, 24
+    mov dl, 30
+    mov ecx, 10
+    call DrawWall
+    mov dl, 70
+    call DrawWall
+
+    ; New small walls (2-3 characters long)
+    ; Vertical small walls
+    mov dh, 7
+    mov dl, 25
+    mov ecx, 3
+VerticalSmallWall1:
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    inc dh
+    loop VerticalSmallWall1
+
+    mov dh, 10
+    mov dl, 45
+    mov ecx, 2
+VerticalSmallWall2:
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    inc dh
+    loop VerticalSmallWall2
+
+    mov dh, 15
+    mov dl, 65
+    mov ecx, 3
+VerticalSmallWall3:
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    inc dh
+    loop VerticalSmallWall3
+
+    ; Horizontal small walls
+    mov dh, 9
+    mov dl, 35
+    mov ecx, 2
+HorizontalSmallWall1:
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    inc dl
+    loop HorizontalSmallWall1
+
+    mov dh, 14
+    mov dl, 55
+    mov ecx, 3
+HorizontalSmallWall2:
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    inc dl
+    loop HorizontalSmallWall2
+
+    mov dh, 19
+    mov dl, 75
+    mov ecx, 2
+HorizontalSmallWall3:
+    call Gotoxy
+    mov al, wallChar
+    call WriteChar
+    inc dl
+    loop HorizontalSmallWall3
+
+    ; Hidden shortcut walls (appear as normal but can be passed through)
+    ; These will be handled in collision detection
+    mov dh, 18
+    mov dl, 50
+    mov ecx, 3
+HiddenShortcut1:
+    call Gotoxy
+    mov al, hiddenWallChar
+    call WriteChar
+    inc dl
+    loop HiddenShortcut1
+
+    mov dh, 22
+    mov dl, 30
+    mov ecx, 2
+HiddenShortcut2:
+    call Gotoxy
+    mov al, hiddenWallChar
+    call WriteChar
+    inc dl
+    loop HiddenShortcut2
+
+    ret
+DrawInnerWallsLevel3 ENDP
+
+;....................................................................
+DrawGameElementsLevel3 PROC
+    ; Draw pellets
+    mov eax, purpleTxt
+    call SetTextColor
+    mov esi, OFFSET pelletPositions
+    mov cl, pelletCount
+
+DrawPellets:
+    cmp byte ptr [esi], 0  ; Skip if pellet collected
+    je SkipPellet
+    
+    mov dl, [esi]    ; X
+    mov dh, [esi+1]  ; Y
+    call Gotoxy
+    mov al, pelletChar
+    call WriteChar
+
+SkipPellet:
+    add esi, 2
+    loop DrawPellets
+
+    ; Draw fruits if active
+    cmp fruitActive[0], 1
+    jne SkipFruit1
+    mov eax, yellowTxt
+    call SetTextColor
+    mov dl, fruit1X
+    mov dh, fruit1Y
+    call Gotoxy
+    mov al, fruitChar
+    call WriteChar
+
+SkipFruit1:
+    cmp fruitActive[1], 1
+    jne SkipFruit2
+    mov eax, yellowTxt
+    call SetTextColor
+    mov dl, fruit2X
+    mov dh, fruit2Y
+    call Gotoxy
+    mov al, fruitChar
+    call WriteChar
+
+SkipFruit2:
+    ; Draw Pac-Man
+    mov eax, whiteTxt
+    call SetTextColor
+    mov dl, pacmanX
+    mov dh, pacmanY
+    call Gotoxy
+    mov al, pacmanChar
+    call WriteChar
+
+    ; Draw Ghost 1 (normal ghost)
+    mov dl, ghostX
+    mov dh, ghostY
+    call Gotoxy
+    mov al, ghostChar
+    call WriteChar
+
+    ; Draw Ghost 2 (Pinky)
+    mov eax, ghost2Color
+    call SetTextColor
+    mov dl, ghost2X
+    mov dh, ghost2Y
+    call Gotoxy
+    mov al, ghostChar
+    call WriteChar
+
+    ; Draw Ghost 3 (new ghost)
+    mov eax, ghost3Color
+    call SetTextColor
+    mov dl, ghost3X
+    mov dh, ghost3Y
+    call Gotoxy
+    mov al, ghostChar
+    call WriteChar
+
+    ret
+DrawGameElementsLevel3 ENDP
+
+;....................................................................
+ClearOldPositionsLevel3 PROC
+    ; Clear old Pac-Man position
+    mov eax, blackTxt
+    call SetTextColor
+    mov dl, oldPacmanX
+    mov dh, oldPacmanY
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    
+    ; Clear old ghost positions
+    mov dl, oldGhostX
+    mov dh, oldGhostY
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    
+    mov dl, oldGhost2X
+    mov dh, oldGhost2Y
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    
+    mov dl, oldGhost3X
+    mov dh, oldGhost3Y
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    ret
+ClearOldPositionsLevel3 ENDP
+
+;....................................................................
+GhostMovementLevel3 PROC
+    ; Save old positions
+    mov al, ghostX
+    mov oldGhostX, al
+    mov al, ghostY
+    mov oldGhostY, al
+    mov al, ghost2X
+    mov oldGhost2X, al
+    mov al, ghost2Y
+    mov oldGhost2Y, al
+    mov al, ghost3X
+    mov oldGhost3X, al
+    mov al, ghost3Y
+    mov oldGhost3Y, al
+    
+    ; Move first ghost (same as level 1)
+    call Randomize
+    mov eax, 10
+    call RandomRange
+    cmp eax, 7  ; 70% chance to move toward Pac-Man
+    jb RandomMove1
+    
+    ; Move toward Pac-Man
+    mov bl, pacmanX
+    mov bh, pacmanY
+    
+    cmp ghostX, bl
+    jl MoveGhostRight1
+    jg MoveGhostLeft1
+    cmp ghostY, bh
+    jl MoveGhostDown1
+    jg MoveGhostUp1
+    jmp RandomMove1
+
+MoveGhostRight1:
+    inc ghostX
+    call CheckGhost1WallCollision3
+    jc UndoGhostMove1
+    jmp MoveGhost2
+UndoGhostMove1:
+    mov al, oldGhostX
+    mov ghostX, al
+    jmp MoveGhost2
+
+MoveGhostLeft1:
+    dec ghostX
+    call CheckGhost1WallCollision3
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+MoveGhostUp1:
+    dec ghostY
+    call CheckGhost1WallCollision3
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+MoveGhostDown1:
+    inc ghostY
+    call CheckGhost1WallCollision3
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+RandomMove1:
+    ; Random direction (1-4)
+    mov eax, 4
+    call RandomRange
+    inc eax
+    
+    cmp eax, 1
+    je TryRight1
+    cmp eax, 2
+    je TryLeft1
+    cmp eax, 3
+    je TryUp1
+    cmp eax, 4
+    je TryDown1
+
+TryRight1:
+    inc ghostX
+    call CheckGhost1WallCollision3
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+TryLeft1:
+    dec ghostX
+    call CheckGhost1WallCollision3
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+TryUp1:
+    dec ghostY
+    call CheckGhost1WallCollision3
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+TryDown1:
+    inc ghostY
+    call CheckGhost1WallCollision3
+    jc UndoGhostMove1
+    jmp MoveGhost2
+
+; Move second ghost (Pinky - more unpredictable)
+MoveGhost2:
+    ; Pinky has different movement patterns
+    call Randomize
+    mov eax, 100
+    call RandomRange
+    
+    ; 40% chance to move toward Pac-Man
+    cmp eax, 40
+    jb MoveTowardPacman
+    
+    ; 30% chance to move randomly
+    cmp eax, 70
+    jb MoveRandomly
+    
+    ; 30% chance to cut off Pac-Man's path
+    jmp CutOffPath
+
+MoveTowardPacman:
+    mov bl, pacmanX
+    mov bh, pacmanY
+    
+    cmp ghost2X, bl
+    jl MoveGhostRight2
+    jg MoveGhostLeft2
+    cmp ghost2Y, bh
+    jl MoveGhostDown2
+    jg MoveGhostUp2
+    jmp MoveRandomly
+
+CutOffPath:
+    ; Try to predict Pac-Man's path
+    mov bl, pacmanX
+    mov bh, pacmanY
+    
+    ; Check Pac-Man's direction by comparing with old position
+    mov al, pacmanX
+    cmp al, oldPacmanX
+    jg MovingRight
+    jl MovingLeft
+    
+    mov al, pacmanY
+    cmp al, oldPacmanY
+    jg MovingDown
+    jl MovingUp
+    
+    ; If not moving, default to toward movement
+    jmp MoveTowardPacman
+
+MovingRight:
+    ; Try to get ahead to the right
+    add bl, 5
+    jmp MoveTowardPoint
+
+MovingLeft:
+    ; Try to get ahead to the left
+    sub bl, 5
+    jmp MoveTowardPoint
+
+MovingUp:
+    ; Try to get above
+    sub bh, 5
+    jmp MoveTowardPoint
+
+MovingDown:
+    ; Try to get below
+    add bh, 5
+
+MoveTowardPoint:
+    ; Move toward the predicted point (bl,bh)
+    cmp ghost2X, bl
+    jl MoveGhostRight2
+    jg MoveGhostLeft2
+    cmp ghost2Y, bh
+    jl MoveGhostDown2
+    jg MoveGhostUp2
+    jmp MoveRandomly
+
+MoveRandomly:
+    ; Random direction (1-4)
+    mov eax, 4
+    call RandomRange
+    inc eax
+    
+    cmp eax, 1
+    je TryRight2
+    cmp eax, 2
+    je TryLeft2
+    cmp eax, 3
+    je TryUp2
+    cmp eax, 4
+    je TryDown2
+
+TryRight2:
+    inc ghost2X
+    call CheckGhost2WallCollision3
+    jc UndoGhostMove2
+    jmp MoveGhost3
+
+TryLeft2:
+    dec ghost2X
+    call CheckGhost2WallCollision3
+    jc UndoGhostMove2
+    jmp MoveGhost3
+
+TryUp2:
+    dec ghost2Y
+    call CheckGhost2WallCollision3
+    jc UndoGhostMove2
+    jmp MoveGhost3
+
+TryDown2:
+    inc ghost2Y
+    call CheckGhost2WallCollision3
+    jc UndoGhostMove2
+    jmp MoveGhost3
+
+MoveGhostRight2:
+    inc ghost2X
+    call CheckGhost2WallCollision3
+    jc UndoGhostMove2
+    jmp MoveGhost3
+
+MoveGhostLeft2:
+    dec ghost2X
+    call CheckGhost2WallCollision3
+    jc UndoGhostMove2
+    jmp MoveGhost3
+
+MoveGhostUp2:
+    dec ghost2Y
+    call CheckGhost2WallCollision3
+    jc UndoGhostMove2
+    jmp MoveGhost3
+
+MoveGhostDown2:
+    inc ghost2Y
+    call CheckGhost2WallCollision3
+    jc UndoGhostMove2
+    jmp MoveGhost3
+
+UndoGhostMove2:
+    mov al, oldGhost2X
+    mov ghost2X, al
+    mov al, oldGhost2Y
+    mov ghost2Y, al
+    jmp MoveGhost3
+
+; Move third ghost (same as ghost1 but with different collision checks)
+MoveGhost3:
+    call Randomize
+    mov eax, 10
+    call RandomRange
+    cmp eax, 7  ; 70% chance to move toward Pac-Man
+    jb RandomMove3
+    
+    ; Move toward Pac-Man
+    mov bl, pacmanX
+    mov bh, pacmanY
+    
+    cmp ghost3X, bl
+    jl MoveGhostRight3
+    jg MoveGhostLeft3
+    cmp ghost3Y, bh
+    jl MoveGhostDown3
+    jg MoveGhostUp3
+    jmp RandomMove3
+
+MoveGhostRight3:
+    inc ghost3X
+    call CheckGhost3WallCollision3
+    jc UndoGhostMove3
+    ret
+
+MoveGhostLeft3:
+    dec ghost3X
+    call CheckGhost3WallCollision3
+    jc UndoGhostMove3
+    ret
+
+MoveGhostUp3:
+    dec ghost3Y
+    call CheckGhost3WallCollision3
+    jc UndoGhostMove3
+    ret
+
+MoveGhostDown3:
+    inc ghost3Y
+    call CheckGhost3WallCollision3
+    jc UndoGhostMove3
+    ret
+
+RandomMove3:
+    ; Random direction (1-4)
+    mov eax, 4
+    call RandomRange
+    inc eax
+    
+    cmp eax, 1
+    je TryRight3
+    cmp eax, 2
+    je TryLeft3
+    cmp eax, 3
+    je TryUp3
+    cmp eax, 4
+    je TryDown3
+
+TryRight3:
+    inc ghost3X
+    call CheckGhost3WallCollision3
+    jc UndoGhostMove3
+    ret
+
+TryLeft3:
+    dec ghost3X
+    call CheckGhost3WallCollision3
+    jc UndoGhostMove3
+    ret
+
+TryUp3:
+    dec ghost3Y
+    call CheckGhost3WallCollision3
+    jc UndoGhostMove3
+    ret
+
+TryDown3:
+    inc ghost3Y
+    call CheckGhost3WallCollision3
+    jc UndoGhostMove3
+    ret
+
+UndoGhostMove3:
+    mov al, oldGhost3X
+    mov ghost3X, al
+    mov al, oldGhost3Y
+    mov ghost3Y, al
+    ret
+GhostMovementLevel3 ENDP
+
+;....................................................................
+CheckGhostCollisionLevel3 PROC
+    ; Check collision with first ghost
+    mov al, pacmanX
+    sub al, ghostX
+    cmp al, -1
+    jl CheckSecondGhost
+    cmp al, 1
+    jg CheckSecondGhost
+    
+    mov al, pacmanY
+    sub al, ghostY
+    cmp al, -1
+    jl CheckSecondGhost
+    cmp al, 1
+    jg CheckSecondGhost
+    
+    ; Collision with first ghost
+    jmp GhostCollision
+    
+CheckSecondGhost:
+    ; Check collision with second ghost
+    mov al, pacmanX
+    sub al, ghost2X
+    cmp al, -1
+    jl CheckThirdGhost
+    cmp al, 1
+    jg CheckThirdGhost
+    
+    mov al, pacmanY
+    sub al, ghost2Y
+    cmp al, -1
+    jl CheckThirdGhost
+    cmp al, 1
+    jg CheckThirdGhost
+    
+    ; Collision with second ghost
+    jmp GhostCollision
+    
+CheckThirdGhost:
+    ; Check collision with third ghost
+    mov al, pacmanX
+    sub al, ghost3X
+    cmp al, -1
+    jl NoCollision
+    cmp al, 1
+    jg NoCollision
+    
+    mov al, pacmanY
+    sub al, ghost3Y
+    cmp al, -1
+    jl NoCollision
+    cmp al, 1
+    jg NoCollision
+    
+    ; Collision with third ghost
+GhostCollision:
+    dec lives
+
+    ; Update lives display
+    mov eax, whiteTxt
+    call SetTextColor
+    mov dh, 0
+    mov dl, 7
+    call Gotoxy
+    mov eax, lives
+    movzx eax, al
+    call WriteDec
+
+    ; Clear ghosts from screen
+    mov dl, ghostX
+    mov dh, ghostY
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    
+    mov dl, ghost2X
+    mov dh, ghost2Y
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+    
+    mov dl, ghost3X
+    mov dh, ghost3Y
+    call Gotoxy
+    mov al, emptyChar
+    call WriteChar
+
+    ; Reset positions
+    mov pacmanX, 10
+    mov pacmanY, 15
+    mov ghostX, 50
+    mov ghostY, 15
+    mov ghost2X, 70
+    mov ghost2Y, 15
+    mov ghost3X, 30
+    mov ghost3Y, 20
+
+    cmp lives, 0
+    jle GameOver
+
+    mov eax, 0
+    ret
+
+NoCollision:
+    mov eax, 0
+    ret
+
+GameOver:
+    mov eax, 1
+    ret
+CheckGhostCollisionLevel3 ENDP
+
+;....................................................................
+CheckPortalCollision PROC
+    ; Check collision with portal 1
+    mov al, pacmanX
+    cmp al, portal1X
+    jne CheckPortal2
+    mov al, pacmanY
+    cmp al, portal1Y
+    jne CheckPortal2
+    
+    ; Teleport to portal 2
+    mov al, portal2X
+    mov pacmanX, al
+    mov al, portal2Y
+    mov pacmanY, al
+    jmp PortalUsed
+
+CheckPortal2:
+    ; Check collision with portal 2
+    mov al, pacmanX
+    cmp al, portal2X
+    jne NoPortalCollision
+    mov al, pacmanY
+    cmp al, portal2Y
+    jne NoPortalCollision
+    
+    ; Teleport to portal 1
+    mov al, portal1X
+    mov pacmanX, al
+    mov al, portal1Y
+    mov pacmanY, al
+
+PortalUsed:
+    ; Play teleport sound
+    mov eax, 1000
+    call Delay
+
+NoPortalCollision:
+    ret
+CheckPortalCollision ENDP
+
+;....................................................................
+CheckWallCollision3 PROC
+    ; Check boundaries first
+    cmp pacmanX, 0
+    jle Collision
+    cmp pacmanX, 114
+    jge Collision
+    cmp pacmanY, 5
+    jle Collision
+    cmp pacmanY, 29
+    jge Collision
+
+    ; Check if position is a hidden shortcut (can pass through)
+    ; Hidden shortcut 1 at (50,18)-(52,18)
+    cmp pacmanY, 18
+    jne CheckHiddenShortcut2
+    cmp pacmanX, 50
+    jl CheckHiddenShortcut2
+    cmp pacmanX, 52
+    jg CheckHiddenShortcut2
+    jmp NoCollision
+
+CheckHiddenShortcut2:
+    ; Hidden shortcut 2 at (30,22)-(31,22)
+    cmp pacmanY, 22
+    jne CheckRegularWalls
+    cmp pacmanX, 30
+    jl CheckRegularWalls
+    cmp pacmanX, 31
+    jg CheckRegularWalls
+    jmp NoCollision
+
+CheckRegularWalls:
+    ; Original walls from level 2
+    ; 1. Vertical wall at X=5 (Y=4-10)
+    cmp pacmanX, 5
+    jne CheckWall2
+    cmp pacmanY, 4
+    jl CheckWall2
+    cmp pacmanY, 10
+    jg CheckWall2
+    jmp Collision
+
+CheckWall2:
+    ; 2. Horizontal wall at Y=8 (X=15-34)
+    cmp pacmanY, 8
+    jne CheckWall3
+    cmp pacmanX, 15
+    jl CheckWall3
+    cmp pacmanX, 34
+    jg CheckWall3
+    jmp Collision
+
+CheckWall3:
+    ; 3. Horizontal wall at Y=8 (X=60-79)
+    cmp pacmanY, 8
+    jne CheckWall4
+    cmp pacmanX, 60
+    jl CheckWall4
+    cmp pacmanX, 79
+    jg CheckWall4
+    jmp Collision
+
+CheckWall4:
+    ; 4. Horizontal wall at Y=12 (X=30-39)
+    cmp pacmanY, 12
+    jne CheckWall5
+    cmp pacmanX, 30
+    jl CheckWall5
+    cmp pacmanX, 39
+    jg CheckWall5
+    jmp Collision
+
+CheckWall5:
+    ; 5. Horizontal wall at Y=12 (X=70-79)
+    cmp pacmanY, 12
+    jne CheckWall6
+    cmp pacmanX, 70
+    jl CheckWall6
+    cmp pacmanX, 79
+    jg CheckWall6
+    jmp Collision
+
+CheckWall6:
+    ; 6. Horizontal wall at Y=16 (X=10-24)
+    cmp pacmanY, 16
+    jne CheckWall7
+    cmp pacmanX, 10
+    jl CheckWall7
+    cmp pacmanX, 24
+    jg CheckWall7
+    jmp Collision
+
+CheckWall7:
+    ; 7. Horizontal wall at Y=16 (X=40-54)
+    cmp pacmanY, 16
+    jne CheckWall8
+    cmp pacmanX, 40
+    jl CheckWall8
+    cmp pacmanX, 54
+    jg CheckWall8
+    jmp Collision
+
+CheckWall8:
+    ; 8. Horizontal wall at Y=16 (X=80-94)
+    cmp pacmanY, 16
+    jne CheckWall9
+    cmp pacmanX, 80
+    jl CheckWall9
+    cmp pacmanX, 94
+    jg CheckWall9
+    jmp Collision
+
+CheckWall9:
+    ; 9. Horizontal wall at Y=20 (X=20-44)
+    cmp pacmanY, 20
+    jne CheckWall10
+    cmp pacmanX, 20
+    jl CheckWall10
+    cmp pacmanX, 44
+    jg CheckWall10
+    jmp Collision
+
+CheckWall10:
+    ; 10. Horizontal wall at Y=20 (X=70-94)
+    cmp pacmanY, 20
+    jne CheckWall11
+    cmp pacmanX, 70
+    jl CheckWall11
+    cmp pacmanX, 94
+    jg CheckWall11
+    jmp Collision
+
+CheckWall11:
+    ; 11. Horizontal wall at Y=24 (X=30-39)
+    cmp pacmanY, 24
+    jne CheckWall12
+    cmp pacmanX, 30
+    jl CheckWall12
+    cmp pacmanX, 39
+    jg CheckWall12
+    jmp Collision
+
+CheckWall12:
+    ; 12. Horizontal wall at Y=24 (X=70-79)
+    cmp pacmanY, 24
+    jne CheckWall13
+    cmp pacmanX, 70
+    jl CheckWall13
+    cmp pacmanX, 79
+    jg CheckWall13
+    jmp Collision
+
+CheckWall13:
+    ; New small walls for level 3
+    ; 13. Vertical small wall at X=25 (Y=7-9)
+    cmp pacmanX, 25
+    jne CheckWall14
+    cmp pacmanY, 7
+    jl CheckWall14
+    cmp pacmanY, 9
+    jg CheckWall14
+    jmp Collision
+
+CheckWall14:
+    ; 14. Vertical small wall at X=45 (Y=10-11)
+    cmp pacmanX, 45
+    jne CheckWall15
+    cmp pacmanY, 10
+    jl CheckWall15
+    cmp pacmanY, 11
+    jg CheckWall15
+    jmp Collision
+
+CheckWall15:
+    ; 15. Vertical small wall at X=65 (Y=15-17)
+    cmp pacmanX, 65
+    jne CheckWall16
+    cmp pacmanY, 15
+    jl CheckWall16
+    cmp pacmanY, 17
+    jg CheckWall16
+    jmp Collision
+
+CheckWall16:
+    ; 16. Horizontal small wall at Y=9 (X=35-36)
+    cmp pacmanY, 9
+    jne CheckWall17
+    cmp pacmanX, 35
+    jl CheckWall17
+    cmp pacmanX, 36
+    jg CheckWall17
+    jmp Collision
+
+CheckWall17:
+    ; 17. Horizontal small wall at Y=14 (X=55-57)
+    cmp pacmanY, 14
+    jne CheckWall18
+    cmp pacmanX, 55
+    jl CheckWall18
+    cmp pacmanX, 57
+    jg CheckWall18
+    jmp Collision
+
+CheckWall18:
+    ; 18. Horizontal small wall at Y=19 (X=75-76)
+    cmp pacmanY, 19
+    jne NoCollision
+    cmp pacmanX, 75
+    jl NoCollision
+    cmp pacmanX, 76
+    jg NoCollision
+    jmp Collision
+
+NoCollision:
+    clc
+    ret
+
+Collision:
+    stc
+    ret
+CheckWallCollision3 ENDP
+
+;....................................................................
+;....................................................................
+CheckGhost1WallCollision3 PROC
+    ; Similar to CheckWallCollision3 but for ghost1
+    ; Check boundaries first
+    cmp ghostX, 0
+    jle Ghost1Collision
+    cmp ghostX, 114
+    jge Ghost1Collision
+    cmp ghostY, 5
+    jle Ghost1Collision
+    cmp ghostY, 29
+    jge Ghost1Collision
+
+    ; Ghosts can't use hidden shortcuts
+    ; Original walls from level 2
+    ; 1. Vertical wall at X=5 (Y=4-10)
+    cmp ghostX, 5
+    jne CheckGhost1Wall2
+    cmp ghostY, 4
+    jl CheckGhost1Wall2
+    cmp ghostY, 10
+    jg CheckGhost1Wall2
+    jmp Ghost1Collision
+
+CheckGhost1Wall2:
+    ; 2. Horizontal wall at Y=8 (X=15-34)
+    cmp ghostY, 8
+    jne CheckGhost1Wall3
+    cmp ghostX, 15
+    jl CheckGhost1Wall3
+    cmp ghostX, 34
+    jg CheckGhost1Wall3
+    jmp Ghost1Collision
+
+CheckGhost1Wall3:
+    ; 3. Horizontal wall at Y=8 (X=60-79)
+    cmp ghostY, 8
+    jne CheckGhost1Wall4
+    cmp ghostX, 60
+    jl CheckGhost1Wall4
+    cmp ghostX, 79
+    jg CheckGhost1Wall4
+    jmp Ghost1Collision
+
+CheckGhost1Wall4:
+    ; 4. Horizontal wall at Y=12 (X=30-39)
+    cmp ghostY, 12
+    jne CheckGhost1Wall5
+    cmp ghostX, 30
+    jl CheckGhost1Wall5
+    cmp ghostX, 39
+    jg CheckGhost1Wall5
+    jmp Ghost1Collision
+
+CheckGhost1Wall5:
+    ; 5. Horizontal wall at Y=12 (X=70-79)
+    cmp ghostY, 12
+    jne CheckGhost1Wall6
+    cmp ghostX, 70
+    jl CheckGhost1Wall6
+    cmp ghostX, 79
+    jg CheckGhost1Wall6
+    jmp Ghost1Collision
+
+CheckGhost1Wall6:
+    ; 6. Horizontal wall at Y=16 (X=10-24)
+    cmp ghostY, 16
+    jne CheckGhost1Wall7
+    cmp ghostX, 10
+    jl CheckGhost1Wall7
+    cmp ghostX, 24
+    jg CheckGhost1Wall7
+    jmp Ghost1Collision
+
+CheckGhost1Wall7:
+    ; 7. Horizontal wall at Y=16 (X=40-54)
+    cmp ghostY, 16
+    jne CheckGhost1Wall8
+    cmp ghostX, 40
+    jl CheckGhost1Wall8
+    cmp ghostX, 54
+    jg CheckGhost1Wall8
+    jmp Ghost1Collision
+
+CheckGhost1Wall8:
+    ; 8. Horizontal wall at Y=16 (X=80-94)
+    cmp ghostY, 16
+    jne CheckGhost1Wall9
+    cmp ghostX, 80
+    jl CheckGhost1Wall9
+    cmp ghostX, 94
+    jg CheckGhost1Wall9
+    jmp Ghost1Collision
+
+CheckGhost1Wall9:
+    ; 9. Horizontal wall at Y=20 (X=20-44)
+    cmp ghostY, 20
+    jne CheckGhost1Wall10
+    cmp ghostX, 20
+    jl CheckGhost1Wall10
+    cmp ghostX, 44
+    jg CheckGhost1Wall10
+    jmp Ghost1Collision
+
+CheckGhost1Wall10:
+    ; 10. Horizontal wall at Y=20 (X=70-94)
+    cmp ghostY, 20
+    jne CheckGhost1Wall11
+    cmp ghostX, 70
+    jl CheckGhost1Wall11
+    cmp ghostX, 94
+    jg CheckGhost1Wall11
+    jmp Ghost1Collision
+
+CheckGhost1Wall11:
+    ; 11. Horizontal wall at Y=24 (X=30-39)
+    cmp ghostY, 24
+    jne CheckGhost1Wall12
+    cmp ghostX, 30
+    jl CheckGhost1Wall12
+    cmp ghostX, 39
+    jg CheckGhost1Wall12
+    jmp Ghost1Collision
+
+CheckGhost1Wall12:
+    ; 12. Horizontal wall at Y=24 (X=70-79)
+    cmp ghostY, 24
+    jne CheckGhost1Wall13
+    cmp ghostX, 70
+    jl CheckGhost1Wall13
+    cmp ghostX, 79
+    jg CheckGhost1Wall13
+    jmp Ghost1Collision
+
+CheckGhost1Wall13:
+    ; New small walls for level 3
+    ; 13. Vertical small wall at X=25 (Y=7-9)
+    cmp ghostX, 25
+    jne CheckGhost1Wall14
+    cmp ghostY, 7
+    jl CheckGhost1Wall14
+    cmp ghostY, 9
+    jg CheckGhost1Wall14
+    jmp Ghost1Collision
+
+CheckGhost1Wall14:
+    ; 14. Vertical small wall at X=45 (Y=10-11)
+    cmp ghostX, 45
+    jne CheckGhost1Wall15
+    cmp ghostY, 10
+    jl CheckGhost1Wall15
+    cmp ghostY, 11
+    jg CheckGhost1Wall15
+    jmp Ghost1Collision
+
+CheckGhost1Wall15:
+    ; 15. Vertical small wall at X=65 (Y=15-17)
+    cmp ghostX, 65
+    jne CheckGhost1Wall16
+    cmp ghostY, 15
+    jl CheckGhost1Wall16
+    cmp ghostY, 17
+    jg CheckGhost1Wall16
+    jmp Ghost1Collision
+
+CheckGhost1Wall16:
+    ; 16. Horizontal small wall at Y=9 (X=35-36)
+    cmp ghostY, 9
+    jne CheckGhost1Wall17
+    cmp ghostX, 35
+    jl CheckGhost1Wall17
+    cmp ghostX, 36
+    jg CheckGhost1Wall17
+    jmp Ghost1Collision
+
+CheckGhost1Wall17:
+    ; 17. Horizontal small wall at Y=14 (X=55-57)
+    cmp ghostY, 14
+    jne CheckGhost1Wall18
+    cmp ghostX, 55
+    jl CheckGhost1Wall18
+    cmp ghostX, 57
+    jg CheckGhost1Wall18
+    jmp Ghost1Collision
+
+CheckGhost1Wall18:
+    ; 18. Horizontal small wall at Y=19 (X=75-76)
+    cmp ghostY, 19
+    jne Ghost1NoCollision
+    cmp ghostX, 75
+    jl Ghost1NoCollision
+    cmp ghostX, 76
+    jg Ghost1NoCollision
+    jmp Ghost1Collision
+
+Ghost1NoCollision:
+    clc
+    ret
+
+Ghost1Collision:
+    stc
+    ret
+CheckGhost1WallCollision3 ENDP
+
+;....................................................................
+CheckGhost2WallCollision3 PROC
+    ; Similar to CheckGhost1WallCollision3 but for ghost2
+    ; Check boundaries first
+    cmp ghost2X, 0
+    jle Ghost2Collision
+    cmp ghost2X, 114
+    jge Ghost2Collision
+    cmp ghost2Y, 5
+    jle Ghost2Collision
+    cmp ghost2Y, 29
+    jge Ghost2Collision
+
+    ; Original walls from level 2
+    ; 1. Vertical wall at X=5 (Y=4-10)
+    cmp ghost2X, 5
+    jne CheckGhost2Wall2
+    cmp ghost2Y, 4
+    jl CheckGhost2Wall2
+    cmp ghost2Y, 10
+    jg CheckGhost2Wall2
+    jmp Ghost2Collision
+
+CheckGhost2Wall2:
+    ; 2. Horizontal wall at Y=8 (X=15-34)
+    cmp ghost2Y, 8
+    jne CheckGhost2Wall3
+    cmp ghost2X, 15
+    jl CheckGhost2Wall3
+    cmp ghost2X, 34
+    jg CheckGhost2Wall3
+    jmp Ghost2Collision
+
+CheckGhost2Wall3:
+    ; 3. Horizontal wall at Y=8 (X=60-79)
+    cmp ghost2Y, 8
+    jne CheckGhost2Wall4
+    cmp ghost2X, 60
+    jl CheckGhost2Wall4
+    cmp ghost2X, 79
+    jg CheckGhost2Wall4
+    jmp Ghost2Collision
+
+CheckGhost2Wall4:
+    ; 4. Horizontal wall at Y=12 (X=30-39)
+    cmp ghost2Y, 12
+    jne CheckGhost2Wall5
+    cmp ghost2X, 30
+    jl CheckGhost2Wall5
+    cmp ghost2X, 39
+    jg CheckGhost2Wall5
+    jmp Ghost2Collision
+
+CheckGhost2Wall5:
+    ; 5. Horizontal wall at Y=12 (X=70-79)
+    cmp ghost2Y, 12
+    jne CheckGhost2Wall6
+    cmp ghost2X, 70
+    jl CheckGhost2Wall6
+    cmp ghost2X, 79
+    jg CheckGhost2Wall6
+    jmp Ghost2Collision
+
+CheckGhost2Wall6:
+    ; 6. Horizontal wall at Y=16 (X=10-24)
+    cmp ghost2Y, 16
+    jne CheckGhost2Wall7
+    cmp ghost2X, 10
+    jl CheckGhost2Wall7
+    cmp ghost2X, 24
+    jg CheckGhost2Wall7
+    jmp Ghost2Collision
+
+CheckGhost2Wall7:
+    ; 7. Horizontal wall at Y=16 (X=40-54)
+    cmp ghost2Y, 16
+    jne CheckGhost2Wall8
+    cmp ghost2X, 40
+    jl CheckGhost2Wall8
+    cmp ghost2X, 54
+    jg CheckGhost2Wall8
+    jmp Ghost2Collision
+
+CheckGhost2Wall8:
+    ; 8. Horizontal wall at Y=16 (X=80-94)
+    cmp ghost2Y, 16
+    jne CheckGhost2Wall9
+    cmp ghost2X, 80
+    jl CheckGhost2Wall9
+    cmp ghost2X, 94
+    jg CheckGhost2Wall9
+    jmp Ghost2Collision
+
+CheckGhost2Wall9:
+    ; 9. Horizontal wall at Y=20 (X=20-44)
+    cmp ghost2Y, 20
+    jne CheckGhost2Wall10
+    cmp ghost2X, 20
+    jl CheckGhost2Wall10
+    cmp ghost2X, 44
+    jg CheckGhost2Wall10
+    jmp Ghost2Collision
+
+CheckGhost2Wall10:
+    ; 10. Horizontal wall at Y=20 (X=70-94)
+    cmp ghost2Y, 20
+    jne CheckGhost2Wall11
+    cmp ghost2X, 70
+    jl CheckGhost2Wall11
+    cmp ghost2X, 94
+    jg CheckGhost2Wall11
+    jmp Ghost2Collision
+
+CheckGhost2Wall11:
+    ; 11. Horizontal wall at Y=24 (X=30-39)
+    cmp ghost2Y, 24
+    jne CheckGhost2Wall12
+    cmp ghost2X, 30
+    jl CheckGhost2Wall12
+    cmp ghost2X, 39
+    jg CheckGhost2Wall12
+    jmp Ghost2Collision
+
+CheckGhost2Wall12:
+    ; 12. Horizontal wall at Y=24 (X=70-79)
+    cmp ghost2Y, 24
+    jne CheckGhost2Wall13
+    cmp ghost2X, 70
+    jl CheckGhost2Wall13
+    cmp ghost2X, 79
+    jg CheckGhost2Wall13
+    jmp Ghost2Collision
+
+CheckGhost2Wall13:
+    ; New small walls for level 3
+    ; 13. Vertical small wall at X=25 (Y=7-9)
+    cmp ghost2X, 25
+    jne CheckGhost2Wall14
+    cmp ghost2Y, 7
+    jl CheckGhost2Wall14
+    cmp ghost2Y, 9
+    jg CheckGhost2Wall14
+    jmp Ghost2Collision
+
+CheckGhost2Wall14:
+    ; 14. Vertical small wall at X=45 (Y=10-11)
+    cmp ghost2X, 45
+    jne CheckGhost2Wall15
+    cmp ghost2Y, 10
+    jl CheckGhost2Wall15
+    cmp ghost2Y, 11
+    jg CheckGhost2Wall15
+    jmp Ghost2Collision
+
+CheckGhost2Wall15:
+    ; 15. Vertical small wall at X=65 (Y=15-17)
+    cmp ghost2X, 65
+    jne CheckGhost2Wall16
+    cmp ghost2Y, 15
+    jl CheckGhost2Wall16
+    cmp ghost2Y, 17
+    jg CheckGhost2Wall16
+    jmp Ghost2Collision
+
+CheckGhost2Wall16:
+    ; 16. Horizontal small wall at Y=9 (X=35-36)
+    cmp ghost2Y, 9
+    jne CheckGhost2Wall17
+    cmp ghost2X, 35
+    jl CheckGhost2Wall17
+    cmp ghost2X, 36
+    jg CheckGhost2Wall17
+    jmp Ghost2Collision
+
+CheckGhost2Wall17:
+    ; 17. Horizontal small wall at Y=14 (X=55-57)
+    cmp ghost2Y, 14
+    jne CheckGhost2Wall18
+    cmp ghost2X, 55
+    jl CheckGhost2Wall18
+    cmp ghost2X, 57
+    jg CheckGhost2Wall18
+    jmp Ghost2Collision
+
+CheckGhost2Wall18:
+    ; 18. Horizontal small wall at Y=19 (X=75-76)
+    cmp ghost2Y, 19
+    jne Ghost2NoCollision
+    cmp ghost2X, 75
+    jl Ghost2NoCollision
+    cmp ghost2X, 76
+    jg Ghost2NoCollision
+    jmp Ghost2Collision
+
+Ghost2NoCollision:
+    clc
+    ret
+
+Ghost2Collision:
+    stc
+    ret
+CheckGhost2WallCollision3 ENDP
+
+;....................................................................
+CheckGhost3WallCollision3 PROC
+    ; Similar to CheckGhost1WallCollision3 but for ghost3
+    ; Check boundaries first
+    cmp ghost3X, 0
+    jle Ghost3Collision
+    cmp ghost3X, 114
+    jge Ghost3Collision
+    cmp ghost3Y, 5
+    jle Ghost3Collision
+    cmp ghost3Y, 29
+    jge Ghost3Collision
+
+    ; Original walls from level 2
+    ; 1. Vertical wall at X=5 (Y=4-10)
+    cmp ghost3X, 5
+    jne CheckGhost3Wall2
+    cmp ghost3Y, 4
+    jl CheckGhost3Wall2
+    cmp ghost3Y, 10
+    jg CheckGhost3Wall2
+    jmp Ghost3Collision
+
+CheckGhost3Wall2:
+    ; 2. Horizontal wall at Y=8 (X=15-34)
+    cmp ghost3Y, 8
+    jne CheckGhost3Wall3
+    cmp ghost3X, 15
+    jl CheckGhost3Wall3
+    cmp ghost3X, 34
+    jg CheckGhost3Wall3
+    jmp Ghost3Collision
+
+CheckGhost3Wall3:
+    ; 3. Horizontal wall at Y=8 (X=60-79)
+    cmp ghost3Y, 8
+    jne CheckGhost3Wall4
+    cmp ghost3X, 60
+    jl CheckGhost3Wall4
+    cmp ghost3X, 79
+    jg CheckGhost3Wall4
+    jmp Ghost3Collision
+
+CheckGhost3Wall4:
+    ; 4. Horizontal wall at Y=12 (X=30-39)
+    cmp ghost3Y, 12
+    jne CheckGhost3Wall5
+    cmp ghost3X, 30
+    jl CheckGhost3Wall5
+    cmp ghost3X, 39
+    jg CheckGhost3Wall5
+    jmp Ghost3Collision
+
+CheckGhost3Wall5:
+    ; 5. Horizontal wall at Y=12 (X=70-79)
+    cmp ghost3Y, 12
+    jne CheckGhost3Wall6
+    cmp ghost3X, 70
+    jl CheckGhost3Wall6
+    cmp ghost3X, 79
+    jg CheckGhost3Wall6
+    jmp Ghost3Collision
+
+CheckGhost3Wall6:
+    ; 6. Horizontal wall at Y=16 (X=10-24)
+    cmp ghost3Y, 16
+    jne CheckGhost3Wall7
+    cmp ghost3X, 10
+    jl CheckGhost3Wall7
+    cmp ghost3X, 24
+    jg CheckGhost3Wall7
+    jmp Ghost3Collision
+
+CheckGhost3Wall7:
+    ; 7. Horizontal wall at Y=16 (X=40-54)
+    cmp ghost3Y, 16
+    jne CheckGhost3Wall8
+    cmp ghost3X, 40
+    jl CheckGhost3Wall8
+    cmp ghost3X, 54
+    jg CheckGhost3Wall8
+    jmp Ghost3Collision
+
+CheckGhost3Wall8:
+    ; 8. Horizontal wall at Y=16 (X=80-94)
+    cmp ghost3Y, 16
+    jne CheckGhost3Wall9
+    cmp ghost3X, 80
+    jl CheckGhost3Wall9
+    cmp ghost3X, 94
+    jg CheckGhost3Wall9
+    jmp Ghost3Collision
+
+CheckGhost3Wall9:
+    ; 9. Horizontal wall at Y=20 (X=20-44)
+    cmp ghost3Y, 20
+    jne CheckGhost3Wall10
+    cmp ghost3X, 20
+    jl CheckGhost3Wall10
+    cmp ghost3X, 44
+    jg CheckGhost3Wall10
+    jmp Ghost3Collision
+
+CheckGhost3Wall10:
+    ; 10. Horizontal wall at Y=20 (X=70-94)
+    cmp ghost3Y, 20
+    jne CheckGhost3Wall11
+    cmp ghost3X, 70
+    jl CheckGhost3Wall11
+    cmp ghost3X, 94
+    jg CheckGhost3Wall11
+    jmp Ghost3Collision
+
+CheckGhost3Wall11:
+    ; 11. Horizontal wall at Y=24 (X=30-39)
+    cmp ghost3Y, 24
+    jne CheckGhost3Wall12
+    cmp ghost3X, 30
+    jl CheckGhost3Wall12
+    cmp ghost3X, 39
+    jg CheckGhost3Wall12
+    jmp Ghost3Collision
+
+CheckGhost3Wall12:
+    ; 12. Horizontal wall at Y=24 (X=70-79)
+    cmp ghost3Y, 24
+    jne CheckGhost3Wall13
+    cmp ghost3X, 70
+    jl CheckGhost3Wall13
+    cmp ghost3X, 79
+    jg CheckGhost3Wall13
+    jmp Ghost3Collision
+
+CheckGhost3Wall13:
+    ; New small walls for level 3
+    ; 13. Vertical small wall at X=25 (Y=7-9)
+    cmp ghost3X, 25
+    jne CheckGhost3Wall14
+    cmp ghost3Y, 7
+    jl CheckGhost3Wall14
+    cmp ghost3Y, 9
+    jg CheckGhost3Wall14
+    jmp Ghost3Collision
+
+CheckGhost3Wall14:
+    ; 14. Vertical small wall at X=45 (Y=10-11)
+    cmp ghost3X, 45
+    jne CheckGhost3Wall15
+    cmp ghost3Y, 10
+    jl CheckGhost3Wall15
+    cmp ghost3Y, 11
+    jg CheckGhost3Wall15
+    jmp Ghost3Collision
+
+CheckGhost3Wall15:
+    ; 15. Vertical small wall at X=65 (Y=15-17)
+    cmp ghost3X, 65
+    jne CheckGhost3Wall16
+    cmp ghost3Y, 15
+    jl CheckGhost3Wall16
+    cmp ghost3Y, 17
+    jg CheckGhost3Wall16
+    jmp Ghost3Collision
+
+CheckGhost3Wall16:
+    ; 16. Horizontal small wall at Y=9 (X=35-36)
+    cmp ghost3Y, 9
+    jne CheckGhost3Wall17
+    cmp ghost3X, 35
+    jl CheckGhost3Wall17
+    cmp ghost3X, 36
+    jg CheckGhost3Wall17
+    jmp Ghost3Collision
+
+CheckGhost3Wall17:
+    ; 17. Horizontal small wall at Y=14 (X=55-57)
+    cmp ghost3Y, 14
+    jne CheckGhost3Wall18
+    cmp ghost3X, 55
+    jl CheckGhost3Wall18
+    cmp ghost3X, 57
+    jg CheckGhost3Wall18
+    jmp Ghost3Collision
+
+CheckGhost3Wall18:
+    ; 18. Horizontal small wall at Y=19 (X=75-76)
+    cmp ghost3Y, 19
+    jne Ghost3NoCollision
+    cmp ghost3X, 75
+    jl Ghost3NoCollision
+    cmp ghost3X, 76
+    jg Ghost3NoCollision
+    jmp Ghost3Collision
+
+Ghost3NoCollision:
+    clc
+    ret
+
+Ghost3Collision:
+    stc
+    ret
+CheckGhost3WallCollision3 ENDP
+
+
 
 end main
